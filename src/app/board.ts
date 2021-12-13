@@ -1,11 +1,7 @@
-interface Coord {
-    row: number;
-    col: number;
-}
-
 /**
  * Bronzors
  */
+
 interface Bronzor {
     coord: Coord;
     active: boolean;
@@ -19,10 +15,16 @@ interface Bronzor {
 type Entry = Coord;
 
 // Bounces off a Bronzor
-type Bounce = Coord;
+type Deflect = Coord;
+
+// Bounces off two Bronzors on the same tile.
+type DoubleDeflect = Coord;
 
 // Destroys a Bronzor
 type Destroy = Coord;
+
+// Phases through a Bronzor
+type Phase = Coord;
 
 // Emitted from the box. A final step.
 type Emit = Coord;
@@ -30,7 +32,7 @@ type Emit = Coord;
 // Collides with a Bronzor. A final step.
 type Hit = Coord;
 
-type PathStep = | Entry | Bounce | Destroy | Emit | Hit;
+type PathStep = | Entry | Deflect | Destroy | Phase | Emit | DoubleDeflect | Hit;
 
 interface BeamPath {
     type: Beam;
@@ -51,6 +53,7 @@ interface BoardHistory {
 }
 
 interface Board {
+    config: BoardConfig;
     bronzors: Array<Bronzor>;
     prizes: Array<PrizeState>;
     history: BoardHistory;

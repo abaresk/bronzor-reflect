@@ -1,3 +1,5 @@
+import { Board, BoardConfig } from './board';
+
 interface Wallet {
     credit: number;
     payout: number;
@@ -8,3 +10,8 @@ interface Game {
     config: BoardConfig;
     board: Board;
 }
+
+export {
+    Game,
+    Wallet,
+};

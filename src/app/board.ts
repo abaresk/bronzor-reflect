@@ -1,3 +1,6 @@
+import { Coord } from './coord';
+import { Beam, PrizeState } from './items';
+
 /**
  * Bronzors
  */
@@ -58,3 +61,19 @@ interface Board {
     prizes: Array<PrizeState>;
     history: BoardHistory;
 }
+
+export {
+    BeamPath,
+    Board,
+    BoardConfig,
+    BoardHistory,
+    Bronzor,
+    Entry,
+    Deflect,
+    Destroy,
+    DoubleDeflect,
+    Emit,
+    Hit,
+    PathStep,
+    Phase
+};

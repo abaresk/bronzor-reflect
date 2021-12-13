@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Beam } from './items';
+import { BeamPath, Board, BoardConfig, BoardHistory, Bronzor, Entry, Deflect, Destroy, DoubleDeflect, Emit, Hit, Phase } from './board';
+import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Vector } from './coord';
 
 @Injectable({
   providedIn: 'root'

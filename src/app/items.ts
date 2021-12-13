@@ -42,3 +42,12 @@ interface PrizeState {
     prize: Prize;
     taken: boolean;
 }
+
+export {
+    prizes,
+    Beam,
+    InventoryPrize,
+    MoneyPrize,
+    Prize,
+    PrizeState,
+};

@@ -112,3 +112,16 @@ function projectToCoord(vector: Vector, coord2: Coord): Coord {
 
     return vector.coord.coordAt(vector.dir, distance);
 }
+
+export {
+    coordInDirection,
+    directions,
+    distanceInDirection,
+    oppositeDir,
+    projectToCoord,
+    rotateClockwise,
+    Coord,
+    Direction,
+    Orientation,
+    Vector,
+};

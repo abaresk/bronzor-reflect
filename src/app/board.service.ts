@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Beam } from './items';
+import { Beam, PrizeState } from './items';
 import { BeamPath, BeamPoint, BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from './board';
-import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Vector } from './coord';
+import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, LineSegment, Vector } from './coord';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +21,16 @@ export class BoardService {
     const beamPath = this.generatePath(beam, vector);
     this.board.history.beamPaths.push(beamPath);
     return beamPath;
+  }
+
+  getPrizeState(coord: Coord): PrizeState | undefined {
+    const prizeTileId = this.prizeTileId(coord);
+    return prizeTileId !== -1 ? this.board.prizes[prizeTileId] : undefined;
+  }
+
+  takePrizeAt(coord: Coord) {
+    const prizeTileId = this.prizeTileId(coord);
+    this.board.prizes[prizeTileId].taken = true;
   }
 
   resetBoard() {
@@ -197,6 +207,42 @@ export class BoardService {
     const perpendicular = rotateClockwise(edgeDirection, 1);
     const distance = distanceInDirection(onBoard, coord, perpendicular);
     return Math.abs(distance) === 1;
+  }
+
+  // Return the prize tile ID at the specified coordinate, or -1 if `coord` 
+  // doesn't correspond to a prize tile.
+  private prizeTileId(coord: Coord): number {
+    const edgeSegments = this.edgeSegments(1);
+    for (let i = 0; i < directions.length; i++) {
+      const index = edgeSegments[i].indexOf(coord);
+
+      if (index !== -1) return i * directions.length + index;
+    }
+    return -1;
+  }
+
+  // Return 4 LineSegments corresponding to the edges `radius` spaces away from
+  // the board. They are listed in the same order as `directions`.
+  private edgeSegments(radius: number): Array<LineSegment> {
+    const boardLength = this.board.config.length;
+    const corners = [
+      new Coord(0, 0),
+      new Coord(0, boardLength - 1),
+      new Coord(boardLength - 1, boardLength - 1),
+      new Coord(boardLength, 0)
+    ];
+
+    const segments = [];
+    for (let i = 0; i < directions.length; i++) {
+      const radialDir = directions[i];
+      const origin = {
+        coord: corners[i].coordAt(radialDir, radius),
+        dir: rotateClockwise(radialDir, 1)
+      };
+      segments.push(new LineSegment(origin, boardLength));
+    }
+
+    return segments;
   }
 
   private isOuterEdge(coord: Coord): boolean {

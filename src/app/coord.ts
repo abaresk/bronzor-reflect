@@ -39,11 +39,6 @@ const directions = [
     Direction.Left
 ] as const;
 
-interface Vector {
-    coord: Coord;
-    dir: Direction;
-}
-
 enum Orientation {
     Vertical,
     Horizontal,
@@ -59,6 +54,34 @@ function toOrientation(dir: Direction): Orientation {
         // fallthrough
         case Direction.Left:
             return Orientation.Horizontal;
+    }
+}
+
+interface Vector {
+    coord: Coord;
+    dir: Direction;
+}
+
+class LineSegment {
+    origin: Vector;
+    length: number;
+
+    constructor(origin: Vector, length: number) {
+        this.origin = origin;
+        this.length = length;
+    }
+
+    contains(coord: Coord): boolean {
+        return coordInDirection(this.origin.coord, coord, this.origin.dir) &&
+            distanceInDirection(this.origin.coord, coord, this.origin.dir) < this.length;
+    }
+
+    // Returns where in the line segment the given coordinate is, or -1 if the
+    // coordinate is not on the line segment.
+    indexOf(coord: Coord): number {
+        return this.contains(coord) ?
+            distanceInDirection(this.origin.coord, coord, this.origin.dir) :
+            -1;
     }
 }
 
@@ -122,6 +145,7 @@ export {
     rotateClockwise,
     Coord,
     Direction,
+    LineSegment,
     Orientation,
     Vector,
 };

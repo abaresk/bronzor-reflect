@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Beam } from './items';
-import { BeamPath, Board, BoardConfig, BoardHistory, Bronzor, Entry, Deflect, Destroy, DoubleDeflect, Emit, Hit, Phase } from './board';
+import { BeamPath, BeamPoint, BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from './board';
 import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Vector } from './coord';
 
 @Injectable({
@@ -15,10 +15,10 @@ export class BoardService {
     this.board = this.generateBoard(config);
   }
 
-  fireBeam(beam: Beam, coord: Coord): BeamPath | undefined {
-    if (!this.isOuterEdge(coord)) return;
+  fireBeam(beam: Beam, vector: Vector): BeamPath | undefined {
+    if (!this.isOuterEdge(vector.coord)) return;
 
-    const beamPath = this.generatePath(beam, coord);
+    const beamPath = this.generatePath(beam, vector);
     this.board.history.beamPaths.push(beamPath);
     return beamPath;
   }
@@ -33,13 +33,13 @@ export class BoardService {
     return { config: config, bronzors: [], prizes: [], history: history };
   }
 
-  private generatePath(beam: Beam, coord: Coord): BeamPath {
+  private generatePath(beam: Beam, vector: Vector): BeamPath {
     // Place the first coordinate just outside the board. This allows
     // collision detection to work when a Bronzor is on the board edge.
-    const firstVector = this.initialVector(coord);
+    const firstVector = this.initialVector(vector);
     let firstCoord = firstVector.coord;
 
-    const entry = firstCoord as Entry;
+    const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
     const beamPath: BeamPath = { type: beam, path: [entry] };
 
     // Generate next steps until the beam is emitted from the board or hits a
@@ -51,13 +51,9 @@ export class BoardService {
     return beamPath;
   }
 
-  private initialVector(coord: Coord): Vector {
-    for (let dir of directions) {
-      if (this.onBoardEdge(coord, dir)) {
-        return { coord: coord.coordAt(dir, 1), dir: oppositeDir(dir) };
-      }
-    }
-    return {} as Vector;
+  private initialVector(vector: Vector): Vector {
+    const opposite = oppositeDir(vector.dir);
+    return { coord: vector.coord.coordAt(opposite, 1), dir: vector.dir };
   }
 
   private generateNextStep(vector: Vector, beamPath: BeamPath): Vector | undefined {
@@ -65,7 +61,8 @@ export class BoardService {
     const closestBronzors = this.closestInPath(vector, collisions);
 
     if (this.edgeReflectionInCoords(vector, closestBronzors)) {
-      beamPath.path.push(vector.coord as Emit);
+      const beamPoint: BeamPoint = { type: BeamPointType.Emit, coord: vector.coord };
+      beamPath.path.push(beamPoint);
       return undefined;
     }
 
@@ -121,8 +118,10 @@ export class BoardService {
   }
 
   private addToBeamPathMiss(vector: Vector, beamPath: BeamPath): undefined {
-    const nextCoord = this.projectToEdge(vector.coord, vector.dir);
-    beamPath.path.push(nextCoord as Emit);
+    const nextCoord =
+      this.projectToEdge(vector.coord, vector.dir).coordAt(vector.dir, 1);
+    const beamPoint: BeamPoint = { type: BeamPointType.Emit, coord: nextCoord };
+    beamPath.path.push(beamPoint);
     return undefined;
   }
 
@@ -146,14 +145,14 @@ export class BoardService {
     const phase = beamPath.type === Beam.Phase;
 
     if (phase) {
-      beamPath.path.push(bronzor.coord as Phase);
+      beamPath.path.push({ type: BeamPointType.Phase, coord: bronzor.coord });
       return { coord: bronzor.coord, dir: vector.dir };
     } else if (destroy) {
       bronzor.active = false;
-      beamPath.path.push(bronzor.coord as Destroy);
+      beamPath.path.push({ type: BeamPointType.Destroy, coord: bronzor.coord });
       return { coord: bronzor.coord, dir: vector.dir };
     } else {
-      beamPath.path.push(bronzor.coord as Hit);
+      beamPath.path.push({ type: BeamPointType.Hit, coord: bronzor.coord });
       return undefined;
     }
   }
@@ -167,7 +166,7 @@ export class BoardService {
     const nextDir =
       coordInDirection(shieldCoord, nextCoord, perpendicular) ?
         perpendicular : oppositeDir(perpendicular);
-    beamPath.path.push(nextCoord as Deflect);
+    beamPath.path.push({ type: BeamPointType.Deflect, coord: nextCoord });
     return { coord: nextCoord, dir: nextDir };
   }
 
@@ -175,7 +174,7 @@ export class BoardService {
     const nextCoord =
       projectToCoord(vector, bronzors[0].coord)
         .coordAt(oppositeDir(vector.dir), 1);
-    beamPath.path.push(nextCoord as DoubleDeflect);
+    beamPath.path.push({ type: BeamPointType.DoubleDeflect, coord: nextCoord });
     return { coord: nextCoord, dir: oppositeDir(vector.dir) };
   }
 

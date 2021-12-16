@@ -14,32 +14,31 @@ interface Bronzor {
  * Beam paths
  */
 
-// Enters the box
-type Entry = Coord;
+enum BeamPointType {
+    // Enters the box
+    Entry,
+    // Bounces off a Bronzor
+    Deflect,
+    // Bounces off two Bronzors on the same tile.
+    DoubleDeflect,
+    // Destroys a Bronzor
+    Destroy,
+    // Phases through a Bronzor
+    Phase,
+    // Emitted from the box. A final step.
+    Emit,
+    // Collides with a Bronzor. A final step.
+    Hit,
+}
 
-// Bounces off a Bronzor
-type Deflect = Coord;
-
-// Bounces off two Bronzors on the same tile.
-type DoubleDeflect = Coord;
-
-// Destroys a Bronzor
-type Destroy = Coord;
-
-// Phases through a Bronzor
-type Phase = Coord;
-
-// Emitted from the box. A final step.
-type Emit = Coord;
-
-// Collides with a Bronzor. A final step.
-type Hit = Coord;
-
-type PathStep = | Entry | Deflect | Destroy | Phase | Emit | DoubleDeflect | Hit;
+interface BeamPoint {
+    type: BeamPointType;
+    coord: Coord;
+}
 
 interface BeamPath {
     type: Beam;
-    path: Array<PathStep>;
+    path: Array<BeamPoint>;
 }
 
 /**
@@ -64,16 +63,10 @@ interface Board {
 
 export {
     BeamPath,
+    BeamPoint,
+    BeamPointType,
     Board,
     BoardConfig,
     BoardHistory,
     Bronzor,
-    Entry,
-    Deflect,
-    Destroy,
-    DoubleDeflect,
-    Emit,
-    Hit,
-    PathStep,
-    Phase
 };

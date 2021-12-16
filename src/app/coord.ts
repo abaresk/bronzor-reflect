@@ -8,7 +8,7 @@ class Coord {
 
     constructor(row: number, col: number) {
         this.row = row;
-        this.col = row;
+        this.col = col;
     }
 
     coordAt(dir: Direction, spaces: number): Coord {

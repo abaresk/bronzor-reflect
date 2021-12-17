@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { Beam, BeamPrize, Prize, beamPrizePayouts, inventoryPrizePayouts, jackpotPayouts, moneyPrizePayouts, MoneyPrize, MoneyPrizeType, InventoryPrize } from './items';
 import { BeamPointType, BoardConfig } from './board';
 import { BoardService } from './board.service';
-import { Game, Inventory, Wallet } from './game';
+import { Game, Inventory } from './game';
 import { Vector } from './coord';
+import { Wallet } from './wallet';
+import { WalletService } from './wallet.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,18 +13,19 @@ import { Vector } from './coord';
 export class GameService {
   game = {} as Game;
 
-  constructor(private boardService: BoardService) { }
+  constructor(
+    private boardService: BoardService,
+    private walletService: WalletService) { }
 
   newGame(boardConfig: BoardConfig, credit: number) {
     const level = 1;
     this.boardService.new(boardConfig, level);
-    const wallet: Wallet = { credit: credit, payout: 0 };
+    this.walletService.new(credit);
     const inventory: Inventory = { beams: new Map() };
     this.game = {
       config: boardConfig,
       board: this.boardService.board,
       level: level,
-      wallet: wallet,
       inventory: inventory,
     };
   }
@@ -49,12 +52,12 @@ export class GameService {
     if (moneyPrize) {
       if (prize.type === MoneyPrizeType.Jackpot) {
         const payout = (jackpotPayouts.get(this.game.level) ?? 0) * payoutFactor;
-        this.game.wallet.payout = payout;
+        this.walletService.setPayout(payout);
         return;
       }
 
       const payout = (moneyPrizePayouts.get(moneyPrize) ?? 0) * payoutFactor;
-      this.game.wallet.payout = payout;
+      this.walletService.setPayout(payout);
       return;
     }
 
@@ -85,7 +88,7 @@ export class GameService {
 
     // TODO: Maybe this should decrease only if you didn't receive any positive
     // prizes (i.e., check inventory too).
-    if (this.game.wallet.payout === 0) {
+    if (this.walletService.getPayout() === 0) {
       this.game.level = Math.max(this.game.level - 1, 1);
     }
   }

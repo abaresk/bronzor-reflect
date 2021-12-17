@@ -11,8 +11,8 @@ export class BoardService {
 
   constructor() { }
 
-  new(config: BoardConfig) {
-    this.board = this.generateBoard(config);
+  new(config: BoardConfig, level: number) {
+    this.board = this.generateBoard(config, level);
   }
 
   fireBeam(beam: Beam, vector: Vector): BeamPath | undefined {
@@ -33,12 +33,8 @@ export class BoardService {
     this.board.prizes[prizeTileId].taken = true;
   }
 
-  resetBoard() {
-    this.board = this.generateBoard(this.board.config);
-  }
-
   // TODO: Implement board generation algorithm.
-  private generateBoard(config: BoardConfig): Board {
+  private generateBoard(config: BoardConfig, level: number): Board {
     const history: BoardHistory = { beamPaths: [] };
     return { config: config, bronzors: [], prizes: [], history: history };
   }

@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Beam, BeamPrize, Prize, beamPrizePayouts, inventoryPrizePayouts, jackpotPayouts, moneyPrizePayouts, MoneyPrize, MoneyPrizeType, InventoryPrize } from './items';
 import { BeamPointType, BoardConfig } from './board';
 import { BoardService } from './board.service';
-import { Game, Inventory } from './game';
+import { Game } from './game';
 import { Vector } from './coord';
-import { Wallet } from './wallet';
 import { WalletService } from './wallet.service';
+import { InventoryService } from './inventory.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,18 +15,18 @@ export class GameService {
 
   constructor(
     private boardService: BoardService,
-    private walletService: WalletService) { }
+    private walletService: WalletService,
+    private inventoryService: InventoryService) { }
 
   newGame(boardConfig: BoardConfig, credit: number) {
     const level = 1;
     this.boardService.new(boardConfig, level);
     this.walletService.new(credit);
-    const inventory: Inventory = { beams: new Map() };
+    this.inventoryService.new();
     this.game = {
       config: boardConfig,
       board: this.boardService.board,
       level: level,
-      inventory: inventory,
     };
   }
 
@@ -64,17 +64,15 @@ export class GameService {
 
     const inventoryPrize = prize as InventoryPrize;
     if (inventoryPrize) {
-      const oldBeams = this.game.inventory.beams.get(Beam.Normal) ?? 0;
       const payout = (inventoryPrizePayouts.get(inventoryPrize) ?? 0) * payoutFactor;
-      this.game.inventory.beams.set(Beam.Normal, oldBeams + payout);
+      this.inventoryService.addBeams(Beam.Normal, payout);
       return;
     }
 
     const beamPrize = prize as BeamPrize;
     if (beamPrize) {
-      const oldBeams = this.game.inventory.beams.get(beamPrize.type) ?? 0;
       const payout = (beamPrizePayouts.get(beamPrize) ?? 0) * payoutFactor;
-      this.game.inventory.beams.set(beamPrize.type, oldBeams + payout);
+      this.inventoryService.addBeams(beamPrize.type, payout);
       return;
     }
   }

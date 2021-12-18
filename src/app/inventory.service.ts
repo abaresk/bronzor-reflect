@@ -10,7 +10,8 @@ export class InventoryService {
 
   constructor() { }
 
-  new() {
+  new(level: number) {
+    // TODO: Provide an initial number of normal beams depending on the level.
     this.inventory = { beams: new Map() };
   }
 

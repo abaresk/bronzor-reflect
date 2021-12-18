@@ -20,14 +20,13 @@ export class GameService {
 
   newGame(boardConfig: BoardConfig, credit: number) {
     const level = 1;
-    this.boardService.new(boardConfig, level);
     this.walletService.new(credit);
-    this.inventoryService.new();
     this.game = {
       config: boardConfig,
-      board: this.boardService.board,
       level: level,
+      roundsCount: 0,
     };
+    this.newRound(level);
   }
 
   fireBeam(beam: Beam, vector: Vector) {
@@ -45,6 +44,38 @@ export class GameService {
     this.tryNextLevel(prizeState.prize);
   }
 
+  private newRound(level: number) {
+    this.boardService.new(this.game.config, level);
+    this.inventoryService.new(level);
+    this.game.roundsCount++;
+  }
+
+  // TODO: Implement round/turn logic.
+  //
+  // How a round works:
+  //  - Do turns until you end the round or the round gets ended.
+  //     - Round ends automatically if:
+  //        - Hit a bomb
+  //        - No more beams in inventory
+  //        - No more positive prizes on the board
+  //     - You can optionally move to next round if:
+  //        - You have gotten the jackpot this round
+  //   - You collect the payout at the end of the round.
+  //
+  // How a turn works:
+  //  - Optionally progress to next round, if possible.
+  //  - Select a beam from inventory.
+  //  - Place the beam on the board.
+  //  - Fire the beam.
+  //  - Obtain prize.
+
+  // Doing a turn -- solutions:
+  //   1. Have a SelectionService, which reports selections made by the user.
+  //      Await an async function with the selection made by the user, then 
+  //      progress to the corresponding state.
+  //   2. Continuously poll the selection status for each relevant component - 
+  //      lol
+
   private applyPrize(beam: Beam, prize: Prize) {
     const payoutFactor = beam === Beam.DoublePrize ? 2 : 1;
 
@@ -60,7 +91,6 @@ export class GameService {
       this.walletService.setPayout(payout);
       return;
     }
-
 
     const inventoryPrize = prize as InventoryPrize;
     if (inventoryPrize) {

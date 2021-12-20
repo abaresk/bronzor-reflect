@@ -1,4 +1,4 @@
-import { Beam, BeamPrize, beamPrizePayouts, BombPrize, BombType, InventoryPrize, InventoryPrizeType, jackpotPrize, largeSumPrize, mediumSumPrize, MoneyPrize, MoneyPrizeType, normalBombPrize, plus1BeamPrize, Prize, prizes, smallSumPrize } from "./prizes";
+import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, prizes, smallSumPrize, waterBeamPrize } from "./prizes";
 
 interface Range {
     min: number; // inclusive
@@ -151,64 +151,27 @@ const normalBombsByLevel: LevelYield = new Map([
     [8, { min: 4, max: 6 }],
 ]);
 
+const prizesDistributionsByLevel: ReadonlyMap<string, LevelYield> = new Map([
+    [jackpotPrize.toString(), jackpotsByLevel],
+    [largeSumPrize.toString(), largeSumsByLevel],
+    [mediumSumPrize.toString(), mediumSumsByLevel],
+    [smallSumPrize.toString(), smallSumsByLevel],
+    [plus1BeamPrize.toString(), plus1BeamsByLevel],
+    [plus3BeamsPrize.toString(), plus3BeamsByLevel],
+    [minus1BeamPrize.toString(), minus1BeamsByLevel],
+    [cometBeamPrize.toString(), cometBeamsByLevel],
+    [flameBeamPrize.toString(), flameBeamsByLevel],
+    [phaseBeamPrize.toString(), phaseBeamsByLevel],
+    [doublePrizeBeamPrize.toString(), doublePrizeBeamsByLevel],
+    [waterBeamPrize.toString(), waterBeamsByLevel],
+    [normalBombPrize.toString(), normalBombsByLevel],
+]);
+
 export function getYieldRange(prize: Prize, level: number): Range {
     const defaultRange: Range = { min: 0, max: 0 };
 
-    let levelYield: LevelYield = new Map();
-    if (prize as MoneyPrize) {
-        switch (prize.type) {
-            case MoneyPrizeType.Jackpot:
-                levelYield = jackpotsByLevel;
-                break;
-            case MoneyPrizeType.LargeSum:
-                levelYield = largeSumsByLevel;
-                break;
-            case MoneyPrizeType.MediumSum:
-                levelYield = mediumSumsByLevel;
-                break;
-            case MoneyPrizeType.SmallSum:
-                levelYield = smallSumsByLevel;
-                break;
-        }
-    } else if (prize as InventoryPrize) {
-        switch (prize.type) {
-            case InventoryPrizeType.Plus1Beam:
-                levelYield = plus1BeamsByLevel;
-                break;
-            case InventoryPrizeType.Plus3Beams:
-                levelYield = plus3BeamsByLevel;
-                break;
-            case InventoryPrizeType.Minus1Beam:
-                levelYield = minus1BeamsByLevel;
-                break;
-        }
-    } else if (prize as BeamPrize) {
-        switch (prize.type) {
-            case Beam.Comet:
-                levelYield = cometBeamsByLevel;
-                break;
-            case Beam.Flame:
-                levelYield = flameBeamsByLevel;
-                break;
-            case Beam.Phase:
-                levelYield = phaseBeamsByLevel;
-                break;
-            case Beam.DoublePrize:
-                levelYield = doublePrizeBeamsByLevel;
-                break;
-            case Beam.Water:
-                levelYield = waterBeamsByLevel;
-                break;
-        }
-    } else if (prize as BombPrize) {
-        switch (prize.type) {
-            case BombType.Normal:
-                levelYield = normalBombsByLevel;
-                break;
-        }
-    }
-
-    return levelYield.get(level) ?? defaultRange;
+    const distribution = prizesDistributionsByLevel.get(prize.toString());
+    return distribution?.get(level) ?? defaultRange;
 }
 
 function getTotalRange1StdDev(level: number): Range {
@@ -240,48 +203,24 @@ const levelsArr = Array.from({ length: 8 }, (_, i) => i + 1);
 export const totalByLevel: LevelYield =
     new Map(levelsArr.map((level) => [level, getTotalRange(level)]));
 
-export function getProbUnreachable(prize: Prize): number {
-    if (prize as MoneyPrize) {
-        switch (prize.type) {
-            case MoneyPrizeType.Jackpot:
-                return 0;
-            case MoneyPrizeType.LargeSum:
-                return 0.2;
-            case MoneyPrizeType.MediumSum:
-                return 0.3;
-            case MoneyPrizeType.SmallSum:
-                return 0.4;
-        }
-    } else if (prize as InventoryPrize) {
-        switch (prize.type) {
-            case InventoryPrizeType.Plus1Beam:
-                return 0.2;
-            case InventoryPrizeType.Plus3Beams:
-                return 0.2;
-            case InventoryPrizeType.Minus1Beam:
-                return 0.2;
-        }
-    } else if (prize as BeamPrize) {
-        switch (prize.type) {
-            case Beam.Comet:
-                return 0.2;
-            case Beam.Flame:
-                return 0.2;
-            case Beam.Phase:
-                return 0.2;
-            case Beam.DoublePrize:
-                return 0.2;
-            case Beam.Water:
-                return 0.2;
-        }
-    } else if (prize as BombPrize) {
-        switch (prize.type) {
-            case BombType.Normal:
-                return 0.2
-        }
-    }
+const probabilityReachable: ReadonlyMap<string, number> = new Map([
+    [jackpotPrize.toString(), 0],
+    [largeSumPrize.toString(), 0.2],
+    [mediumSumPrize.toString(), 0.3],
+    [smallSumPrize.toString(), 0.4],
+    [plus1BeamPrize.toString(), 0.2],
+    [plus3BeamsPrize.toString(), 0.2],
+    [minus1BeamPrize.toString(), 0.2],
+    [cometBeamPrize.toString(), 0.2],
+    [flameBeamPrize.toString(), 0.2],
+    [phaseBeamPrize.toString(), 0.2],
+    [doublePrizeBeamPrize.toString(), 0.2],
+    [waterBeamPrize.toString(), 0.2],
+    [normalBombPrize.toString(), 0.2],
+]);
 
-    return 0;
+export function getProbUnreachable(prize: Prize): number {
+    return probabilityReachable.get(prize.toString()) ?? 0;
 }
 
 // Number of hidden Bronzors in each level

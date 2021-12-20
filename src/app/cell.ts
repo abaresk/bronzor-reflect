@@ -1,29 +1,20 @@
 import { Bronzor } from "./board";
-import { jackpotPrize, largeSumPrize, mediumSumPrize, moneyPrizePayouts, plus1BeamPrize, MoneyPrize, PrizeState, smallSumPrize, InventoryPrize, plus3BeamsPrize, minus1BeamPrize, BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, doublePrizePrize, waterBeamPrize, BombPrize, normalBombPrize } from "./prizes";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts } from "./prizes";
 
-const moneyPrizeDisplays: ReadonlyMap<MoneyPrize, string> = new Map([
-    [jackpotPrize, 'J'],
-    [largeSumPrize, `$${moneyPrizePayouts.get(largeSumPrize)}`],
-    [mediumSumPrize, `$${moneyPrizePayouts.get(mediumSumPrize)}`],
-    [smallSumPrize, `$${moneyPrizePayouts.get(smallSumPrize)}`],
-]);
-
-const inventoryPrizeDisplays: ReadonlyMap<InventoryPrize, string> = new Map([
-    [plus1BeamPrize, '+1 beam'],
-    [plus3BeamsPrize, '+3 beams'],
-    [minus1BeamPrize, '-1 beam'],
-]);
-
-const beamPrizeDisplays: ReadonlyMap<BeamPrize, string> = new Map([
-    [cometBeamPrize, 'comet beam'],
-    [flameBeamPrize, 'flame beam'],
-    [phaseBeamPrize, 'shadow beam'],
-    [doublePrizePrize, 'x2 beam'],
-    [waterBeamPrize, 'water beam'],
-]);
-
-const bombPrizeDisplays: ReadonlyMap<BombPrize, string> = new Map([
-    [normalBombPrize, 'bomb'],
+const prizeDisplays: ReadonlyMap<string, string> = new Map([
+    [jackpotPrize.toString(), 'J'],
+    [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
+    [mediumSumPrize.toString(), `$${prizePayouts.get(mediumSumPrize.toString())}`],
+    [smallSumPrize.toString(), `$${prizePayouts.get(smallSumPrize.toString())}`],
+    [plus1BeamPrize.toString(), '+1 beam'],
+    [plus3BeamsPrize.toString(), '+3 beams'],
+    [minus1BeamPrize.toString(), '-1 beam'],
+    [cometBeamPrize.toString(), 'comet beam'],
+    [flameBeamPrize.toString(), 'flame beam'],
+    [phaseBeamPrize.toString(), 'shadow beam'],
+    [doublePrizeBeamPrize.toString(), 'x2 beam'],
+    [waterBeamPrize.toString(), 'water beam'],
+    [normalBombPrize.toString(), 'bomb'],
 ]);
 
 export class Cell {
@@ -70,24 +61,7 @@ export class PrizeCell extends Cell {
         if (!this.prizeState) return '';
 
         const taken = this.prizeState.taken ? 'taken' : '';
-        let prizeName = '';
-        if (this.prizeState.prize as MoneyPrize) {
-            const moneyPrize = this.prizeState.prize as MoneyPrize;
-            prizeName = moneyPrizeDisplays.get(moneyPrize) ?? '';
-        }
-        else if (this.prizeState.prize as InventoryPrize) {
-            const inventoryPrize = this.prizeState.prize as InventoryPrize;
-            prizeName = inventoryPrizeDisplays.get(inventoryPrize) ?? '';
-        }
-        else if (this.prizeState.prize as BeamPrize) {
-            const beamPrize = this.prizeState.prize as BeamPrize;
-            prizeName = beamPrizeDisplays.get(beamPrize) ?? '';
-        }
-        else if (this.prizeState.prize as BombPrize) {
-            const bombPrize = this.prizeState.prize as BombPrize;
-            prizeName = bombPrizeDisplays.get(bombPrize) ?? '';
-        }
-
+        const prizeName = prizeDisplays.get(this.prizeState.prize.toString());
         return taken ? `${prizeName}\n${taken}` : `${prizeName}`;
     }
 }

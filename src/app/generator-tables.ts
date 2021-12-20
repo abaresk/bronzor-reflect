@@ -203,7 +203,7 @@ const levelsArr = Array.from({ length: 8 }, (_, i) => i + 1);
 export const totalByLevel: LevelYield =
     new Map(levelsArr.map((level) => [level, getTotalRange(level)]));
 
-const probabilityReachable: ReadonlyMap<string, number> = new Map([
+const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
     [jackpotPrize.toString(), 0],
     [largeSumPrize.toString(), 0.2],
     [mediumSumPrize.toString(), 0.3],
@@ -220,7 +220,7 @@ const probabilityReachable: ReadonlyMap<string, number> = new Map([
 ]);
 
 export function getProbUnreachable(prize: Prize): number {
-    return probabilityReachable.get(prize.toString()) ?? 0;
+    return probabilityUnreachable.get(prize.toString()) ?? 0;
 }
 
 // Number of hidden Bronzors in each level

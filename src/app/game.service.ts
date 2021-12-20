@@ -87,7 +87,7 @@ export class GameService {
       return;
     }
 
-    const payout = prizePayouts.get(prize.toString()) ?? 0;
+    const payout = (prizePayouts.get(prize.toString()) ?? 0) * payoutFactor;
     if (prize instanceof MoneyPrize) {
       this.walletService.setPayout(payout);
     } else if (prize instanceof InventoryPrize) {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from './board';
 import { BoardService } from './board.service';
 import { Coord, Grid } from './coord';
-import { hiddenBronzorsByLevel } from './generate-tables';
+import { hiddenBronzorsByLevel } from './generator-tables';
 import { Beam, PrizeState } from './items';
 
 @Injectable({

@@ -1,6 +1,6 @@
 import { BoardCell, Cell, IOCell, PrizeCell } from '../cell';
 import { Component, OnInit } from '@angular/core';
-import { Beam } from '../items';
+import { Beam } from '../prizes';
 import { Board, BoardConfig } from '../board';
 import { BoardService } from '../board.service';
 import { Coord, Direction, Grid, rotateClockwise } from '../coord';

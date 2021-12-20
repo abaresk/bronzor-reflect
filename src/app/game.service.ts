@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, BeamPrize, Prize, beamPrizePayouts, inventoryPrizePayouts, jackpotPayouts, moneyPrizePayouts, MoneyPrize, MoneyPrizeType, InventoryPrize } from './items';
+import { Beam, BeamPrize, Prize, beamPrizePayouts, inventoryPrizePayouts, jackpotPayouts, moneyPrizePayouts, MoneyPrize, MoneyPrizeType, InventoryPrize } from './prizes';
 import { BeamPointType, BoardConfig } from './board';
 import { BoardService } from './board.service';
 import { Game } from './game';

@@ -3,7 +3,7 @@ import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from './board';
 import { BoardService } from './board.service';
 import { Coord, Grid } from './coord';
 import { hiddenBronzorsByLevel } from './generator-tables';
-import { Beam, PrizeState } from './items';
+import { Beam, PrizeState } from './prizes';
 
 @Injectable({
   providedIn: 'root'

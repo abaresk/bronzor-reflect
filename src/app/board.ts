@@ -1,5 +1,5 @@
 import { Coord } from './coord';
-import { Beam, PrizeState } from './items';
+import { Beam, PrizeState } from './prizes';
 
 /**
  * Bronzors

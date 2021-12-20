@@ -1,4 +1,4 @@
-import { Beam, BeamPrize, beamPrizePayouts, BombPrize, BombType, InventoryPrize, InventoryPrizeType, jackpotPrize, largeSumPrize, mediumSumPrize, MoneyPrize, MoneyPrizeType, normalBombPrize, plus1BeamPrize, Prize, prizes, smallSumPrize } from "./items";
+import { Beam, BeamPrize, beamPrizePayouts, BombPrize, BombType, InventoryPrize, InventoryPrizeType, jackpotPrize, largeSumPrize, mediumSumPrize, MoneyPrize, MoneyPrizeType, normalBombPrize, plus1BeamPrize, Prize, prizes, smallSumPrize } from "./prizes";
 
 interface Range {
     min: number; // inclusive

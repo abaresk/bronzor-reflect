@@ -1,0 +1,35 @@
+$background-white: rgb(255, 255, 255);
+$background-light-gray: rgb(196, 196, 196);
+$background-dark-gray: rgb(160, 160, 160);
+
+@mixin theme($theme: White) {
+  background: $theme;
+}
+
+.white-background {
+    @include theme($theme: $background-white);
+}
+
+.light-gray-background {
+    @include theme($theme: $background-light-gray);
+}
+
+.dark-gray-background {
+    @include theme($theme: $background-dark-gray);
+}
+
+.square {
+    width: 54px;
+    height: 54px;
+}
+
+.display-on {
+    border-style: solid;
+    border-color: black;
+}
+
+.display-off {
+    border-style: solid;
+    border-color: white;
+    background: $background-white;
+}

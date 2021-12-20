@@ -1,26 +1,37 @@
 import { Injectable } from '@angular/core';
 import { Beam, PrizeState } from './items';
 import { BeamPath, BeamPoint, BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from './board';
-import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, LineSegment, Vector } from './coord';
+import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Grid, LineSegment, Vector } from './coord';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BoardService {
   board: Board = {} as Board;
+  grid: Grid = {} as Grid;
 
   constructor() { }
 
-  new(config: BoardConfig, level: number) {
-    this.board = this.generateBoard(config, level);
+  new(board: Board) {
+    this.board = board;
+    this.grid = new Grid(board.config.length, board.config.length);
   }
 
-  fireBeam(beam: Beam, vector: Vector): BeamPath | undefined {
-    if (!this.isOuterEdge(vector.coord)) return;
+  fireBeam(beam: Beam, coord: Coord, dryRun: boolean = false): BeamPath | undefined {
+    if (!this.isOuterEdge(coord)) return;
 
-    const beamPath = this.generatePath(beam, vector);
-    this.board.history.beamPaths.push(beamPath);
+    const beamPath = this.generatePath(beam, coord, dryRun);
+    if (!dryRun) {
+      this.board.history.beamPaths.push(beamPath);
+    }
     return beamPath;
+  }
+
+  getBronzor(coord: Coord): Bronzor | undefined {
+    for (let bronzor of this.board.bronzors) {
+      if (bronzor.coord.equals(coord)) return bronzor;
+    }
+    return undefined;
   }
 
   getPrizeState(coord: Coord): PrizeState | undefined {
@@ -33,16 +44,10 @@ export class BoardService {
     this.board.prizes[prizeTileId].taken = true;
   }
 
-  // TODO: Implement board generation algorithm.
-  private generateBoard(config: BoardConfig, level: number): Board {
-    const history: BoardHistory = { beamPaths: [] };
-    return { config: config, bronzors: [], prizes: [], history: history };
-  }
-
-  private generatePath(beam: Beam, vector: Vector): BeamPath {
+  private generatePath(beam: Beam, coord: Coord, dryRun: boolean): BeamPath {
     // Place the first coordinate just outside the board. This allows
     // collision detection to work when a Bronzor is on the board edge.
-    const firstVector = this.initialVector(vector);
+    const firstVector = this.initialVector(coord);
     let firstCoord = firstVector.coord;
 
     const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
@@ -50,19 +55,27 @@ export class BoardService {
 
     // Generate next steps until the beam is emitted from the board or hits a
     // Bronzor.
-    let nextVector = this.generateNextStep(firstVector, beamPath);
+    let nextVector = this.generateNextStep(firstVector, beamPath, dryRun);
     while (nextVector !== undefined) {
-      nextVector = this.generateNextStep(nextVector, beamPath);
+      nextVector = this.generateNextStep(nextVector, beamPath, dryRun);
     }
     return beamPath;
   }
 
-  private initialVector(vector: Vector): Vector {
-    const opposite = oppositeDir(vector.dir);
-    return { coord: vector.coord.coordAt(opposite, 1), dir: vector.dir };
+  private initialVector(coord: Coord): Vector {
+    const edgeSegments = this.grid.edgeSegments(1);
+
+    let dir = Direction.Up;
+    for (let i = 0; i < directions.length; i++) {
+      if (edgeSegments[i].contains(coord)) {
+        dir = directions[i];
+      }
+    }
+
+    return { coord: coord, dir: oppositeDir(dir) };
   }
 
-  private generateNextStep(vector: Vector, beamPath: BeamPath): Vector | undefined {
+  private generateNextStep(vector: Vector, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
     const collisions = this.bronzorsInPath(vector);
     const closestBronzors = this.closestInPath(vector, collisions);
 
@@ -72,7 +85,7 @@ export class BoardService {
       return undefined;
     }
 
-    return this.addToBeamPath(vector, closestBronzors, beamPath);
+    return this.addToBeamPath(vector, closestBronzors, beamPath, dryRun);
   }
 
   private bronzorsInPath(vector: Vector): Array<Bronzor> {
@@ -115,11 +128,11 @@ export class BoardService {
 
   // Adds collision to the beam path. Returns the next Vector of the beam, or
   // undefined if the path is finished.
-  private addToBeamPath(vector: Vector, closestBronzors: Array<Bronzor>, beamPath: BeamPath): Vector | undefined {
+  private addToBeamPath(vector: Vector, closestBronzors: Array<Bronzor>, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
     if (closestBronzors.length === 0) {
       return this.addToBeamPathMiss(vector, beamPath);
     } else {
-      return this.addToBeamPathMultiple(vector, beamPath, closestBronzors);
+      return this.addToBeamPathMultiple(vector, beamPath, closestBronzors, dryRun);
     }
   }
 
@@ -131,14 +144,14 @@ export class BoardService {
     return undefined;
   }
 
-  private addToBeamPathMultiple(vector: Vector, beamPath: BeamPath, bronzors: Array<Bronzor>): Vector | undefined {
+  private addToBeamPathMultiple(vector: Vector, beamPath: BeamPath, bronzors: Array<Bronzor>, dryRun: boolean): Vector | undefined {
     const directCoords = bronzors.filter(
       (bronzor) => coordInDirection(vector.coord, bronzor.coord, vector.dir));
     const indirectCoords = bronzors.filter(
       (bronzor) => !coordInDirection(vector.coord, bronzor.coord, vector.dir));
 
     if (directCoords.length) {
-      return this.addToBeamPathDirectHit(vector, beamPath, directCoords[0]);
+      return this.addToBeamPathDirectHit(vector, beamPath, directCoords[0], dryRun);
     } else if (indirectCoords.length === 1) {
       return this.addToBeamPathDeflect(vector, beamPath, indirectCoords[0]);
     } else {
@@ -146,7 +159,7 @@ export class BoardService {
     }
   }
 
-  private addToBeamPathDirectHit(vector: Vector, beamPath: BeamPath, bronzor: Bronzor): Vector | undefined {
+  private addToBeamPathDirectHit(vector: Vector, beamPath: BeamPath, bronzor: Bronzor, dryRun: boolean): Vector | undefined {
     const destroy = beamPath.type === Beam.Flame;
     const phase = beamPath.type === Beam.Phase;
 
@@ -154,7 +167,7 @@ export class BoardService {
       beamPath.path.push({ type: BeamPointType.Phase, coord: bronzor.coord });
       return { coord: bronzor.coord, dir: vector.dir };
     } else if (destroy) {
-      bronzor.active = false;
+      if (!dryRun) bronzor.active = false;
       beamPath.path.push({ type: BeamPointType.Destroy, coord: bronzor.coord });
       return { coord: bronzor.coord, dir: vector.dir };
     } else {
@@ -208,7 +221,7 @@ export class BoardService {
   // Return the prize tile ID at the specified coordinate, or -1 if `coord` 
   // doesn't correspond to a prize tile.
   private prizeTileId(coord: Coord): number {
-    const edgeSegments = this.edgeSegments(1);
+    const edgeSegments = this.grid.edgeSegments(1);
     for (let i = 0; i < directions.length; i++) {
       const index = edgeSegments[i].indexOf(coord);
 
@@ -217,35 +230,13 @@ export class BoardService {
     return -1;
   }
 
-  // Return 4 LineSegments corresponding to the edges `radius` spaces away from
-  // the board. They are listed in the same order as `directions`.
-  private edgeSegments(radius: number): Array<LineSegment> {
-    const boardLength = this.board.config.length;
-    const corners = [
-      new Coord(0, 0),
-      new Coord(0, boardLength - 1),
-      new Coord(boardLength - 1, boardLength - 1),
-      new Coord(boardLength, 0)
-    ];
-
-    const segments = [];
-    for (let i = 0; i < directions.length; i++) {
-      const radialDir = directions[i];
-      const origin = {
-        coord: corners[i].coordAt(radialDir, radius),
-        dir: rotateClockwise(radialDir, 1)
-      };
-      segments.push(new LineSegment(origin, boardLength));
+  private isOuterEdge(coord: Coord): boolean {
+    const edgeSegments = this.grid.edgeSegments(1);
+    for (let segment of edgeSegments) {
+      if (segment.contains(coord)) return true;
     }
 
-    return segments;
-  }
-
-  private isOuterEdge(coord: Coord): boolean {
-    return this.onBoardEdge(coord, Direction.Up) ||
-      this.onBoardEdge(coord, Direction.Right) ||
-      this.onBoardEdge(coord, Direction.Down) ||
-      this.onBoardEdge(coord, Direction.Left);
+    return false;
   }
 
   // Returns the direction of the edge the coordinates share, or undefined if

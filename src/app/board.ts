@@ -8,6 +8,7 @@ import { Beam, PrizeState } from './items';
 interface Bronzor {
     coord: Coord;
     active: boolean;
+    visible: boolean;
 }
 
 /**

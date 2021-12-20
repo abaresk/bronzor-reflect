@@ -1,29 +1,29 @@
-interface MoneyPrize {
+export interface MoneyPrize {
     type: MoneyPrizeType;
 }
 
-enum MoneyPrizeType {
+export enum MoneyPrizeType {
     Jackpot,
     LargeSum,
     MediumSum,
     SmallSum,
 }
 
-interface InventoryPrize {
+export interface InventoryPrize {
     type: InventoryPrizeType;
 }
 
-enum InventoryPrizeType {
+export enum InventoryPrizeType {
     Plus1Beam,
     Plus3Beams,
     Minus1Beam,
 }
 
-interface BeamPrize {
+export interface BeamPrize {
     type: Beam;
 }
 
-enum Beam {
+export enum Beam {
     Normal,
     Comet,
     Flame,
@@ -32,31 +32,31 @@ enum Beam {
     Water,
 }
 
-interface BombPrize {
+export interface BombPrize {
     type: BombType;
 }
 
-enum BombType {
+export enum BombType {
     Normal,
 };
 
-const jackpotPrize: MoneyPrize = { type: MoneyPrizeType.Jackpot };
-const largeSumPrize: MoneyPrize = { type: MoneyPrizeType.LargeSum };
-const mediumSumPrize: MoneyPrize = { type: MoneyPrizeType.MediumSum };
-const smallSumPrize: MoneyPrize = { type: MoneyPrizeType.SmallSum };
-const plus1BeamPrize: InventoryPrize = { type: InventoryPrizeType.Plus1Beam };
-const plus3BeamsPrize: InventoryPrize = { type: InventoryPrizeType.Plus3Beams };
-const minus1BeamPrize: InventoryPrize = { type: InventoryPrizeType.Minus1Beam };
-const cometBeamPrize: BeamPrize = { type: Beam.Comet };
-const flameBeamPrize: BeamPrize = { type: Beam.Flame };
-const phaseBeamPrize: BeamPrize = { type: Beam.Phase };
-const doublePrizePrize: BeamPrize = { type: Beam.DoublePrize };
-const waterBeamPrize: BeamPrize = { type: Beam.Water };
-const normalBombPrize: BombPrize = { type: BombType.Normal };
+export const jackpotPrize: MoneyPrize = { type: MoneyPrizeType.Jackpot };
+export const largeSumPrize: MoneyPrize = { type: MoneyPrizeType.LargeSum };
+export const mediumSumPrize: MoneyPrize = { type: MoneyPrizeType.MediumSum };
+export const smallSumPrize: MoneyPrize = { type: MoneyPrizeType.SmallSum };
+export const plus1BeamPrize: InventoryPrize = { type: InventoryPrizeType.Plus1Beam };
+export const plus3BeamsPrize: InventoryPrize = { type: InventoryPrizeType.Plus3Beams };
+export const minus1BeamPrize: InventoryPrize = { type: InventoryPrizeType.Minus1Beam };
+export const cometBeamPrize: BeamPrize = { type: Beam.Comet };
+export const flameBeamPrize: BeamPrize = { type: Beam.Flame };
+export const phaseBeamPrize: BeamPrize = { type: Beam.Phase };
+export const doublePrizePrize: BeamPrize = { type: Beam.DoublePrize };
+export const waterBeamPrize: BeamPrize = { type: Beam.Water };
+export const normalBombPrize: BombPrize = { type: BombType.Normal };
 
-type Prize = | MoneyPrize | InventoryPrize | BeamPrize | BombPrize;
+export type Prize = | MoneyPrize | InventoryPrize | BeamPrize | BombPrize;
 
-const prizes: ReadonlyArray<Prize> = [
+export const prizes: ReadonlyArray<Prize> = [
     jackpotPrize,
     largeSumPrize,
     mediumSumPrize,
@@ -73,7 +73,7 @@ const prizes: ReadonlyArray<Prize> = [
 ];
 
 // Jackpot payout by level
-const jackpotPayouts: ReadonlyMap<number, number> = new Map([
+export const jackpotPayouts: ReadonlyMap<number, number> = new Map([
     [1, 30],
     [2, 50],
     [3, 80],
@@ -84,19 +84,19 @@ const jackpotPayouts: ReadonlyMap<number, number> = new Map([
     [8, 600],
 ]);
 
-const moneyPrizePayouts: ReadonlyMap<MoneyPrize, number> = new Map([
+export const moneyPrizePayouts: ReadonlyMap<MoneyPrize, number> = new Map([
     [largeSumPrize, 20],
     [mediumSumPrize, 10],
     [smallSumPrize, 3],
 ]);
 
-const inventoryPrizePayouts: ReadonlyMap<InventoryPrize, number> = new Map([
+export const inventoryPrizePayouts: ReadonlyMap<InventoryPrize, number> = new Map([
     [plus1BeamPrize, 1],
     [plus3BeamsPrize, 3],
     [minus1BeamPrize, -1],
 ]);
 
-const beamPrizePayouts: ReadonlyMap<BeamPrize, number> = new Map([
+export const beamPrizePayouts: ReadonlyMap<BeamPrize, number> = new Map([
     [cometBeamPrize, 1],
     [flameBeamPrize, 1],
     [phaseBeamPrize, 1],
@@ -104,22 +104,7 @@ const beamPrizePayouts: ReadonlyMap<BeamPrize, number> = new Map([
     [waterBeamPrize, 1],
 ]);
 
-interface PrizeState {
+export interface PrizeState {
     prize: Prize;
     taken: boolean;
 }
-
-export {
-    beamPrizePayouts,
-    inventoryPrizePayouts,
-    jackpotPayouts,
-    moneyPrizePayouts,
-    prizes,
-    Beam,
-    BeamPrize,
-    InventoryPrize,
-    MoneyPrize,
-    MoneyPrizeType,
-    Prize,
-    PrizeState,
-};

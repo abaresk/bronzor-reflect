@@ -3,9 +3,10 @@ import { Beam, BeamPrize, Prize, beamPrizePayouts, inventoryPrizePayouts, jackpo
 import { BeamPointType, BoardConfig } from './board';
 import { BoardService } from './board.service';
 import { Game } from './game';
-import { Vector } from './coord';
+import { Coord, Vector } from './coord';
 import { WalletService } from './wallet.service';
 import { InventoryService } from './inventory.service';
+import { GeneratorService } from './generator.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class GameService {
   game = {} as Game;
 
   constructor(
+    private generatorService: GeneratorService,
     private boardService: BoardService,
     private walletService: WalletService,
     private inventoryService: InventoryService) { }
@@ -29,8 +31,8 @@ export class GameService {
     this.newRound(level);
   }
 
-  fireBeam(beam: Beam, vector: Vector) {
-    const beamPath = this.boardService.fireBeam(beam, vector);
+  fireBeam(beam: Beam, coord: Coord) {
+    const beamPath = this.boardService.fireBeam(beam, coord);
     if (!beamPath) return;
 
     // Find prize at emission coordinate
@@ -45,7 +47,7 @@ export class GameService {
   }
 
   private newRound(level: number) {
-    this.boardService.new(this.game.config, level);
+    this.generatorService.generateBoard(this.game.config, level);
     this.inventoryService.new(level);
     this.game.roundsCount++;
   }

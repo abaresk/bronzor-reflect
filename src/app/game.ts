@@ -1,11 +1,7 @@
 import { BoardConfig } from './board';
 
-interface Game {
+export interface Game {
     config: BoardConfig;
     level: number;
     roundsCount: number;
 }
-
-export {
-    Game,
-};

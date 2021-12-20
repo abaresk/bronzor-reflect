@@ -2,7 +2,7 @@
  * Coordinates
  */
 
-class Coord {
+export class Coord {
     row: number;
     col: number;
 
@@ -33,7 +33,7 @@ class Coord {
     }
 }
 
-class Grid {
+export class Grid {
     width: number;
     height: number;
 
@@ -110,14 +110,14 @@ class Grid {
     }
 }
 
-enum Direction {
+export enum Direction {
     Up,
     Right,
     Down,
     Left,
 }
 
-const directions = [
+export const directions = [
     Direction.Up,
     Direction.Right,
     Direction.Down,
@@ -142,12 +142,12 @@ function toOrientation(dir: Direction): Orientation {
     }
 }
 
-interface Vector {
+export interface Vector {
     coord: Coord;
     dir: Direction;
 }
 
-class LineSegment {
+export class LineSegment {
     origin: Vector;
     length: number;
 
@@ -178,18 +178,18 @@ class LineSegment {
     }
 }
 
-function rotateClockwise(dir: Direction, turns: number): Direction {
+export function rotateClockwise(dir: Direction, turns: number): Direction {
     const idx = directions.indexOf(dir);
     return directions[(idx + turns) % 4]
 }
 
-function oppositeDir(dir: Direction): Direction {
+export function oppositeDir(dir: Direction): Direction {
     return rotateClockwise(dir, 2);
 }
 
 // True if you can reach `coord2` from `coord1` by traveling straight in
 // direction `dir`.
-function coordInDirection(coord1: Coord, coord2: Coord, dir: Direction): boolean {
+export function coordInDirection(coord1: Coord, coord2: Coord, dir: Direction): boolean {
     const sameCol = coord1.col === coord2.col;
     const sameRow = coord1.row === coord2.row;
 
@@ -207,7 +207,7 @@ function coordInDirection(coord1: Coord, coord2: Coord, dir: Direction): boolean
 
 // Distance from `coord1` to `coord2` in direction `dir`. They do not 
 // necessarily need to be aligned on the same axis.
-function distanceInDirection(coord1: Coord, coord2: Coord, dir: Direction): number {
+export function distanceInDirection(coord1: Coord, coord2: Coord, dir: Direction): number {
     switch (dir) {
         case Direction.Up:
             return coord1.row - coord2.row;
@@ -222,24 +222,9 @@ function distanceInDirection(coord1: Coord, coord2: Coord, dir: Direction): numb
 
 // The Coord when you move from `coord1` in direction `dir` until you reach
 // `coord2`. If `coord2` is in the opposite direction, returns `coord1`.
-function projectToCoord(vector: Vector, coord2: Coord): Coord {
+export function projectToCoord(vector: Vector, coord2: Coord): Coord {
     const distance = distanceInDirection(vector.coord, coord2, vector.dir);
     if (distance < 0) return vector.coord;
 
     return vector.coord.coordAt(vector.dir, distance);
 }
-
-export {
-    coordInDirection,
-    directions,
-    distanceInDirection,
-    oppositeDir,
-    projectToCoord,
-    rotateClockwise,
-    Coord,
-    Direction,
-    Grid,
-    LineSegment,
-    Orientation,
-    Vector,
-};

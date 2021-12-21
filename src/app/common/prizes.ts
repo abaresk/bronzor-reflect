@@ -87,20 +87,20 @@ export const jackpotPayouts: ReadonlyMap<number, number> = new Map([
     [8, 600],
 ]);
 
-export const prizePayouts: PrizeDictionary<number> = {
-    largeSumPrize: 20,
-    mediumSumPrize: 10,
-    smallSumPrize: 3,
-    plus1BeamPrize: 1,
-    plus3BeamsPrize: 3,
-    minus1BeamPrize: - 1,
-    cometBeamPrize: 1,
-    flameBeamPrize: 1,
-    phaseBeamPrize: 1,
-    doublePrizeBeamPrize: 1,
-    waterBeamPrize: 1,
-    normalBombPrize: 1,
-};
+export const prizePayouts: ReadonlyMap<string, number> = new Map([
+    [largeSumPrize.toString(), 20],
+    [mediumSumPrize.toString(), 10],
+    [smallSumPrize.toString(), 3],
+    [plus1BeamPrize.toString(), 1],
+    [plus3BeamsPrize.toString(), 3],
+    [minus1BeamPrize.toString(), - 1],
+    [cometBeamPrize.toString(), 1],
+    [flameBeamPrize.toString(), 1],
+    [phaseBeamPrize.toString(), 1],
+    [doublePrizeBeamPrize.toString(), 1],
+    [waterBeamPrize.toString(), 1],
+    [normalBombPrize.toString(), 1],
+]);
 
 export interface PrizeState {
     prize: Prize;

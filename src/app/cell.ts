@@ -3,9 +3,9 @@ import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [jackpotPrize.toString(), 'J'],
-    [largeSumPrize.toString(), `$${prizePayouts[largeSumPrize]}`],
-    [mediumSumPrize.toString(), `$${prizePayouts[mediumSumPrize]}`],
-    [smallSumPrize.toString(), `$${prizePayouts[smallSumPrize]}`],
+    [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
+    [mediumSumPrize.toString(), `$${prizePayouts.get(mediumSumPrize.toString())}`],
+    [smallSumPrize.toString(), `$${prizePayouts.get(smallSumPrize.toString())}`],
     [plus1BeamPrize.toString(), '+1 beam'],
     [plus3BeamsPrize.toString(), '+3 beams'],
     [minus1BeamPrize.toString(), '-1 beam'],

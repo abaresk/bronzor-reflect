@@ -108,6 +108,15 @@ export class Grid {
         return segments;
     }
 
+    // Returns the direction of the edge segment if found, else undefined.
+    coordInEdgeSegments(coord: Coord, radius: number): Direction | undefined {
+        const segments = this.edgeSegments(radius);
+        for (let i = 0; i < directions.length; i++) {
+            if (segments[i].contains(coord)) return directions[i];
+        }
+        return undefined;
+    }
+
     private rowOverlaps(coord: Coord): boolean {
         return coord.row >= 0 && coord.row < this.height;
     }

@@ -14,7 +14,6 @@ enum Background {
 })
 export class CellComponent implements OnInit {
   @Input() cell: Cell | undefined;
-  text: string = 's';
 
   background!: Background;
 

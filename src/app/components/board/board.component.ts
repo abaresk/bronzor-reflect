@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';
 import { BoardService } from '../../services/board/board.service';
-import { Coord, Direction, Grid, rotateClockwise } from '../../common/coord';
+import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
 
 @Component({
@@ -82,8 +82,11 @@ export class BoardComponent implements OnInit {
         const coord = boardCoords[r][c];
         // Outer-most row
         if (r === 0 || c === 0 || r === totalLength - 1 || c === totalLength - 1) {
-          cells.set(coord.toString(),
-            new PrizeCell(this.boardService.getPrizeState(coord)));
+          const prizeCoord = this.prizeCellCoord(coord);
+          if (prizeCoord) {
+            cells.set(coord.toString(),
+              new PrizeCell(this.boardService.getPrizeState(prizeCoord)));
+          }
         }
         // Second to outer-most row 
         else if (r === 1 || c === 1 || r === totalLength - 2 || c === totalLength - 2) {
@@ -121,5 +124,12 @@ export class BoardComponent implements OnInit {
         }
       }
     }
+  }
+
+  private prizeCellCoord(coord: Coord): Coord | undefined {
+    const segmentDir = this.grid.coordInEdgeSegments(coord, 2);
+    if (segmentDir === undefined) return;
+
+    return coord.coordAt(oppositeDir(segmentDir), 1);
   }
 }

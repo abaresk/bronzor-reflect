@@ -1,4 +1,4 @@
-import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./common/prizes";
+import { Beam, Bomb, cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./common/prizes";
 
 interface Range {
     min: number; // inclusive
@@ -151,26 +151,42 @@ const normalBombsByLevel: LevelYield = new Map([
     [8, { min: 4, max: 6 }],
 ]);
 
-export const prizesDistributionsByLevel: PrizeDictionary<LevelYield> = {
-    jackpotPrize: jackpotsByLevel,
-    largeSumPrize: largeSumsByLevel,
-    mediumSumPrize: mediumSumsByLevel,
-    smallSumPrize: smallSumsByLevel,
-    plus1BeamPrize: plus1BeamsByLevel,
-    plus3BeamsPrize: plus3BeamsByLevel,
-    minus1BeamPrize: minus1BeamsByLevel,
-    cometBeamPrize: cometBeamsByLevel,
-    flameBeamPrize: flameBeamsByLevel,
-    phaseBeamPrize: phaseBeamsByLevel,
-    doublePrizeBeamPrize: doublePrizeBeamsByLevel,
-    waterBeamPrize: waterBeamsByLevel,
-    normalBombPrize: normalBombsByLevel,
-};
+export function getPrizeDistribution(prize: Prize): LevelYield | undefined {
+    switch (prize) {
+        case MoneyPrize.Jackpot:
+            return jackpotsByLevel;
+        case MoneyPrize.LargeSum:
+            return largeSumsByLevel;
+        case MoneyPrize.MediumSum:
+            return mediumSumsByLevel;
+        case MoneyPrize.SmallSum:
+            return smallSumsByLevel;
+        case InventoryPrize.Plus1Beam:
+            return plus1BeamsByLevel;
+        case InventoryPrize.Plus3Beams:
+            return plus3BeamsByLevel;
+        case InventoryPrize.Minus1Beam:
+            return minus1BeamsByLevel;
+        case Beam.Comet:
+            return cometBeamsByLevel;
+        case Beam.Flame:
+            return flameBeamsByLevel;
+        case Beam.Phase:
+            return phaseBeamsByLevel;
+        case Beam.DoublePrize:
+            return doublePrizeBeamsByLevel;
+        case Beam.Water:
+            return waterBeamsByLevel;
+        case Bomb.Normal:
+            return normalBombsByLevel;
+    }
+    return undefined;
+}
 
 export function getYieldRange(prize: Prize, level: number): Range {
     const defaultRange: Range = { min: 0, max: 0 };
 
-    const distribution = prizesDistributionsByLevel[prize];
+    const distribution = getPrizeDistribution(prize);
     return distribution?.get(level) ?? defaultRange;
 }
 

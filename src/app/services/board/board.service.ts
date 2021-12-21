@@ -232,7 +232,7 @@ export class BoardService {
     for (let i = 0; i < directions.length; i++) {
       const index = edgeSegments[i].indexOf(coord);
 
-      if (index !== -1) return i * directions.length + index;
+      if (index !== -1) return i * this.board.config.length + index;
     }
     return -1;
   }

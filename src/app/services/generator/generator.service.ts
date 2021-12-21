@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from '../../board';
 import { BoardService } from '../board/board.service';
 import { Coord, Grid } from '../../common/coord';
-import { getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel, prizesDistributionsByLevel } from '../../generator-tables';
+import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../generator-tables';
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
 import { getRandomInt, getRandomItemFromSet } from '../../util/random';
 
@@ -81,7 +81,7 @@ export class GeneratorService {
       const prizeYield = getYieldRange(prize, level);
       for (let i = 0; i < prizeYield.min; i++) {
         this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
-        this.incrementMap(prizeCounts, prize.toString(), 1);
+        this.incrementMap(prizeCounts, prize, 1);
         currentPrizes++;
       }
     }
@@ -93,14 +93,14 @@ export class GeneratorService {
       if (!prize) continue;
 
       this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
-      this.incrementMap(prizeCounts, prize.toString(), 1);
+      this.incrementMap(prizeCounts, prize, 1);
     }
   }
 
   private placePrizeOnBoard(prize: Prize, tally: PrizeCategoryTally, allCoords: Set<string>, takenCoords: Set<string>, reachableCoords: Set<string>): void {
     const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
     const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
-      < MAX_UNREACHABLE_PER_PRIZE;
+      <= MAX_UNREACHABLE_PER_PRIZE;
     const unreachable = Math.random() < getProbUnreachable(prize) && underThreshold;
 
     const openCoords = new Set([...allCoords].filter((coord) => !takenCoords.has(coord)));
@@ -111,7 +111,6 @@ export class GeneratorService {
       unreachableOpenCoords : reachableOpenCoords;
     const randCoord = getRandomItemFromSet(candidates);
 
-    candidates.delete(randCoord);
     takenCoords.add(randCoord);
     prizeCount.total++;
     if (candidates === unreachableOpenCoords) prizeCount.unreachable++;
@@ -159,7 +158,7 @@ export class GeneratorService {
 
   private getRandomAvailablePrize(prizeCounts: Map<Prize, number>, level: number): Prize | undefined {
     const availablePrizeMap = new Map([...prizeCounts].filter(([prize, count]) => {
-      const distribution = prizesDistributionsByLevel[prize];
+      const distribution = getPrizeDistribution(prize);
       const maxCount = distribution?.get(level)?.max;
       return maxCount && count <= maxCount;
     }));
@@ -169,8 +168,7 @@ export class GeneratorService {
   }
 
   private incrementMap(map: Map<string, number>, key: string, delta: number) {
-    const oldCount = map.get(key);
-    const newCount = oldCount ? oldCount + delta : 0;
-    map.set(key, newCount);
+    const oldCount = map.get(key) ?? 0;
+    map.set(key, oldCount + delta);
   }
 }

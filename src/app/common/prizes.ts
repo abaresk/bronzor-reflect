@@ -33,13 +33,13 @@ export interface PrizeDictionary<T> {
 export type PrizeCategory = string;
 
 export function getCategory(prize: Prize): PrizeCategory {
-    if (prize in MoneyPrize) {
+    if (Object.values(MoneyPrize).includes(prize as MoneyPrize)) {
         return 'moneyprize';
-    } else if (prize in InventoryPrize) {
+    } else if (Object.values(InventoryPrize).includes(prize as InventoryPrize)) {
         return 'inventoryprize';
-    } else if (prize in Beam) {
+    } else if (Object.values(Beam).includes(prize as Beam)) {
         return 'beamprize';
-    } else if (prize in Bomb) {
+    } else if (Object.values(Bomb).includes(prize as Bomb)) {
         return 'bombprize';
     }
     return '';
@@ -61,6 +61,9 @@ export const normalBombPrize = Bomb.Normal;
 
 export const prizes: ReadonlyArray<Prize> = [
     jackpotPrize,
+    largeSumPrize,
+    mediumSumPrize,
+    smallSumPrize,
     plus1BeamPrize,
     plus3BeamsPrize,
     minus1BeamPrize,

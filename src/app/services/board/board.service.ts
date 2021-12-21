@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Beam, Prize, PrizeState } from '../../prizes';
+import { Beam, Prize, PrizeState } from '../../common/prizes';
 import { BeamPath, BeamPoint, BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from '../../board';
-import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Grid, LineSegment, Vector } from '../../coord';
+import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Grid, LineSegment, Vector } from '../../common/coord';
 
 @Injectable({
   providedIn: 'root'

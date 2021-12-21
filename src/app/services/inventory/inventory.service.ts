@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam } from '../../prizes';
+import { Beam } from '../../common/prizes';
 import { Inventory } from '../../inventory';
 
 @Injectable({

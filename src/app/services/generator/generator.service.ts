@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from '../../board';
 import { BoardService } from '../board/board.service';
-import { Coord, Grid } from '../../coord';
+import { Coord, Grid } from '../../common/coord';
 import { getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel, prizesDistributionsByLevel } from '../../generator-tables';
-import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../prizes';
-import { getRandomInt, getRandomItemFromSet } from '../../random';
+import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
+import { getRandomInt, getRandomItemFromSet } from '../../util/random';
 
 // At most 50% of the prizes in each category (e.g. MoneyPrize, InventoryPrize),
 // will be in unreachable locations.

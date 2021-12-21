@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TICK } from '../../tick';
+import { TICK } from '../../common/tick';
 import { Wallet } from '../../wallet';
 
 // Number of coins merged per tick.

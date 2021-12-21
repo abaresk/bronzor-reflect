@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts } from '../../prizes';
+import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts } from '../../common/prizes';
 import { BeamPointType, BoardConfig } from '../../board';
 import { BoardService } from '../board/board.service';
 import { Game } from '../../game';
-import { Coord, Vector } from '../../coord';
+import { Coord, Vector } from '../../common/coord';
 import { WalletService } from '../wallet/wallet.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { GeneratorService } from '../generator/generator.service';

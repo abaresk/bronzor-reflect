@@ -1,4 +1,4 @@
-import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./prizes";
+import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./common/prizes";
 
 interface Range {
     min: number; // inclusive

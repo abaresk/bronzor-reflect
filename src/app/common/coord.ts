@@ -202,13 +202,13 @@ export function coordInDirection(coord1: Coord, coord2: Coord, dir: Direction): 
 
     switch (dir) {
         case Direction.Up:
-            return sameCol && coord2.row < coord1.row;
+            return sameCol && coord2.row <= coord1.row;
         case Direction.Right:
-            return sameRow && coord2.col > coord1.col;
+            return sameRow && coord2.col >= coord1.col;
         case Direction.Down:
-            return sameCol && coord2.row > coord1.row;
+            return sameCol && coord2.row >= coord1.row;
         case Direction.Left:
-            return sameRow && coord2.col < coord1.col;
+            return sameRow && coord2.col <= coord1.col;
     }
 }
 

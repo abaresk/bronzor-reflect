@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BoardCell, Cell, IOCell, PrizeCell } from '../cell';
+import { BoardCell, Cell, IOCell, PrizeCell } from '../../cell';
 
 enum Background {
   White = "white-background",

@@ -1,10 +1,10 @@
-import { BoardCell, Cell, IOCell, PrizeCell } from '../cell';
+import { BoardCell, Cell, IOCell, PrizeCell } from '../../cell';
 import { Component, OnInit } from '@angular/core';
-import { Beam } from '../prizes';
-import { Board, BoardConfig } from '../board';
-import { BoardService } from '../board.service';
-import { Coord, Direction, Grid, rotateClockwise } from '../coord';
-import { GameService } from '../game.service';
+import { Beam } from '../../prizes';
+import { Board, BoardConfig } from '../../board';
+import { BoardService } from '../../board.service';
+import { Coord, Direction, Grid, rotateClockwise } from '../../coord';
+import { GameService } from '../../game.service';
 
 @Component({
   selector: 'game-board',

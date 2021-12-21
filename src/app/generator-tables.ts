@@ -1,4 +1,4 @@
-import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, prizes, smallSumPrize, waterBeamPrize } from "./prizes";
+import { cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./prizes";
 
 interface Range {
     min: number; // inclusive
@@ -151,26 +151,26 @@ const normalBombsByLevel: LevelYield = new Map([
     [8, { min: 4, max: 6 }],
 ]);
 
-const prizesDistributionsByLevel: ReadonlyMap<string, LevelYield> = new Map([
-    [jackpotPrize.toString(), jackpotsByLevel],
-    [largeSumPrize.toString(), largeSumsByLevel],
-    [mediumSumPrize.toString(), mediumSumsByLevel],
-    [smallSumPrize.toString(), smallSumsByLevel],
-    [plus1BeamPrize.toString(), plus1BeamsByLevel],
-    [plus3BeamsPrize.toString(), plus3BeamsByLevel],
-    [minus1BeamPrize.toString(), minus1BeamsByLevel],
-    [cometBeamPrize.toString(), cometBeamsByLevel],
-    [flameBeamPrize.toString(), flameBeamsByLevel],
-    [phaseBeamPrize.toString(), phaseBeamsByLevel],
-    [doublePrizeBeamPrize.toString(), doublePrizeBeamsByLevel],
-    [waterBeamPrize.toString(), waterBeamsByLevel],
-    [normalBombPrize.toString(), normalBombsByLevel],
-]);
+const prizesDistributionsByLevel: PrizeDictionary<LevelYield> = {
+    jackpotPrize: jackpotsByLevel,
+    largeSumPrize: largeSumsByLevel,
+    mediumSumPrize: mediumSumsByLevel,
+    smallSumPrize: smallSumsByLevel,
+    plus1BeamPrize: plus1BeamsByLevel,
+    plus3BeamsPrize: plus3BeamsByLevel,
+    minus1BeamPrize: minus1BeamsByLevel,
+    cometBeamPrize: cometBeamsByLevel,
+    flameBeamPrize: flameBeamsByLevel,
+    phaseBeamPrize: phaseBeamsByLevel,
+    doublePrizeBeamPrize: doublePrizeBeamsByLevel,
+    waterBeamPrize: waterBeamsByLevel,
+    normalBombPrize: normalBombsByLevel,
+};
 
 export function getYieldRange(prize: Prize, level: number): Range {
     const defaultRange: Range = { min: 0, max: 0 };
 
-    const distribution = prizesDistributionsByLevel.get(prize.toString());
+    const distribution = prizesDistributionsByLevel[prize];
     return distribution?.get(level) ?? defaultRange;
 }
 

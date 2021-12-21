@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, BeamPrize, Prize, jackpotPayouts, MoneyPrize, MoneyPrizeType, InventoryPrize, prizePayouts } from './prizes';
+import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts } from './prizes';
 import { BeamPointType, BoardConfig } from './board';
 import { BoardService } from './board.service';
 import { Game } from './game';
@@ -81,25 +81,24 @@ export class GameService {
   private applyPrize(beam: Beam, prize: Prize) {
     const payoutFactor = beam === Beam.DoublePrize ? 2 : 1;
 
-    if (prize instanceof MoneyPrize && prize.type === MoneyPrizeType.Jackpot) {
+    if (prize === MoneyPrize.Jackpot) {
       const payout = (jackpotPayouts.get(this.game.level) ?? 0) * payoutFactor;
       this.walletService.setPayout(payout);
       return;
     }
 
-    const payout = (prizePayouts.get(prize.toString()) ?? 0) * payoutFactor;
-    if (prize instanceof MoneyPrize) {
+    const payout = (prizePayouts[prize] ?? 0) * payoutFactor;
+    if (prize in MoneyPrize) {
       this.walletService.setPayout(payout);
-    } else if (prize instanceof InventoryPrize) {
+    } else if (prize in InventoryPrize) {
       this.inventoryService.addBeams(Beam.Normal, payout);
-    } else if (prize instanceof BeamPrize) {
-      this.inventoryService.addBeams(prize.type, payout);
+    } else if (prize in Beam) {
+      this.inventoryService.addBeams(prize as Beam, payout);
     }
   }
 
   private tryNextLevel(prize: Prize) {
-    const moneyPrize = prize as MoneyPrize;
-    if (moneyPrize && moneyPrize.type === MoneyPrizeType.Jackpot) {
+    if (prize === MoneyPrize.Jackpot) {
       this.game.level = Math.min(this.game.level + 1, 8);
       return;
     }

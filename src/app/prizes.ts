@@ -1,120 +1,51 @@
-export interface MoneyPrize {
-    type: MoneyPrizeType;
+export enum MoneyPrize {
+    Jackpot = 'MoneyPrize.Jackpot',
+    LargeSum = 'MoneyPrize.LargeSum',
+    MediumSum = 'MoneyPrize.Medium',
+    SmallSum = 'MoneyPrize.SmallSum',
 }
 
-export enum MoneyPrizeType {
-    Jackpot,
-    LargeSum,
-    MediumSum,
-    SmallSum,
-}
-
-export interface InventoryPrize {
-    type: InventoryPrizeType;
-}
-
-export enum InventoryPrizeType {
-    Plus1Beam,
-    Plus3Beams,
-    Minus1Beam,
-}
-
-export interface BeamPrize {
-    type: Beam;
+export enum InventoryPrize {
+    Plus1Beam = 'InventoryPrize.Plus1Beam',
+    Plus3Beams = 'InventoryPrize.Plus3Beams',
+    Minus1Beam = 'InventoryPrize.Minus1Beam',
 }
 
 export enum Beam {
-    Normal,
-    Comet,
-    Flame,
-    Phase,
-    DoublePrize,
-    Water,
+    Normal = 'Beam.Normal',
+    Comet = 'Beam.Comet',
+    Flame = 'Beam.Flame',
+    Phase = 'Beam.Phase',
+    DoublePrize = 'Beam.DoublePrize',
+    Water = 'Beam.Water',
 }
 
-export interface BombPrize {
-    type: BombType;
+export enum Bomb {
+    Normal = 'Bomb.Normal',
 }
 
-export enum BombType {
-    Normal,
+export type Prize = MoneyPrize | InventoryPrize | Beam | Bomb;
+
+export interface PrizeDictionary<T> {
+    [key: string]: T;
 };
 
-export class Prize {
-    toString() { return ''; }
-}
-
-export class MoneyPrize extends Prize {
-    type: MoneyPrizeType;
-
-    constructor(type: MoneyPrizeType) {
-        super();
-        this.type = type;
-    }
-
-    override toString(): string {
-        return `moneyprize-${this.type}`;
-    }
-}
-
-export class InventoryPrize extends Prize {
-    type: InventoryPrizeType;
-
-    constructor(type: InventoryPrizeType) {
-        super();
-        this.type = type;
-    }
-
-    override toString(): string {
-        return `inventoryprize-${this.type}`;
-    }
-}
-
-export class BeamPrize extends Prize {
-    type: Beam;
-
-    constructor(type: Beam) {
-        super();
-        this.type = type;
-    }
-
-    override toString(): string {
-        return `beamprize-${this.type}`;
-    }
-}
-
-export class BombPrize extends Prize {
-    type: BombType;
-
-    constructor(type: BombType) {
-        super();
-        this.type = type;
-    }
-
-    override toString(): string {
-        return `bombprize-${this.type}`;
-    }
-}
-
-export const jackpotPrize = new MoneyPrize(MoneyPrizeType.Jackpot);
-export const largeSumPrize = new MoneyPrize(MoneyPrizeType.LargeSum);
-export const mediumSumPrize = new MoneyPrize(MoneyPrizeType.MediumSum);
-export const smallSumPrize = new MoneyPrize(MoneyPrizeType.SmallSum);
-export const plus1BeamPrize = new InventoryPrize(InventoryPrizeType.Plus1Beam);
-export const plus3BeamsPrize = new InventoryPrize(InventoryPrizeType.Plus3Beams);
-export const minus1BeamPrize = new InventoryPrize(InventoryPrizeType.Minus1Beam);
-export const cometBeamPrize = new BeamPrize(Beam.Comet);
-export const flameBeamPrize = new BeamPrize(Beam.Flame);
-export const phaseBeamPrize = new BeamPrize(Beam.Phase);
-export const doublePrizeBeamPrize = new BeamPrize(Beam.DoublePrize);
-export const waterBeamPrize = new BeamPrize(Beam.Water);
-export const normalBombPrize = new BombPrize(BombType.Normal);
+export const jackpotPrize = MoneyPrize.Jackpot;
+export const largeSumPrize = MoneyPrize.LargeSum;
+export const mediumSumPrize = MoneyPrize.MediumSum;
+export const smallSumPrize = MoneyPrize.SmallSum;
+export const plus1BeamPrize = InventoryPrize.Plus1Beam;
+export const plus3BeamsPrize = InventoryPrize.Plus3Beams;
+export const minus1BeamPrize = InventoryPrize.Minus1Beam;
+export const cometBeamPrize = Beam.Comet;
+export const flameBeamPrize = Beam.Flame;
+export const phaseBeamPrize = Beam.Phase;
+export const doublePrizeBeamPrize = Beam.DoublePrize;
+export const waterBeamPrize = Beam.Water;
+export const normalBombPrize = Bomb.Normal;
 
 export const prizes: ReadonlyArray<Prize> = [
     jackpotPrize,
-    largeSumPrize,
-    mediumSumPrize,
-    smallSumPrize,
     plus1BeamPrize,
     plus3BeamsPrize,
     minus1BeamPrize,
@@ -138,20 +69,20 @@ export const jackpotPayouts: ReadonlyMap<number, number> = new Map([
     [8, 600],
 ]);
 
-export const prizePayouts: ReadonlyMap<string, number> = new Map([
-    [largeSumPrize.toString(), 20],
-    [mediumSumPrize.toString(), 10],
-    [smallSumPrize.toString(), 3],
-    [plus1BeamPrize.toString(), 1],
-    [plus3BeamsPrize.toString(), 3],
-    [minus1BeamPrize.toString(), -1],
-    [cometBeamPrize.toString(), 1],
-    [flameBeamPrize.toString(), 1],
-    [phaseBeamPrize.toString(), 1],
-    [doublePrizeBeamPrize.toString(), 1],
-    [waterBeamPrize.toString(), 1],
-    [normalBombPrize.toString(), 1],
-]);
+export const prizePayouts: PrizeDictionary<number> = {
+    largeSumPrize: 20,
+    mediumSumPrize: 10,
+    smallSumPrize: 3,
+    plus1BeamPrize: 1,
+    plus3BeamsPrize: 3,
+    minus1BeamPrize: - 1,
+    cometBeamPrize: 1,
+    flameBeamPrize: 1,
+    phaseBeamPrize: 1,
+    doublePrizeBeamPrize: 1,
+    waterBeamPrize: 1,
+    normalBombPrize: 1,
+};
 
 export interface PrizeState {
     prize: Prize;

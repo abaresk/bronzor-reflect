@@ -6,13 +6,15 @@ import { AppComponent } from './app.component';
 import { BoardComponent } from './components/board/board.component';
 import { CellComponent } from './components/cell/cell.component';
 import { WalletComponent } from './components/wallet/wallet.component';
+import { LevelComponent } from './components/level/level.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BoardComponent,
     CellComponent,
-    WalletComponent
+    WalletComponent,
+    LevelComponent
   ],
   imports: [
     BrowserModule,

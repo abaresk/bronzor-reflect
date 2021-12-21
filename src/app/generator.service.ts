@@ -47,16 +47,10 @@ export class GeneratorService {
     const shuffled = tiles.sort(() => 0.5 - Math.random());
     const bronzorLocations = shuffled.slice(0, bronzorCount);
 
-    for (let i = 0; i < hiddenBronzors; i++) {
+    for (let i = 0; i < bronzorCount; i++) {
       const location = bronzorLocations[i];
       const coord = new Coord(Math.floor(location / length), location % length);
-      bronzors.push({ coord: coord, active: true, visible: false });
-    }
-
-    for (let i = hiddenBronzors; i < bronzorCount; i++) {
-      const location = bronzorLocations[i];
-      const coord = new Coord(Math.floor(location / length), location % length);
-      bronzors.push({ coord: coord, active: true, visible: true });
+      bronzors.push({ coord: coord, active: true, visible: i >= hiddenBronzors });
     }
     return bronzors;
   }

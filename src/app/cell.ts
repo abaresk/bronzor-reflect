@@ -1,8 +1,7 @@
 import { Bronzor } from "./board";
-import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts } from "./common/prizes";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts, MoneyPrize, jackpotPayouts, Prize } from "./common/prizes";
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([
-    [jackpotPrize.toString(), 'J'],
     [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
     [mediumSumPrize.toString(), `$${prizePayouts.get(mediumSumPrize.toString())}`],
     [smallSumPrize.toString(), `$${prizePayouts.get(smallSumPrize.toString())}`],
@@ -17,6 +16,15 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [normalBombPrize.toString(), 'bomb'],
 ]);
 
+function getPrizeText(prize: Prize, level: number): string {
+    if (prize === MoneyPrize.Jackpot) {
+        const payout = jackpotPayouts.get(level) ?? 0;
+        return `J ($${payout})`;
+    }
+
+    return prizeDisplays.get(prize.toString()) ?? '';
+}
+
 export class Cell {
     visible: boolean;
 
@@ -28,7 +36,7 @@ export class Cell {
         this.visible = visible;
     }
 
-    getText(): string { return ''; }
+    getText(level: number): string { return ''; }
 }
 
 export class BoardCell extends Cell {
@@ -40,7 +48,7 @@ export class BoardCell extends Cell {
     }
 
     // Get text representation of the cell
-    override getText(): string {
+    override getText(level: number): string {
         if (!this.bronzor) return '';
 
         return this.bronzor.visible ? 'B' : '';
@@ -57,11 +65,11 @@ export class PrizeCell extends Cell {
     }
 
     // Get text representation of the cell
-    override getText(): string {
+    override getText(level: number): string {
         if (!this.prizeState) return '';
 
         const taken = this.prizeState.taken ? 'taken' : '';
-        const prizeName = prizeDisplays.get(this.prizeState.prize.toString());
+        const prizeName = getPrizeText(this.prizeState.prize, level);
         return taken ? `${prizeName}\n${taken}` : `${prizeName}`;
     }
 }
@@ -79,7 +87,7 @@ export class IOCell extends Cell {
     }
 
     // Get text representation of the cell
-    override getText(): string {
+    override getText(level: number): string {
         return '';
     }
 }

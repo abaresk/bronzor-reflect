@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { GameService } from 'src/app/services/game/game.service';
 import { BoardCell, Cell, IOCell, PrizeCell } from '../../cell';
 
 enum Background {
@@ -17,7 +18,7 @@ export class CellComponent implements OnInit {
 
   background!: Background;
 
-  constructor() { }
+  constructor(private gameService: GameService) { }
 
   ngOnInit(): void {
   }
@@ -31,7 +32,7 @@ export class CellComponent implements OnInit {
   getText(): string {
     if (!this.cell) return '';
 
-    return this.cell.getText();
+    return this.cell.getText(this.gameService.game.level);
   }
 
   private getVisible(): boolean {

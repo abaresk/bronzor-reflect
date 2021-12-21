@@ -2,8 +2,20 @@ import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from './board';
 import { BoardService } from './board.service';
 import { Coord, Grid } from './coord';
-import { hiddenBronzorsByLevel } from './generator-tables';
-import { Beam, PrizeState } from './prizes';
+import { getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel, prizesDistributionsByLevel } from './generator-tables';
+import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from './prizes';
+import { getRandomInt, getRandomItemFromSet } from './random';
+
+// At most 50% of the prizes in each category (e.g. MoneyPrize, InventoryPrize),
+// will be in unreachable locations.
+const MAX_UNREACHABLE_PER_PRIZE = 0.5;
+
+type PrizeCategoryTally = Map<PrizeCategory, PrizeCount>;
+
+interface PrizeCount {
+  unreachable: number;
+  total: number;
+};
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +43,7 @@ export class GeneratorService {
     const bronzors = this.placeBronzors(level);
     this.boardService.board.bronzors = bronzors;
 
-    const prizes = this.placePrizes(bronzors, level);
-    this.boardService.board.prizes = prizes;
+    this.placePrizes(level);
   }
 
   // TODO: Factor in level when placing Bronzors.
@@ -55,13 +66,59 @@ export class GeneratorService {
     return bronzors;
   }
 
-  private placePrizes(bronzors: Bronzor[], level: number): PrizeState[] {
+  private placePrizes(level: number): void {
+    const prizeCounts: Map<Prize, number> = new Map();
+    const prizeCategoryTally: PrizeCategoryTally = new Map();
+    const takenCoords: Set<string> = new Set();
     const allCoordsSet = this.coordSet(this.ioCoords());
     const reachableSet = this.coordSet(this.reachableCoords());
 
-    // TODO: Finish prize generation algorithm.
+    let currentPrizes = 0;
+    const prizeLimit = this.getTotalPrizes(level);
 
-    return [];
+    // Place minimum number of each prize on the board.
+    for (let prize of prizes) {
+      const prizeYield = getYieldRange(prize, level);
+      for (let i = 0; i < prizeYield.min; i++) {
+        this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+        this.incrementMap(prizeCounts, prize.toString(), 1);
+        currentPrizes++;
+      }
+    }
+
+    // Place remaining prizes on the board.
+    for (let i = currentPrizes; i < prizeLimit; i++) {
+      // Pick a prize that isn't maxed out at random and place it on the board.
+      const prize = this.getRandomAvailablePrize(prizeCounts, level);
+      if (!prize) continue;
+
+      this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+      this.incrementMap(prizeCounts, prize.toString(), 1);
+    }
+  }
+
+  private placePrizeOnBoard(prize: Prize, tally: PrizeCategoryTally, allCoords: Set<string>, takenCoords: Set<string>, reachableCoords: Set<string>): void {
+    const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
+    const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
+      < MAX_UNREACHABLE_PER_PRIZE;
+    const unreachable = Math.random() < getProbUnreachable(prize) && underThreshold;
+
+    const openCoords = new Set([...allCoords].filter((coord) => !takenCoords.has(coord)));
+    const reachableOpenCoords = new Set([...openCoords].filter((coord) => reachableCoords.has(coord)));
+    const unreachableOpenCoords = new Set([...openCoords].filter((coord) => !reachableCoords.has(coord)));
+
+    const candidates = (unreachable && unreachableOpenCoords.size) ?
+      unreachableOpenCoords : reachableOpenCoords;
+    const randCoord = getRandomItemFromSet(candidates);
+
+    candidates.delete(randCoord);
+    takenCoords.add(randCoord);
+    prizeCount.total++;
+    if (candidates === unreachableOpenCoords) prizeCount.unreachable++;
+    tally.set(getCategory(prize), prizeCount);
+
+    const placedCoord = Coord.fromString(randCoord);
+    this.boardService.addPrize(placedCoord, prize);
   }
 
   private reachableCoords(): Coord[] {
@@ -93,5 +150,27 @@ export class GeneratorService {
     const set: Set<string> = new Set();
     coords.forEach((coord) => set.add(coord.toString()))
     return set;
+  }
+
+  private getTotalPrizes(level: number): number {
+    const totalRange = getTotalRange(level);
+    return getRandomInt(totalRange.max + 1 - totalRange.min) + totalRange.min;
+  }
+
+  private getRandomAvailablePrize(prizeCounts: Map<Prize, number>, level: number): Prize | undefined {
+    const availablePrizeMap = new Map([...prizeCounts].filter(([prize, count]) => {
+      const distribution = prizesDistributionsByLevel[prize];
+      const maxCount = distribution?.get(level)?.max;
+      return maxCount && count <= maxCount;
+    }));
+
+    const availablePrizes = [...availablePrizeMap.keys()];
+    return availablePrizes[getRandomInt(availablePrizes.length)];
+  }
+
+  private incrementMap(map: Map<string, number>, key: string, delta: number) {
+    const oldCount = map.get(key);
+    const newCount = oldCount ? oldCount + delta : 0;
+    map.set(key, newCount);
   }
 }

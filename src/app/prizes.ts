@@ -30,6 +30,21 @@ export interface PrizeDictionary<T> {
     [key: string]: T;
 };
 
+export type PrizeCategory = string;
+
+export function getCategory(prize: Prize): PrizeCategory {
+    if (prize in MoneyPrize) {
+        return 'moneyprize';
+    } else if (prize in InventoryPrize) {
+        return 'inventoryprize';
+    } else if (prize in Beam) {
+        return 'beamprize';
+    } else if (prize in Bomb) {
+        return 'bombprize';
+    }
+    return '';
+}
+
 export const jackpotPrize = MoneyPrize.Jackpot;
 export const largeSumPrize = MoneyPrize.LargeSum;
 export const mediumSumPrize = MoneyPrize.MediumSum;

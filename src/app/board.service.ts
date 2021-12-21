@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, PrizeState } from './prizes';
+import { Beam, Prize, PrizeState } from './prizes';
 import { BeamPath, BeamPoint, BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from './board';
 import { coordInDirection, directions, distanceInDirection, oppositeDir, projectToCoord, rotateClockwise, Coord, Direction, Grid, LineSegment, Vector } from './coord';
 
@@ -37,6 +37,13 @@ export class BoardService {
   getPrizeState(coord: Coord): PrizeState | undefined {
     const prizeTileId = this.prizeTileId(coord);
     return prizeTileId !== -1 ? this.board.prizes[prizeTileId] : undefined;
+  }
+
+  addPrize(coord: Coord, prize: Prize) {
+    const prizeTileId = this.prizeTileId(coord);
+    if (prizeTileId !== -1) {
+      this.board.prizes[prizeTileId] = { prize: prize, taken: false };
+    }
   }
 
   takePrizeAt(coord: Coord) {

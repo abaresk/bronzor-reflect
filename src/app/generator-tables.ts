@@ -151,7 +151,7 @@ const normalBombsByLevel: LevelYield = new Map([
     [8, { min: 4, max: 6 }],
 ]);
 
-const prizesDistributionsByLevel: PrizeDictionary<LevelYield> = {
+export const prizesDistributionsByLevel: PrizeDictionary<LevelYield> = {
     jackpotPrize: jackpotsByLevel,
     largeSumPrize: largeSumsByLevel,
     mediumSumPrize: mediumSumsByLevel,

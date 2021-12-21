@@ -31,6 +31,13 @@ export class Coord {
     toString(): string {
         return `(${this.row}, ${this.col})`;
     }
+
+    static fromString(coordString: string): Coord {
+        let noParens = coordString.substring(1);
+        noParens = noParens.substring(0, noParens.length - 1);
+        const split = noParens.split(',');
+        return new Coord(Number(split[0]), Number(split[1]));
+    }
 }
 
 export class Grid {

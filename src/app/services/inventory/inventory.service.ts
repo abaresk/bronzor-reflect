@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Beam } from './prizes';
-import { Inventory } from './inventory';
+import { Beam } from '../../prizes';
+import { Inventory } from '../../inventory';
 
 @Injectable({
   providedIn: 'root'

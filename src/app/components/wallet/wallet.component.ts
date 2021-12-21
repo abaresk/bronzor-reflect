@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { WalletService } from '../../wallet.service';
+import { WalletService } from '../../services/wallet/wallet.service';
 
 @Component({
   selector: 'game-wallet',

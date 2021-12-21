@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { TICK } from './tick';
-import { Wallet } from './wallet';
+import { TICK } from '../../tick';
+import { Wallet } from '../../wallet';
 
 // Number of coins merged per tick.
 const DEFAULT_COINS_PER_TICK = 1;

@@ -56,12 +56,12 @@ export const smallSumPrize = MoneyPrize.SmallSum;
 export const plus1BeamPrize = InventoryPrize.Plus1Beam;
 export const plus3BeamsPrize = InventoryPrize.Plus3Beams;
 export const minus1BeamPrize = InventoryPrize.Minus1Beam;
-export const cometBeamPrize = Beam.Comet;
-export const flameBeamPrize = Beam.Flame;
-export const phaseBeamPrize = Beam.Phase;
-export const doublePrizeBeamPrize = Beam.DoublePrize;
-export const waterBeamPrize = Beam.Water;
-export const normalBombPrize = Bomb.Normal;
+export const cometBeam = Beam.Comet;
+export const flameBeam = Beam.Flame;
+export const phaseBeam = Beam.Phase;
+export const doublePrizeBeam = Beam.DoublePrize;
+export const waterBeam = Beam.Water;
+export const normalBomb = Bomb.Normal;
 
 export const prizes: ReadonlyArray<Prize> = [
     jackpotPrize,
@@ -71,12 +71,12 @@ export const prizes: ReadonlyArray<Prize> = [
     plus1BeamPrize,
     plus3BeamsPrize,
     minus1BeamPrize,
-    cometBeamPrize,
-    flameBeamPrize,
-    phaseBeamPrize,
-    doublePrizeBeamPrize,
-    waterBeamPrize,
-    normalBombPrize,
+    cometBeam,
+    flameBeam,
+    phaseBeam,
+    doublePrizeBeam,
+    waterBeam,
+    normalBomb,
 ];
 
 // Jackpot payout by level
@@ -98,12 +98,12 @@ export const prizePayouts: ReadonlyMap<string, number> = new Map([
     [plus1BeamPrize.toString(), 1],
     [plus3BeamsPrize.toString(), 3],
     [minus1BeamPrize.toString(), - 1],
-    [cometBeamPrize.toString(), 1],
-    [flameBeamPrize.toString(), 1],
-    [phaseBeamPrize.toString(), 1],
-    [doublePrizeBeamPrize.toString(), 1],
-    [waterBeamPrize.toString(), 1],
-    [normalBombPrize.toString(), 1],
+    [cometBeam.toString(), 1],
+    [flameBeam.toString(), 1],
+    [phaseBeam.toString(), 1],
+    [doublePrizeBeam.toString(), 1],
+    [waterBeam.toString(), 1],
+    [normalBomb.toString(), 1],
 ]);
 
 export interface PrizeState {

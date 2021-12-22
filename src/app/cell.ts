@@ -1,5 +1,5 @@
 import { Bronzor } from "./board";
-import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam } from "./common/prizes";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeam, flameBeam, phaseBeam, waterBeam, normalBomb, doublePrizeBeam, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam } from "./common/prizes";
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
@@ -9,12 +9,12 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [plus3BeamsPrize.toString(), '+3 beams'],
     [minus1BeamPrize.toString(), '-1 beam'],
     [normalBeam.toString(), 'normal beam'],
-    [cometBeamPrize.toString(), 'comet beam'],
-    [flameBeamPrize.toString(), 'flame beam'],
-    [phaseBeamPrize.toString(), 'shadow beam'],
-    [doublePrizeBeamPrize.toString(), 'x2 beam'],
-    [waterBeamPrize.toString(), 'water beam'],
-    [normalBombPrize.toString(), 'bomb'],
+    [cometBeam.toString(), 'comet beam'],
+    [flameBeam.toString(), 'flame beam'],
+    [phaseBeam.toString(), 'shadow beam'],
+    [doublePrizeBeam.toString(), 'x2 beam'],
+    [waterBeam.toString(), 'water beam'],
+    [normalBomb.toString(), 'bomb'],
 ]);
 
 function getPrizeText(prize: Prize, level: number): string {

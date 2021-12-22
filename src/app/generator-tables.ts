@@ -1,4 +1,4 @@
-import { Beam, Bomb, cometBeamPrize, doublePrizeBeamPrize, flameBeamPrize, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBombPrize, phaseBeamPrize, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeamPrize } from "./common/prizes";
+import { Beam, Bomb, cometBeam, doublePrizeBeam, flameBeam, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBomb, phaseBeam, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeam } from "./common/prizes";
 
 interface Range {
     min: number; // inclusive
@@ -227,12 +227,12 @@ const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
     [plus1BeamPrize.toString(), 0.2],
     [plus3BeamsPrize.toString(), 0.2],
     [minus1BeamPrize.toString(), 0.2],
-    [cometBeamPrize.toString(), 0.2],
-    [flameBeamPrize.toString(), 0.2],
-    [phaseBeamPrize.toString(), 0.2],
-    [doublePrizeBeamPrize.toString(), 0.2],
-    [waterBeamPrize.toString(), 0.2],
-    [normalBombPrize.toString(), 0.2],
+    [cometBeam.toString(), 0.2],
+    [flameBeam.toString(), 0.2],
+    [phaseBeam.toString(), 0.2],
+    [doublePrizeBeam.toString(), 0.2],
+    [waterBeam.toString(), 0.2],
+    [normalBomb.toString(), 0.2],
 ]);
 
 export function getProbUnreachable(prize: Prize): number {

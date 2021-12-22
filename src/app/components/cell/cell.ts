@@ -1,5 +1,5 @@
-import { Bronzor } from "./board";
-import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeam, flameBeam, phaseBeam, waterBeam, normalBomb, doublePrizeBeam, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam, InventoryPrize } from "./common/prizes";
+import { Bronzor } from "../../board";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeam, flameBeam, phaseBeam, waterBeam, normalBomb, doublePrizeBeam, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam, InventoryPrize } from "../../common/prizes";
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],

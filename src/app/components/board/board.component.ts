@@ -1,4 +1,4 @@
-import { BoardCell, Cell, IOCell, PrizeCell } from '../../cell';
+import { BoardCell, Cell, IOCell, PrizeCell } from '../cell/cell';
 import { Component, OnInit } from '@angular/core';
 import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';

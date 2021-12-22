@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { InventoryCell } from 'src/app/cell';
+import { InventoryCell } from 'src/app/components/cell/cell';
 import { Beam } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
 

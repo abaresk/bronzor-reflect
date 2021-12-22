@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { GameService } from 'src/app/services/game/game.service';
-import { Cell, SelectionState } from '../../cell';
+import { Cell, SelectionState } from './cell';
 
 enum SelectionCssClass {
   Uninteractable = 'uninteractable',

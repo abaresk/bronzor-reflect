@@ -1,11 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { GameService } from 'src/app/services/game/game.service';
-import { BoardCell, Cell, IOCell, PrizeCell } from '../../cell';
+import { Cell, SelectionState } from '../../cell';
 
-enum Background {
-  White = "white-background",
-  LightGray = "light-gray-background",
-  DarkGray = "dark-gray-background",
+enum SelectionCssClass {
+  Uninteractable = 'uninteractable',
+  Interactable = 'interactable',
+  Focused = 'focused',
+  Selected = 'selected',
 };
 
 @Component({
@@ -16,8 +17,6 @@ enum Background {
 export class CellComponent implements OnInit {
   @Input() cell: Cell | undefined;
 
-  background!: Background;
-
   constructor(private gameService: GameService) { }
 
   ngOnInit(): void {
@@ -25,8 +24,10 @@ export class CellComponent implements OnInit {
 
   getClasses(): string {
     const visibility = this.getVisible() ? 'display-on' : 'display-off';
-    const background = this.getBackground();
-    return `${visibility} ${background}`;
+    const cellCategory = this.cell?.getCategory() ?? '';
+    const selectable = this.getSelectable() ? 'selectable' : '';
+    const selectionState = this.getSelectionCssClass() ?? '';
+    return `${visibility} ${cellCategory} ${selectable} ${selectionState}`;
   }
 
   getText(): string {
@@ -39,17 +40,28 @@ export class CellComponent implements OnInit {
     return this.cell?.visible ?? false;
   }
 
-  private getBackground(): Background {
-    if (!this.cell) return Background.White;
+  private getSelectable(): boolean {
+    return this.cell?.getSelectable() ?? false;
+  }
 
-    if (this.cell instanceof BoardCell) {
-      return Background.White;
-    } else if (this.cell instanceof PrizeCell) {
-      return Background.DarkGray;
-    } else if (this.cell instanceof IOCell) {
-      return Background.LightGray;
+  private getInteractable(): boolean {
+    return this.cell?.interactable ?? false;
+  }
+
+  private getSelectionCssClass(): string {
+    if (!this.getSelectable()) return '';
+
+    if (!this.getInteractable()) return SelectionCssClass.Uninteractable;
+
+    switch (this.cell?.selectionState) {
+      case SelectionState.Unselected:
+        return SelectionCssClass.Interactable;
+      case SelectionState.Focused:
+        return SelectionCssClass.Focused;
+      case SelectionState.Selected:
+        return SelectionCssClass.Selected;
     }
 
-    return Background.White;
+    return '';
   }
 }

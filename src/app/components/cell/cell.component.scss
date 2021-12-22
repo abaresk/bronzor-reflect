@@ -1,35 +1,67 @@
-$background-white: rgb(255, 255, 255);
-$background-light-gray: rgb(196, 196, 196);
-$background-dark-gray: rgb(160, 160, 160);
+/** Backgrounds */
+$background-invisible: white;
+$background-visible: white;
 
-@mixin theme($theme: White) {
-  background: $theme;
-}
+$background-io: rgb(196, 196, 196);
+$background-prize: rgb(160, 160, 160);
 
-.white-background {
-    @include theme($theme: $background-white);
-}
 
-.light-gray-background {
-    @include theme($theme: $background-light-gray);
-}
-
-.dark-gray-background {
-    @include theme($theme: $background-dark-gray);
-}
+/** Borders */
+$border-invisible: white;
+$border-visible: black;
+// TODO: Remove interactable border in final version. Focus will move
+// automatically to the set of interactable cells. Maybe we can make the
+// background color a bit lighter.
+$border-interactable: rgb(0, 0, 150);
+$border-focused: rgb(255, 0, 0);
+$border-hovered: rgb(255, 144, 144);
+$border-selected: rgb(218, 144, 8);
 
 .square {
+    border-style: solid;
     width: 54px;
     height: 54px;
 }
 
-.display-on {
-    border-style: solid;
-    border-color: black;
+.display-off {
+    border-color: $border-invisible;
+    background: $background-invisible;
 }
 
-.display-off {
-    border-style: solid;
-    border-color: white;
-    background: $background-white;
+.display-on {
+    border-color: $border-visible;
+    background: $background-visible;
+}
+
+// Special cell backgrounds
+.display-on.io-cell {
+    background: $background-io;
+}
+
+.display-on.prize-cell {
+    background: $background-prize;
+}
+
+.display-on.selectable.uninteractable {
+    border-color: $border-visible;
+}
+
+.display-on.selectable.interactable {
+    border-color: $border-interactable;
+
+    &:hover {
+        border-color: $border-hovered;
+    }
+}
+
+.display-on.selectable.focused {
+    border-color: $border-focused;
+
+    &:hover {
+        border-color: $border-hovered;
+    }
+}
+
+.display-on.selectable.selected {
+    border-color: $border-selected;
 }

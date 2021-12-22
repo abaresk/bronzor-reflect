@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from '../../board';
 import { BoardService } from '../board/board.service';
 import { Coord, Grid } from '../../common/coord';
-import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../generator-tables';
+import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
 import { getRandomInt, getRandomItemFromSet } from '../../util/random';
 

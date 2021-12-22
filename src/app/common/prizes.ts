@@ -45,6 +45,10 @@ export function getCategory(prize: Prize): PrizeCategory {
     return '';
 }
 
+// Items that appear in inventory
+export const normalBeam = Beam.Normal;
+
+// Items that appear as prizes
 export const jackpotPrize = MoneyPrize.Jackpot;
 export const largeSumPrize = MoneyPrize.LargeSum;
 export const mediumSumPrize = MoneyPrize.MediumSum;

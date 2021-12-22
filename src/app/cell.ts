@@ -1,5 +1,5 @@
 import { Bronzor } from "./board";
-import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts, MoneyPrize, jackpotPayouts, Prize } from "./common/prizes";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeamPrize, flameBeamPrize, phaseBeamPrize, waterBeamPrize, normalBombPrize, doublePrizeBeamPrize, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam } from "./common/prizes";
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
@@ -8,6 +8,7 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [plus1BeamPrize.toString(), '+1 beam'],
     [plus3BeamsPrize.toString(), '+3 beams'],
     [minus1BeamPrize.toString(), '-1 beam'],
+    [normalBeam.toString(), 'normal beam'],
     [cometBeamPrize.toString(), 'comet beam'],
     [flameBeamPrize.toString(), 'flame beam'],
     [phaseBeamPrize.toString(), 'shadow beam'],
@@ -89,5 +90,22 @@ export class IOCell extends Cell {
     // Get text representation of the cell
     override getText(level: number): string {
         return '';
+    }
+}
+
+export class InventoryCell extends Cell {
+    item: Beam;// The item this corresponds to
+    count: number; // Current stock for item
+
+    constructor(item: Beam, count: number = 0) {
+        super();
+        this.item = item;
+        this.count = count;
+    }
+
+    // Get text representation of the cell
+    override getText(level: number): string {
+        const itemName = getPrizeText(this.item, level);
+        return `${itemName}: ${this.count}`;
     }
 }

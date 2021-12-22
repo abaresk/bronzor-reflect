@@ -1,0 +1,16 @@
+.box {
+    width: 200px;
+    height: min-content;
+}
+
+.outline {
+    border-style: solid;
+}
+
+.inventory-rows {
+    display: inline-flex;
+}
+
+.inventory-cell {
+    margin: 0 0 4px 4px;
+}

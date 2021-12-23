@@ -6,7 +6,7 @@ import { coordInDirection, directions, distanceInDirection, oppositeDir, project
 @Injectable({
   providedIn: 'root'
 })
-export class BoardService {
+export class BoardGameService {
   board: Board = {} as Board;
   grid: Grid = {} as Grid;
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from '../../board';
-import { BoardService } from '../board/board.service';
+import { BoardGameService } from '../board-game/board-game.service';
 import { Coord, Grid } from '../../common/coord';
 import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
@@ -24,7 +24,7 @@ export class GeneratorService {
   config: BoardConfig = {} as BoardConfig;
   grid: Grid = {} as Grid;
 
-  constructor(private boardService: BoardService) {
+  constructor(private boardGameService: BoardGameService) {
   }
 
   generateBoard(config: BoardConfig, level: number): void {
@@ -38,10 +38,10 @@ export class GeneratorService {
       prizes: [],
       history: history
     };
-    this.boardService.new(board);
+    this.boardGameService.new(board);
 
     const bronzors = this.placeBronzors(level);
-    this.boardService.board.bronzors = bronzors;
+    this.boardGameService.board.bronzors = bronzors;
 
     this.placePrizes(level);
   }
@@ -117,7 +117,7 @@ export class GeneratorService {
     tally.set(getCategory(prize), prizeCount);
 
     const placedCoord = Coord.fromString(randCoord);
-    this.boardService.addPrize(placedCoord, prize);
+    this.boardGameService.addPrize(placedCoord, prize);
   }
 
   private reachableCoords(): Coord[] {
@@ -126,7 +126,7 @@ export class GeneratorService {
     for (let coord of ioCoords) {
       // Fire a beam into the board from this coord and record where it is
       // emitted.
-      const beamPath = this.boardService.fireBeam(Beam.Normal, coord, true);
+      const beamPath = this.boardGameService.fireBeam(Beam.Normal, coord, true);
       if (!beamPath) continue;
 
       const lastPoint = beamPath.path[beamPath.path.length - 1];

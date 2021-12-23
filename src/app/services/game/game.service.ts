@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts } from '../../common/prizes';
 import { BeamPointType, BoardConfig } from '../../board';
-import { BoardService } from '../board/board.service';
+import { BoardGameService } from '../board-game/board-game.service';
 import { Game } from '../../game';
 import { Coord, Vector } from '../../common/coord';
 import { WalletService } from '../wallet/wallet.service';
@@ -16,7 +16,7 @@ export class GameService {
 
   constructor(
     private generatorService: GeneratorService,
-    private boardService: BoardService,
+    private boardGameService: BoardGameService,
     private walletService: WalletService,
     private inventoryService: InventoryService) { }
 
@@ -32,14 +32,14 @@ export class GameService {
   }
 
   fireBeam(beam: Beam, coord: Coord) {
-    const beamPath = this.boardService.fireBeam(beam, coord);
+    const beamPath = this.boardGameService.fireBeam(beam, coord);
     if (!beamPath) return;
 
     // Find prize at emission coordinate
     const emitPoint = beamPath.path[beamPath.path.length - 1];
     if (emitPoint.type !== BeamPointType.Emit) return;
 
-    const prizeState = this.boardService.getPrizeState(emitPoint.coord);
+    const prizeState = this.boardGameService.getPrizeState(emitPoint.coord);
     if (!prizeState || prizeState.taken) return;
 
     this.applyPrize(beam, prizeState.prize);

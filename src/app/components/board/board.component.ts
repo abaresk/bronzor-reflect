@@ -2,7 +2,7 @@ import { BoardCell, Cell, IOCell, PrizeCell } from '../cell/cell';
 import { Component, OnInit } from '@angular/core';
 import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';
-import { BoardService } from '../../services/board/board.service';
+import { BoardGameService } from '../../services/board-game/board-game.service';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
 
@@ -21,9 +21,9 @@ export class BoardComponent implements OnInit {
   // The number of rows used to display prizes and income/outcome state.
   outcomeRows: number = 2;
 
-  constructor(private gameService: GameService, private boardService: BoardService) {
+  constructor(private gameService: GameService, private boardGameService: BoardGameService) {
     // Alias the board for easier referencing
-    this.board = this.boardService.board;
+    this.board = this.boardGameService.board;
 
     this.grid = new Grid(this.boardConfig.length, this.boardConfig.length);
 
@@ -85,7 +85,7 @@ export class BoardComponent implements OnInit {
           const prizeCoord = this.prizeCellCoord(coord);
           if (prizeCoord) {
             cells.set(coord.toString(),
-              new PrizeCell(this.boardService.getPrizeState(prizeCoord)));
+              new PrizeCell(this.boardGameService.getPrizeState(prizeCoord)));
           }
         }
         // Second to outer-most row 
@@ -95,7 +95,7 @@ export class BoardComponent implements OnInit {
         // Inside the cell
         else {
           cells.set(coord.toString(),
-            new BoardCell(this.boardService.getBronzor(coord)));
+            new BoardCell(this.boardGameService.getBronzor(coord)));
         }
       }
     }

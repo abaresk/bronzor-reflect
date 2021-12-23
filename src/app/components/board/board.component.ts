@@ -1,10 +1,11 @@
-import { BoardCell, Cell, IOCell, PrizeCell } from '../cell/cell';
+import { BoardCell, Cell, IOCell, PrizeCell, SelectionState } from '../cell/cell';
 import { Component, OnInit } from '@angular/core';
 import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';
-import { BoardGameService } from '../../services/board-game/board-game.service';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
+import { BoardService } from 'src/app/services/board.service';
+import { BoardGameService } from 'src/app/services/board-game/board-game.service';
 
 @Component({
   selector: 'game-board',
@@ -17,13 +18,19 @@ export class BoardComponent implements OnInit {
   boardConfig: BoardConfig = { bronzorCount: 4, length: 8 };
   boardCoords: Array<Array<Coord>> = [[]];
   cells: Map<string, Cell> = new Map();
+  prizeCells: Cell[] = [];
+  ioCells: Cell[] = [];
+  boardCells: Cell[] = [];
 
   // The number of rows used to display prizes and income/outcome state.
   outcomeRows: number = 2;
 
-  constructor(private gameService: GameService, private boardGameService: BoardGameService) {
+  constructor(
+    private gameService: GameService,
+    private boardService: BoardService,
+    private boardGameService: BoardGameService) {
     // Alias the board for easier referencing
-    this.board = this.boardGameService.board;
+    this.board = this.boardService.board;
 
     this.grid = new Grid(this.boardConfig.length, this.boardConfig.length);
 
@@ -46,6 +53,36 @@ export class BoardComponent implements OnInit {
 
   getVisible(coord: Coord): boolean {
     return this.getCell(coord)?.visible ?? false;
+  }
+
+  selectTile(cell: Cell): void {
+    if (cell instanceof IOCell) {
+      this.boardService.selectFiringCoord(cell.coord);
+    }
+  }
+
+  focus(): void {
+    // Make each I/O cell interactable.
+    for (let cell of this.ioCells) {
+      cell.setInteractability(true);
+    }
+
+    // TODO: Automatically focus on the top-left tile.
+
+  }
+
+  unfocus(): void {
+    for (let cell of this.ioCells) {
+      cell.setInteractability(false);
+    }
+  }
+
+  clearSeletion(): void {
+    for (let cell of this.ioCells) {
+      cell.setInteractability(true);
+      cell.setSelectionState(SelectionState.Unselected);
+      cell.setInteractability(false);
+    }
   }
 
   private computeBoardCoords(): Array<Array<Coord>> {
@@ -75,6 +112,10 @@ export class BoardComponent implements OnInit {
   // generate a new board. Maybe that's fine. An ideal solution to keep this in
   // sync might be to use Observables.
   private initializeCells(boardCoords: Array<Array<Coord>>): Map<string, Cell> {
+    this.prizeCells = [];
+    this.ioCells = [];
+    this.boardCells = [];
+
     const cells = new Map();
     const totalLength = boardCoords.length;
     for (let r = 0; r < boardCoords.length; r++) {
@@ -84,18 +125,22 @@ export class BoardComponent implements OnInit {
         if (r === 0 || c === 0 || r === totalLength - 1 || c === totalLength - 1) {
           const prizeCoord = this.prizeCellCoord(coord);
           if (prizeCoord) {
-            cells.set(coord.toString(),
-              new PrizeCell(this.boardGameService.getPrizeState(prizeCoord)));
+            const cell = new PrizeCell(this.boardGameService.getPrizeState(prizeCoord));
+            cells.set(coord.toString(), cell);
+            this.prizeCells.push(cell);
           }
         }
         // Second to outer-most row 
         else if (r === 1 || c === 1 || r === totalLength - 2 || c === totalLength - 2) {
-          cells.set(coord.toString(), new IOCell());
+          const cell = new IOCell(coord);
+          cells.set(coord.toString(), cell);
+          this.ioCells.push(cell);
         }
         // Inside the cell
         else {
-          cells.set(coord.toString(),
-            new BoardCell(this.boardGameService.getBronzor(coord)));
+          const cell = new BoardCell(this.boardGameService.getBronzor(coord));
+          cells.set(coord.toString(), cell);
+          this.boardCells.push(cell);
         }
       }
     }

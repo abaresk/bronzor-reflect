@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Board } from '../board';
 import { Coord } from '../common/coord';
 import { Beam } from '../common/prizes';
 import { BoardGameService } from './board-game/board-game.service';
@@ -7,10 +8,15 @@ import { BoardGameService } from './board-game/board-game.service';
   providedIn: 'root'
 })
 export class BoardService {
+  board: Board = {} as Board;
 
-  constructor(private boardGameService: BoardGameService) { }
+  constructor(private boardGameService: BoardGameService) {
+    // Alias the board for easier referencing
+    this.board = this.boardGameService.board;
+  }
 
-  selectFiringCoord(beam: Beam, coord: Coord) {
-    this.boardGameService.fireBeam(beam, coord);
+  selectFiringCoord(coord: Coord) {
+    // TODO: Pass this up to the GameService so that it can call
+    // boardGameService.fireBeam().
   }
 }

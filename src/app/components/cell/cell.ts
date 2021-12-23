@@ -1,3 +1,4 @@
+import { Coord } from "src/app/common/coord";
 import { Bronzor } from "../../board";
 import { jackpotPrize, largeSumPrize, mediumSumPrize, plus1BeamPrize, PrizeState, smallSumPrize, plus3BeamsPrize, minus1BeamPrize, cometBeam, flameBeam, phaseBeam, waterBeam, normalBomb, doublePrizeBeam, prizePayouts, MoneyPrize, jackpotPayouts, Prize, Beam, normalBeam, InventoryPrize } from "../../common/prizes";
 
@@ -120,13 +121,15 @@ export class PrizeCell extends Cell {
 export class IOCell extends Cell {
     static CATEGORY = 'io-cell';
     static SELECTABLE = true;
+    coord: Coord;
     // Which beams were fired from this cell.
     inputs: number[];
     // Which beams were emitted from this cell.
     outputs: number[];
 
-    constructor(inputs: number[] = [], outputs: number[] = []) {
+    constructor(coord: Coord, inputs: number[] = [], outputs: number[] = []) {
         super();
+        this.coord = coord;
         this.inputs = inputs;
         this.outputs = outputs;
     }

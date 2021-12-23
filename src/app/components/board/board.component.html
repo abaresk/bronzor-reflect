@@ -1,5 +1,5 @@
 <div *ngFor="let row of boardCoords" class="board-row">
     <div *ngFor="let boardCoord of row" class="inline-cells">
-        <game-cell [cell]="getCell(boardCoord)"></game-cell>
+        <game-cell [cell]="getCell(boardCoord)" (selectedEvent)="selectTile($event)"></game-cell>
     </div>
 </div>

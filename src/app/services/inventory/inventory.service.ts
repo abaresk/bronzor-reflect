@@ -13,6 +13,7 @@ export interface InventoryStock {
 })
 export class InventoryService {
   inventory = {} as Inventory;
+  selectedItem: Beam | undefined;
   inventorySubject: Subject<InventoryStock>;
 
   constructor() {
@@ -32,5 +33,9 @@ export class InventoryService {
     const newCount = Math.max(currentCount + delta, 0);
     this.inventory.beams.set(beam, newCount);
     this.inventorySubject.next({ beam: beam, count: newCount });
+  }
+
+  selectItem(item: Beam): void {
+    this.selectedItem = item;
   }
 }

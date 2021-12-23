@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { GameService } from 'src/app/services/game/game.service';
 import { Cell, SelectionState } from './cell';
 
@@ -16,10 +16,23 @@ enum SelectionCssClass {
 })
 export class CellComponent implements OnInit {
   @Input() cell: Cell | undefined;
+  @Output() selectedEvent = new EventEmitter<Cell>();
 
   constructor(private gameService: GameService) { }
 
   ngOnInit(): void {
+  }
+
+  // If selectable, mark the cell as selected and pass an event to the parent
+  // component.
+  @HostListener("click") onClick() {
+    if (!this.cell) return;
+
+    // Don't emit an event if the cell is not in a selectable state.
+    if (!this.getSelectable() || !this.getInteractable) return;
+
+    this.cell.setSelectionState(SelectionState.Selected);
+    this.selectedEvent.emit(this.cell);
   }
 
   getClasses(): string {
@@ -49,17 +62,20 @@ export class CellComponent implements OnInit {
   }
 
   private getSelectionCssClass(): string {
-    if (!this.getSelectable()) return '';
+    if (!this.cell || !this.getSelectable()) return '';
 
-    if (!this.getInteractable()) return SelectionCssClass.Uninteractable;
+    // Always show selection whether the cell is interactive or not.
+    if (this.cell.selectionState === SelectionState.Selected) {
+      return SelectionCssClass.Selected;
+    }
 
-    switch (this.cell?.selectionState) {
-      case SelectionState.Unselected:
-        return SelectionCssClass.Interactable;
-      case SelectionState.Focused:
-        return SelectionCssClass.Focused;
-      case SelectionState.Selected:
-        return SelectionCssClass.Selected;
+    if (this.cell.interactable) {
+      switch (this.cell.selectionState) {
+        case SelectionState.Unselected:
+          return SelectionCssClass.Interactable;
+        case SelectionState.Focused:
+          return SelectionCssClass.Focused;
+      }
     }
 
     return '';

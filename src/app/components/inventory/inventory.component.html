@@ -1,6 +1,6 @@
 <div class="box outline">
     <h3>Beams</h3>
     <div *ngFor="let item of inventoryOrder" class="inventory-rows">
-        <game-cell class="inventory-cell" [cell]="getCell(item)"></game-cell>
+        <game-cell class="inventory-cell" [cell]="getCell(item)" (selectedEvent)="selectItem($event)"></game-cell>
     </div>
 </div>

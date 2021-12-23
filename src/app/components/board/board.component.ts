@@ -4,7 +4,7 @@ import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
-import { BoardService } from 'src/app/services/board.service';
+import { BoardService } from 'src/app/services/board/board.service';
 import { BoardGameService } from 'src/app/services/board-game/board-game.service';
 
 @Component({

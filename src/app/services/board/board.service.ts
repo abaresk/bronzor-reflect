@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Board } from '../board';
-import { Coord } from '../common/coord';
-import { Beam } from '../common/prizes';
-import { BoardGameService } from './board-game/board-game.service';
+import { Board } from '../../board';
+import { Coord } from '../../common/coord';
+import { BoardGameService } from '../board-game/board-game.service';
 
 @Injectable({
   providedIn: 'root'

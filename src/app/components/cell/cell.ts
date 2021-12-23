@@ -83,7 +83,7 @@ export class BoardCell extends Cell {
     override getText(level: number): string {
         if (!this.bronzor) return '';
 
-        return this.bronzor.visible ? 'B' : '';
+        return this.bronzor.visible ? 'B' : 'H';
     }
 
     override getCategory(): string {

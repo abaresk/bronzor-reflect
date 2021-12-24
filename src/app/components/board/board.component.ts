@@ -6,6 +6,8 @@ import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../comm
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
 import { BoardGameService } from 'src/app/services/board-game/board-game.service';
+import { SelectionFocus } from 'src/app/common/selection-focus';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'game-board',
@@ -21,7 +23,7 @@ export class BoardComponent implements OnInit {
   prizeCells: Cell[] = [];
   ioCells: Cell[] = [];
   boardCells: Cell[] = [];
-
+  boardSelectionFocusObservable: Subscription;
   // The number of rows used to display prizes and income/outcome state.
   outcomeRows: number = 2;
 
@@ -35,6 +37,9 @@ export class BoardComponent implements OnInit {
     this.grid = new Grid(this.boardConfig.length, this.boardConfig.length);
 
     this.boardCoords = this.computeBoardCoords();
+    this.boardSelectionFocusObservable =
+      boardService.boardSelectionFocusSubject.subscribe(
+        (focus) => { this.setSelectionFocus(focus) });
   }
 
   ngOnInit(): void {
@@ -61,7 +66,21 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  focus(): void {
+  setSelectionFocus(selectionFocus: SelectionFocus): void {
+    switch (selectionFocus) {
+      case SelectionFocus.Focus:
+        this.focus();
+        break;
+      case SelectionFocus.Unfocus:
+        this.unfocus();
+        break;
+      case SelectionFocus.ClearSelection:
+        this.clearSelection();
+        break;
+    }
+  }
+
+  private focus(): void {
     // Make each I/O cell interactable.
     for (let cell of this.ioCells) {
       cell.setInteractability(true);
@@ -71,13 +90,13 @@ export class BoardComponent implements OnInit {
 
   }
 
-  unfocus(): void {
+  private unfocus(): void {
     for (let cell of this.ioCells) {
       cell.setInteractability(false);
     }
   }
 
-  clearSeletion(): void {
+  private clearSelection(): void {
     for (let cell of this.ioCells) {
       cell.setInteractability(true);
       cell.setSelectionState(SelectionState.Unselected);

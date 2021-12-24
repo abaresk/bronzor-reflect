@@ -9,6 +9,7 @@ import { WalletComponent } from './components/wallet/wallet.component';
 import { LevelComponent } from './components/level/level.component';
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { ScreenComponent } from './components/screen/screen.component';
+import { ControlPanelComponent } from './components/control-panel/control-panel.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ScreenComponent } from './components/screen/screen.component';
     WalletComponent,
     LevelComponent,
     InventoryComponent,
-    ScreenComponent
+    ScreenComponent,
+    ControlPanelComponent
   ],
   imports: [
     BrowserModule,

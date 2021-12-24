@@ -13,6 +13,7 @@ import { GeneratorService } from '../generator/generator.service';
 })
 export class GameService {
   game = {} as Game;
+  wonJackpot: boolean = false;
 
   constructor(
     private generatorService: GeneratorService,
@@ -46,10 +47,16 @@ export class GameService {
     this.tryNextLevel(prizeState.prize);
   }
 
+  // The user manually decides to end the round.
+  //
+  // TODO: Implement this method.
+  endRound(): void { }
+
   private newRound(level: number) {
     this.generatorService.generateBoard(this.game.config, level);
     this.inventoryService.new(level);
     this.game.roundsCount++;
+    this.wonJackpot = false;
   }
 
   // TODO: Implement round/turn logic.

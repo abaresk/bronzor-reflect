@@ -10,6 +10,7 @@ import { BoardGameService } from '../board-game/board-game.service';
 })
 export class BoardService {
   board: Board = {} as Board;
+  selectionResolve?: (coord: Coord) => void;
   boardSelectionFocusSubject: Subject<SelectionFocus>;
 
   constructor(private boardGameService: BoardGameService) {
@@ -23,8 +24,15 @@ export class BoardService {
     this.boardSelectionFocusSubject.next(selectionFocus);
   }
 
+  async waitForSelection(): Promise<Coord> {
+    return new Promise((resolve) => {
+      this.selectionResolve = resolve;
+    });
+  }
+
   selectFiringCoord(coord: Coord) {
-    // TODO: Pass this up to the GameService so that it can call
-    // boardGameService.fireBeam().
+    if (!this.selectionResolve) return;
+
+    this.selectionResolve(coord);
   }
 }

@@ -14,7 +14,7 @@ export interface InventoryStock {
 })
 export class InventoryService {
   inventory = {} as Inventory;
-  selectedItem: Beam | undefined;
+  selectionResolve?: (item: Beam) => void;
   inventorySubject: Subject<InventoryStock>;
   inventorySelectionFocusSubject: Subject<SelectionFocus>;
 
@@ -42,7 +42,15 @@ export class InventoryService {
     this.inventorySelectionFocusSubject.next(selectionFocus);
   }
 
+  async waitForSelection(): Promise<Beam> {
+    return new Promise((resolve) => {
+      this.selectionResolve = resolve;
+    });
+  }
+
   selectItem(item: Beam): void {
-    this.selectedItem = item;
+    if (!this.selectionResolve) return;
+
+    this.selectionResolve(item);
   }
 }

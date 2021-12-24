@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Beam } from '../../common/prizes';
 import { Inventory } from '../../inventory';
 
@@ -15,9 +16,11 @@ export class InventoryService {
   inventory = {} as Inventory;
   selectedItem: Beam | undefined;
   inventorySubject: Subject<InventoryStock>;
+  inventorySelectionFocusSubject: Subject<SelectionFocus>;
 
   constructor() {
     this.inventorySubject = new Subject<InventoryStock>();
+    this.inventorySelectionFocusSubject = new Subject<SelectionFocus>();
   }
 
   new(level: number) {
@@ -33,6 +36,10 @@ export class InventoryService {
     const newCount = Math.max(currentCount + delta, 0);
     this.inventory.beams.set(beam, newCount);
     this.inventorySubject.next({ beam: beam, count: newCount });
+  }
+
+  setSelectionFocus(selectionFocus: SelectionFocus) {
+    this.inventorySelectionFocusSubject.next(selectionFocus);
   }
 
   selectItem(item: Beam): void {

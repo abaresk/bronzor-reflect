@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { Cell, InventoryCell, SelectionState } from 'src/app/components/cell/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
+import { SelectionFocus } from 'src/app/common/selection-focus';
 
 const inventoryOrder: ReadonlyArray<Beam> = [
   Beam.Normal,
@@ -21,12 +22,16 @@ const inventoryOrder: ReadonlyArray<Beam> = [
 export class InventoryComponent implements OnInit {
   inventoryOrder: ReadonlyArray<Beam> = inventoryOrder;
   inventoryObservable: Subscription;
+  inventorySelectionFocusObservable: Subscription;
   cells: Map<Beam, InventoryCell>;
 
   constructor(public inventoryService: InventoryService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
+    this.inventorySelectionFocusObservable =
+      inventoryService.inventorySelectionFocusSubject.subscribe(
+        (focus) => { this.setSelectionFocus(focus) });
   }
 
   ngOnInit(): void {
@@ -43,8 +48,22 @@ export class InventoryComponent implements OnInit {
     return undefined;
   }
 
+  setSelectionFocus(selectionFocus: SelectionFocus): void {
+    switch (selectionFocus) {
+      case SelectionFocus.Focus:
+        this.focus();
+        break;
+      case SelectionFocus.Unfocus:
+        this.unfocus();
+        break;
+      case SelectionFocus.ClearSelection:
+        this.clearSelection();
+        break;
+    }
+  }
+
   // Move focus into the inventory component.
-  focus(): void {
+  private focus(): void {
     // Make each item interactable.
     for (let item of inventoryOrder) {
       const cell = this.cells.get(item);
@@ -55,7 +74,7 @@ export class InventoryComponent implements OnInit {
 
   }
 
-  unfocus(): void {
+  private unfocus(): void {
     for (let item of inventoryOrder) {
       const cell = this.cells.get(item);
       cell?.setInteractability(false);
@@ -63,7 +82,7 @@ export class InventoryComponent implements OnInit {
   }
 
   // Make items un-interactable and clear any selection state.
-  clearSelection() {
+  private clearSelection() {
     for (let item of inventoryOrder) {
       const cell = this.cells.get(item);
       cell?.setInteractability(true);

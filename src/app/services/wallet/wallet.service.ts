@@ -23,6 +23,10 @@ export class WalletService {
     return this.wallet.payout;
   }
 
+  addToPayout(delta: number) {
+    this.wallet.payout += delta;
+  }
+
   setPayout(payout: number) {
     this.wallet.payout = payout;
   }

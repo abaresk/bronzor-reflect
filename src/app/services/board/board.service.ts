@@ -20,11 +20,23 @@ export class BoardService {
     this.boardSelectionFocusSubject = new Subject<SelectionFocus>();
   }
 
-  setSelectionFocus(selectionFocus: SelectionFocus) {
+  async getSelection(): Promise<Coord> {
+    this.setSelectionFocus(SelectionFocus.Focus);
+    const selection = await this.waitForSelection();
+    this.setSelectionFocus(SelectionFocus.Unfocus);
+
+    return selection;
+  }
+
+  clearSelection(): void {
+    this.setSelectionFocus(SelectionFocus.ClearSelection);
+  }
+
+  private setSelectionFocus(selectionFocus: SelectionFocus) {
     this.boardSelectionFocusSubject.next(selectionFocus);
   }
 
-  async waitForSelection(): Promise<Coord> {
+  private async waitForSelection(): Promise<Coord> {
     return new Promise((resolve) => {
       this.selectionResolve = resolve;
     });

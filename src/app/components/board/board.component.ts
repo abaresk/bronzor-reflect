@@ -46,6 +46,7 @@ export class BoardComponent implements OnInit {
     this.gameService.newGame(this.boardConfig, 300);
     this.cells = this.initializeCells(this.boardCoords);
     this.markCornersInvisible();
+    this.gameService.play();
   }
 
   getCell(coord: Coord): Cell | undefined {

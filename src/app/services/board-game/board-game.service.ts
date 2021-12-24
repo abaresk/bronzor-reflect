@@ -51,6 +51,12 @@ export class BoardGameService {
     this.board.prizes[prizeTileId].taken = true;
   }
 
+  remainingPrizes(): Prize[] {
+    const remaining = this.board.prizes
+      .filter((prizeState) => { return !prizeState.taken; });
+    return remaining.map((prizeState) => { return prizeState.prize });
+  }
+
   private generatePath(beam: Beam, coord: Coord, dryRun: boolean): BeamPath {
     // Place the first coordinate just outside the board. This allows
     // collision detection to work when a Bronzor is on the board edge.

@@ -38,11 +38,30 @@ export class InventoryService {
     this.inventorySubject.next({ beam: beam, count: newCount });
   }
 
-  setSelectionFocus(selectionFocus: SelectionFocus) {
+  anyBeams(): boolean {
+    for (let [_, count] of this.inventory.beams) {
+      if (count > 0) return true;
+    }
+    return false;
+  }
+
+  async getSelection(): Promise<Beam> {
+    this.setSelectionFocus(SelectionFocus.Focus);
+    const selection = await this.waitForSelection();
+    this.setSelectionFocus(SelectionFocus.Unfocus);
+
+    return selection;
+  }
+
+  clearSelection(): void {
+    this.setSelectionFocus(SelectionFocus.ClearSelection);
+  }
+
+  private setSelectionFocus(selectionFocus: SelectionFocus) {
     this.inventorySelectionFocusSubject.next(selectionFocus);
   }
 
-  async waitForSelection(): Promise<Beam> {
+  private async waitForSelection(): Promise<Beam> {
     return new Promise((resolve) => {
       this.selectionResolve = resolve;
     });

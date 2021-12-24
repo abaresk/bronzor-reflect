@@ -79,6 +79,28 @@ export const prizes: ReadonlyArray<Prize> = [
     normalBomb,
 ];
 
+const negativePrizes: ReadonlySet<Prize> = new Set([
+    minus1BeamPrize,
+    normalBomb,
+]);
+
+export function positivePrize(prize: Prize): boolean {
+    return !negativePrizes.has(prize)
+}
+
+// Interactions
+const bombTriggers: ReadonlySet<Beam> = new Set([
+    normalBeam,
+    cometBeam,
+    flameBeam,
+    phaseBeam,
+    doublePrizeBeam,
+]);
+
+export function triggersBomb(beam: Beam): boolean {
+    return bombTriggers.has(beam);
+}
+
 // Jackpot payout by level
 export const jackpotPayouts: ReadonlyMap<number, number> = new Map([
     [1, 30],

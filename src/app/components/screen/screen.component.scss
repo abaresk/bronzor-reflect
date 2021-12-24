@@ -1,4 +1,10 @@
-.top-row {
+.screen {
+    display:flex;
+    gap: 72px;
+}
+
+.side-panel {
     display: flex;
+    flex-direction: column;
     gap: 36px;
 }

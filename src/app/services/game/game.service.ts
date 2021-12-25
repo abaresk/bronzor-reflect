@@ -47,7 +47,6 @@ export class GameService {
   }
 
   async play(): Promise<void> {
-    this.newRound(this.game.level);
     while (true) {
       await this.doRound();
     }
@@ -58,6 +57,18 @@ export class GameService {
   // TODO: Implement this method.
   endRound(): void { }
 
+  private async doRound(): Promise<void> {
+    this.newRound(this.game.level);
+    let beamPrize = await this.doTurn();
+    while (beamPrize && !this.roundOver(beamPrize)) {
+      beamPrize = await this.doTurn();
+    }
+
+    const nextLevel = this.nextLevel();
+    await this.walletService.mergeFunds();
+    this.game.level = nextLevel;
+  }
+
   private newRound(level: number) {
     this.game.level = level;
     this.generatorService.generateBoard(this.game.config, level);
@@ -66,17 +77,6 @@ export class GameService {
     this.game.roundsCount++;
     this.wonJackpot = false;
     this.bombExploded = false;
-  }
-
-  private async doRound(): Promise<void> {
-    let beamPrize = await this.doTurn();
-    while (beamPrize && !this.roundOver(beamPrize)) {
-      beamPrize = await this.doTurn();
-    }
-
-    const nextLevel = this.nextLevel();
-    await this.walletService.mergeFunds();
-    this.newRound(nextLevel);
   }
 
   private async doTurn(): Promise<BeamPrize | undefined> {

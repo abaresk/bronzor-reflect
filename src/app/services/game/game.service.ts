@@ -44,10 +44,10 @@ export class GameService {
       level: level,
       roundsCount: 0,
     };
-    this.newRound(level);
   }
 
   async play(): Promise<void> {
+    this.newRound(this.game.level);
     while (true) {
       await this.doRound();
     }

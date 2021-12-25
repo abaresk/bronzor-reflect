@@ -1,6 +1,5 @@
 import { BoardCell, Cell, IOCell, PrizeCell, SelectionState } from '../cell/cell';
 import { Component, OnInit } from '@angular/core';
-import { Beam } from '../../common/prizes';
 import { Board, BoardConfig } from '../../board';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
@@ -16,8 +15,8 @@ import { Subscription } from 'rxjs';
 })
 export class BoardComponent implements OnInit {
   board: Board = {} as Board;
-  grid: Grid;
-  boardConfig: BoardConfig = { bronzorCount: 4, length: 8 };
+  boardLength: number;
+  grid: Grid = {} as Grid;
   boardCoords: Array<Array<Coord>> = [[]];
   cells: Map<string, Cell> = new Map();
   prizeCells: Cell[] = [];
@@ -33,8 +32,8 @@ export class BoardComponent implements OnInit {
     private boardGameService: BoardGameService) {
     // Alias the board for easier referencing
     this.board = this.boardService.board;
-
-    this.grid = new Grid(this.boardConfig.length, this.boardConfig.length);
+    this.boardLength = this.gameService.game.config.length;
+    this.grid = new Grid(this.boardLength, this.boardLength);
 
     this.boardCoords = this.computeBoardCoords();
     this.boardSelectionFocusObservable =
@@ -43,10 +42,8 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.gameService.newGame(this.boardConfig, 300);
     this.cells = this.initializeCells(this.boardCoords);
     this.markCornersInvisible();
-    this.gameService.play();
   }
 
   getCell(coord: Coord): Cell | undefined {
@@ -109,7 +106,7 @@ export class BoardComponent implements OnInit {
     const origin = new Coord(0, 0)
       .coordAt(Direction.Left, this.outcomeRows)
       .coordAt(Direction.Up, this.outcomeRows);
-    const totalLength = this.boardConfig.length + 2 * this.outcomeRows;
+    const totalLength = this.boardLength + 2 * this.outcomeRows;
     const boardCoords = [];
 
     for (let i = 0; i < totalLength; i++) {

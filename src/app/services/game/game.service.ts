@@ -20,12 +20,21 @@ interface Move {
   beamPath: BeamPath
 };
 
+enum GameState {
+  SelectItem,
+  SelectFiringPlace,
+  FireBeam,
+  Payout,
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
   game = {} as Game;
   moves: Move[] = [];
+  gameState: GameState = GameState.SelectItem;
+  doRoundResolve?: () => void;
   wonJackpot: boolean = false;
   bombExploded: boolean = false;
 
@@ -46,37 +55,48 @@ export class GameService {
     };
   }
 
+  private newRound(level: number) {
+    this.game.level = level;
+    this.game.roundsCount++;
+    this.generatorService.generateBoard(this.game.config, level);
+    this.inventoryService.new(level);
+    this.moves = [];
+    this.wonJackpot = false;
+    this.bombExploded = false;
+  }
+
   async play(): Promise<void> {
     while (true) {
       await this.doRound();
+      this.cleanupRound();
     }
   }
 
   // The user manually decides to end the round.
   //
-  // TODO: Implement this method.
-  endRound(): void { }
+  // User can only end the round while they are selecting an item to use from
+  // inventory.
+  endRound(): void {
+    if (this.gameState !== GameState.SelectItem) return;
+    if (!this.doRoundResolve) return;
 
-  private async doRound(): Promise<void> {
-    this.newRound(this.game.level);
-    let beamPrize = await this.doTurn();
-    while (beamPrize && !this.roundOver(beamPrize)) {
-      beamPrize = await this.doTurn();
-    }
-
-    const nextLevel = this.nextLevel();
-    await this.walletService.mergeFunds();
-    this.game.level = nextLevel;
+    this.doRoundResolve();
   }
 
-  private newRound(level: number) {
-    this.game.level = level;
-    this.generatorService.generateBoard(this.game.config, level);
-    this.inventoryService.new(level);
-    this.moves = [];
-    this.game.roundsCount++;
-    this.wonJackpot = false;
-    this.bombExploded = false;
+  private async doRound(): Promise<void> {
+    const doRoundInternal = async (resolve: () => void): Promise<void> => {
+      this.doRoundResolve = resolve;
+
+      this.newRound(this.game.level);
+      let beamPrize = await this.doTurn();
+      while (beamPrize && !this.roundOver(beamPrize)) {
+        beamPrize = await this.doTurn();
+      }
+
+      resolve();
+    };
+
+    return new Promise(doRoundInternal.bind(this));
   }
 
   private async doTurn(): Promise<BeamPrize | undefined> {
@@ -108,8 +128,20 @@ export class GameService {
     return remainingGoodPrizes.length === 0;
   }
 
+  private async cleanupRound(): Promise<void> {
+    const nextLevel = this.nextLevel();
+
+    this.gameState = GameState.Payout;
+    await this.walletService.mergeFunds();
+
+    this.game.level = nextLevel;
+  }
+
   private async doMove(): Promise<Move | undefined> {
+    this.gameState = GameState.SelectItem;
     const beam = await this.inventoryService.getSelection();
+
+    this.gameState = GameState.SelectFiringPlace;
     const coord = await this.boardService.getSelection();
 
     // Selections are final. Decrement inventory, clear selection state and fire
@@ -117,6 +149,10 @@ export class GameService {
     this.inventoryService.addBeams(beam, -1);
     this.clearSelections();
 
+    // TODO: Figure out where to set this. If other components react to this
+    // (e.g. to start animations), then maybe it should be set after the path is
+    // computed.
+    this.gameState = GameState.FireBeam;
     const beamPath = this.boardGameService.fireBeam(beam, coord);
     if (!beamPath) return undefined;
 

@@ -31,6 +31,7 @@ export class CellComponent implements OnInit {
     // Don't emit an event if the cell is not in a selectable state.
     if (!this.getSelectable()) return;
     if (!this.getInteractable()) return;
+    if (!this.cell.validSelection()) return;
 
     this.cell.setSelectionState(SelectionState.Selected);
     this.selectedEvent.emit(this.cell);

@@ -62,6 +62,8 @@ export class Cell {
         this.selectionState = state;
     }
 
+    validSelection(): boolean { return false; }
+
     getText(level: number): string { return ''; }
 
     getCategory(): string { return ''; }
@@ -126,15 +128,23 @@ export class IOCell extends Cell {
     inputs: number[];
     // Which beams were emitted from this cell.
     outputs: number[];
+    validateSelection?: (coord: Coord) => boolean;
 
-    constructor(coord: Coord, inputs: number[] = [], outputs: number[] = []) {
+    constructor(coord: Coord, validateSelection: (coord: Coord) => boolean, inputs: number[] = [], outputs: number[] = []) {
         super();
         this.coord = coord;
         this.inputs = inputs;
         this.outputs = outputs;
+        this.validateSelection = validateSelection;
     }
 
     override getSelectable(): boolean { return IOCell.SELECTABLE; }
+
+    override validSelection(): boolean {
+        if (!this.validateSelection) return false;
+
+        return this.validateSelection(this.coord);
+    }
 
     // Get text representation of the cell
     override getText(level: number): string {
@@ -151,14 +161,22 @@ export class InventoryCell extends Cell {
     static SELECTABLE = true;
     item: Beam;// The item this corresponds to
     count: number; // Current stock for item
+    validateSelection?: (item: Beam) => boolean;
 
-    constructor(item: Beam, count: number = 0) {
+    constructor(item: Beam, count: number, validateSelection: (item: Beam) => boolean) {
         super();
         this.item = item;
         this.count = count;
+        this.validateSelection = validateSelection;
     }
 
     override getSelectable(): boolean { return InventoryCell.SELECTABLE; }
+
+    override validSelection(): boolean {
+        if (!this.validateSelection) return false;
+
+        return this.validateSelection(this.item);
+    }
 
     // Get text representation of the cell
     override getText(level: number): string {

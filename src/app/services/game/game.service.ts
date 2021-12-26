@@ -83,6 +83,12 @@ export class GameService {
     this.doRoundResolve();
   }
 
+  // TODO: Move this into BoardService once it has access to the history of the
+  // user's moves.
+  validPlacementSelection(coord: Coord): boolean {
+    return !this.prizeBlocked(coord);
+  }
+
   private async doRound(): Promise<void> {
     const doRoundInternal = async (resolve: () => void): Promise<void> => {
       this.doRoundResolve = resolve;

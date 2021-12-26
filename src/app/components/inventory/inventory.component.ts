@@ -37,8 +37,8 @@ export class InventoryComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  getCell(item: Beam): InventoryCell {
-    return this.cells.get(item) ?? new InventoryCell(item);
+  getCell(item: Beam): InventoryCell | undefined {
+    return this.cells.get(item);
   }
 
   selectItem(cell: Cell): Beam | undefined {
@@ -94,7 +94,8 @@ export class InventoryComponent implements OnInit {
   private initializeCells(): Map<Beam, InventoryCell> {
     const cells = new Map();
     for (let item of inventoryOrder) {
-      cells.set(item, new InventoryCell(item, 0));
+      cells.set(item, new InventoryCell(item, 0,
+        (checkItem: Beam) => { return this.inventoryService.validSelection(checkItem); }));
     }
     return cells;
   }

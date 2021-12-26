@@ -45,6 +45,11 @@ export class InventoryService {
     return false;
   }
 
+  validSelection(item: Beam): boolean {
+    const count = this.inventory.beams.get(item) ?? 0;
+    return count > 0;
+  }
+
   async getSelection(): Promise<Beam> {
     this.setSelectionFocus(SelectionFocus.Focus);
     const selection = await this.waitForSelection();

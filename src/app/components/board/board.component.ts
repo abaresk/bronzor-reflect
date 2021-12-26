@@ -1,5 +1,5 @@
-import { BoardCell, Cell, IOCell, PrizeCell, SelectionState } from '../cell/cell';
 import { Component, OnInit } from '@angular/core';
+import { Cell, SelectionState } from '../../common/cell';
 import { Board, BoardConfig } from '../../board';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
@@ -7,6 +7,9 @@ import { BoardService } from 'src/app/services/board/board.service';
 import { BoardGameService } from 'src/app/services/board-game/board-game.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Subscription } from 'rxjs';
+import { BoardCell } from './board-cell';
+import { IOCell } from './io-cell';
+import { PrizeCell } from './prize-cell';
 
 @Component({
   selector: 'game-board',

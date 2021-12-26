@@ -132,3 +132,28 @@ export interface PrizeState {
     prize: Prize;
     taken: boolean;
 }
+
+const prizeDisplays: ReadonlyMap<string, string> = new Map([
+    [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
+    [mediumSumPrize.toString(), `$${prizePayouts.get(mediumSumPrize.toString())}`],
+    [smallSumPrize.toString(), `$${prizePayouts.get(smallSumPrize.toString())}`],
+    [plus1BeamPrize.toString(), '+1 beam'],
+    [plus3BeamsPrize.toString(), '+3 beams'],
+    [minus1BeamPrize.toString(), '-1 beam'],
+    [normalBeam.toString(), 'normal beam'],
+    [cometBeam.toString(), 'comet beam'],
+    [flameBeam.toString(), 'flame beam'],
+    [phaseBeam.toString(), 'shadow beam'],
+    [doublePrizeBeam.toString(), 'x2 beam'],
+    [waterBeam.toString(), 'water beam'],
+    [normalBomb.toString(), 'bomb'],
+]);
+
+export function getPrizeText(prize: Prize, level: number): string {
+    if (prize === MoneyPrize.Jackpot) {
+        const payout = jackpotPayouts.get(level) ?? 0;
+        return `J ($${payout})`;
+    }
+
+    return prizeDisplays.get(prize.toString()) ?? '';
+}

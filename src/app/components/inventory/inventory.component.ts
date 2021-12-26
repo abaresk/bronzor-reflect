@@ -1,9 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Cell, InventoryCell, SelectionState } from 'src/app/components/cell/cell';
+import { Cell, SelectionState } from 'src/app/common/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
+import { InventoryCell } from './inventory-cell';
 
 const inventoryOrder: ReadonlyArray<Beam> = [
   Beam.Normal,

@@ -1,4 +1,4 @@
-import { Coord } from './common/coord';
+import { Coord } from './common/geometry/coord';
 import { Beam, PrizeState } from './common/prizes';
 
 /**

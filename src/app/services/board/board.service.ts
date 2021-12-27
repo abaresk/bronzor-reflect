@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Move } from 'src/app/moves';
 import { Board } from '../../board';
-import { Coord } from '../../common/coord';
+import { Coord } from '../../common/geometry/coord';
 import { BoardGameService } from '../board-game/board-game.service';
 
 @Injectable({

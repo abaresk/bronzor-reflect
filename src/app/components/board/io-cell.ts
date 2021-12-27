@@ -1,5 +1,5 @@
 import { Cell } from "src/app/common/cell";
-import { Coord } from "src/app/common/coord";
+import { Coord } from "src/app/common/geometry/coord";
 import { Beam, cometBeam, doublePrizeBeam, flameBeam, normalBeam, phaseBeam, waterBeam } from "src/app/common/prizes";
 
 export interface BeamMove {

@@ -11,6 +11,7 @@ import { BoardGameService } from '../board-game/board-game.service';
 })
 export class BoardService {
   board: Board = {} as Board;
+  moves: Move[] = [];
   selectionResolve?: (coord: Coord) => void;
   boardSelectionFocusSubject: Subject<SelectionFocus>;
   movesSubject: Subject<Move[]>;
@@ -24,7 +25,12 @@ export class BoardService {
   }
 
   updateMoves(moves: Move[]): void {
+    this.moves = moves;
     this.movesSubject.next(moves);
+  }
+
+  validPlacementSelection(coord: Coord): boolean {
+    return !this.inputTileSelected(coord);
   }
 
   async getSelection(): Promise<Coord> {
@@ -53,5 +59,13 @@ export class BoardService {
     if (!this.selectionResolve) return;
 
     this.selectionResolve(coord);
+  }
+
+  // Returns true if the given input tile has already been selected by the user.
+  private inputTileSelected(coord: Coord): boolean {
+    for (let move of this.moves) {
+      if (move.coord.equals(coord)) return true;
+    }
+    return false;
   }
 }

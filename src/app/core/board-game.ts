@@ -1,21 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Beam, Prize, PrizeState } from '../../common/prizes';
-import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../../board';
-import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../../common/geometry/coord';
+import { Beam, Prize, PrizeState } from '../common/prizes';
+import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../board';
+import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../common/geometry/coord';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
 import { Vector } from 'src/app/common/geometry/vector';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class BoardGameService {
+export class BoardGame {
   board: Board = {} as Board;
   grid: Grid = {} as Grid;
 
-  constructor() { }
-
-  new(board: Board) {
+  constructor(board: Board) {
     this.board = board;
     this.grid = new Grid(board.config.length, board.config.length);
   }
@@ -42,6 +36,12 @@ export class BoardGameService {
     return prizeTileId !== -1 ? this.board.prizes[prizeTileId] : undefined;
   }
 
+  getPrizeCoord(tileId: number): Coord | undefined {
+    const edgeSegments = this.grid.edgeSegments(1);
+    const segment = edgeSegments[Math.floor(tileId / this.board.config.length)];
+    return segment.at(tileId % this.board.config.length);
+  }
+
   addPrize(coord: Coord, prize: Prize) {
     const prizeTileId = this.prizeTileId(coord);
     if (prizeTileId !== -1) {
@@ -51,12 +51,19 @@ export class BoardGameService {
 
   takePrizeAt(coord: Coord) {
     const prizeTileId = this.prizeTileId(coord);
-    this.board.prizes[prizeTileId].taken = true;
+    const prizeState = this.board.prizes[prizeTileId];
+    if (prizeState) {
+      prizeState.taken = true;
+    }
   }
 
   remainingPrizes(): Prize[] {
-    const remaining = this.board.prizes
-      .filter((prizeState) => { return !prizeState.taken; });
+    const remaining = [];
+    for (let prizeState of this.board.prizes) {
+      if (prizeState && !prizeState.taken) {
+        remaining.push(prizeState);
+      }
+    }
     return remaining.map((prizeState) => { return prizeState.prize });
   }
 

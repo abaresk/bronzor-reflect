@@ -1,27 +1,31 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SelectionFocus } from 'src/app/common/selection-focus';
+import { BoardGame } from 'src/app/core/board-game';
 import { Move } from 'src/app/moves';
 import { Board } from '../../board';
 import { Coord } from '../../common/geometry/coord';
-import { BoardGameService } from '../board-game/board-game.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BoardService {
-  board: Board = {} as Board;
+  boardGame: BoardGame = {} as BoardGame;
   moves: Move[] = [];
   selectionResolve?: (coord: Coord) => void;
+  boardGameSubject: Subject<BoardGame>;
   boardSelectionFocusSubject: Subject<SelectionFocus>;
   movesSubject: Subject<Move[]>;
 
-  constructor(private boardGameService: BoardGameService) {
-    // Alias the board for easier referencing
-    this.board = this.boardGameService.board;
-
+  constructor() {
+    this.boardGameSubject = new Subject<BoardGame>();
     this.boardSelectionFocusSubject = new Subject<SelectionFocus>();
     this.movesSubject = new Subject<Move[]>();
+  }
+
+  updateBoardGame(boardGame: BoardGame) {
+    this.boardGame = boardGame;
+    this.boardGameSubject.next(boardGame);
   }
 
   updateMoves(moves: Move[]): void {

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize } from '../../common/prizes';
 import { BeamPath, BeamPointType, BoardConfig } from '../../board';
-import { BoardGameService } from '../board-game/board-game.service';
 import { Game } from '../../game';
 import { Coord } from '../../common/geometry/coord';
 import { WalletService } from '../wallet/wallet.service';
@@ -9,6 +8,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { GeneratorService } from '../generator/generator.service';
 import { BoardService } from '../board/board.service';
 import { Move } from 'src/app/moves';
+import { BoardGame } from 'src/app/core/board-game';
 
 interface BeamPrize {
   beam: Beam;
@@ -27,6 +27,7 @@ enum GameState {
 })
 export class GameService {
   game = {} as Game;
+  boardGame: BoardGame = {} as BoardGame;
   moves: Move[] = [];
   gameState: GameState = GameState.SelectItem;
   doRoundResolve?: () => void;
@@ -35,7 +36,6 @@ export class GameService {
 
   constructor(
     private generatorService: GeneratorService,
-    private boardGameService: BoardGameService,
     private boardService: BoardService,
     private walletService: WalletService,
     private inventoryService: InventoryService) { }
@@ -53,7 +53,11 @@ export class GameService {
   private newRound(level: number) {
     this.game.level = level;
     this.game.roundsCount++;
-    this.generatorService.generateBoard(this.game.config, level);
+
+    const board = this.generatorService.generateBoard(this.game.config, level);
+    this.boardGame = new BoardGame(board);
+    this.boardService.updateBoardGame(this.boardGame);
+
     this.inventoryService.new(level);
     this.moves = [];
     this.boardService.updateMoves(this.moves);
@@ -119,7 +123,7 @@ export class GameService {
 
     if (!this.inventoryService.anyBeams()) return true;
 
-    const remainingPrizes = this.boardGameService.remainingPrizes();
+    const remainingPrizes = this.boardGame.remainingPrizes();
     const remainingGoodPrizes = remainingPrizes
       .filter((prize) => { return positivePrize(prize) });
     return remainingGoodPrizes.length === 0;
@@ -150,7 +154,7 @@ export class GameService {
     // (e.g. to start animations), then maybe it should be set after the path is
     // computed.
     this.gameState = GameState.FireBeam;
-    const beamPath = this.boardGameService.fireBeam(beam, coord);
+    const beamPath = this.boardGame.fireBeam(beam, coord);
     if (!beamPath) return undefined;
 
     return { beam: beam, coord: coord, beamPath: beamPath };
@@ -165,10 +169,10 @@ export class GameService {
 
     if (this.prizeBlocked(emitPoint.coord)) return undefined;
 
-    const prizeState = this.boardGameService.getPrizeState(emitPoint.coord);
+    const prizeState = this.boardGame.getPrizeState(emitPoint.coord);
     if (!prizeState || prizeState.taken) return undefined;
 
-    this.boardGameService.takePrizeAt(emitPoint.coord);
+    this.boardGame.takePrizeAt(emitPoint.coord);
     return prizeState.prize;
   }
 

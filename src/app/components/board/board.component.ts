@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Cell, SelectionState } from '../../common/cell';
-import { BeamPointType, Board, BoardConfig } from '../../board';
+import { BeamPointType, Board, BoardConfig, Bronzor } from '../../board';
 import { Coord } from '../../common/geometry/coord';
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
-import { BoardGameService } from 'src/app/services/board-game/board-game.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
@@ -13,6 +12,7 @@ import { PrizeCell } from './prize-cell';
 import { Move } from 'src/app/moves';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
+import { BoardGame } from 'src/app/core/board-game';
 
 @Component({
   selector: 'game-board',
@@ -20,14 +20,14 @@ import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry
   styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit {
-  board: Board = {} as Board;
   boardLength: number;
   grid: Grid = {} as Grid;
   boardCoords: Array<Array<Coord>> = [[]];
   cells: Map<string, Cell> = new Map();
-  prizeCells: Cell[] = [];
+  boardCells: BoardCell[] = [];
+  prizeCells: PrizeCell[] = [];
   ioCells: IOCell[] = [];
-  boardCells: Cell[] = [];
+  boardGameObservable: Subscription;
   boardSelectionFocusObservable: Subscription;
   movesObservable: Subscription;
   // The number of rows used to display prizes and income/outcome state.
@@ -35,14 +35,14 @@ export class BoardComponent implements OnInit {
 
   constructor(
     private gameService: GameService,
-    private boardService: BoardService,
-    private boardGameService: BoardGameService) {
-    // Alias the board for easier referencing
-    this.board = this.boardService.board;
+    private boardService: BoardService) {
     this.boardLength = this.gameService.game.config.length;
     this.grid = new Grid(this.boardLength, this.boardLength);
 
     this.boardCoords = this.computeBoardCoords();
+    this.cells = this.initializeCells(this.boardCoords);
+    this.boardGameObservable = boardService.boardGameSubject.subscribe(
+      (boardGame) => { this.setupBoard(boardGame) });
     this.boardSelectionFocusObservable =
       boardService.boardSelectionFocusSubject.subscribe(
         (focus) => { this.setSelectionFocus(focus) });
@@ -51,7 +51,6 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cells = this.initializeCells(this.boardCoords);
     this.markCornersInvisible();
   }
 
@@ -134,10 +133,17 @@ export class BoardComponent implements OnInit {
     return row;
   }
 
-  // This might be buggy... We would have to call this method whenever we
-  // generate a new board. Maybe that's fine. An ideal solution to keep this in
-  // sync might be to use Observables.
-  private initializeCells(boardCoords: Array<Array<Coord>>): Map<string, Cell> {
+  private setupBoard(boardGame: BoardGame): void {
+    // Add Bronzors
+    this.clearBoardCellStates();
+    this.updateBoardCellStates(boardGame);
+
+    // Add prizes
+    this.clearPrizeStates();
+    this.updatePrizeStates(boardGame);
+  }
+
+  private initializeCells(boardCoords: Coord[][]): Map<string, Cell> {
     this.prizeCells = [];
     this.ioCells = [];
     this.boardCells = [];
@@ -151,7 +157,7 @@ export class BoardComponent implements OnInit {
         if (r === 0 || c === 0 || r === totalLength - 1 || c === totalLength - 1) {
           const prizeCoord = this.prizeCellCoord(coord);
           if (prizeCoord) {
-            const cell = new PrizeCell(this.boardGameService.getPrizeState(prizeCoord));
+            const cell = new PrizeCell(undefined);
             cells.set(coord.toString(), cell);
             this.prizeCells.push(cell);
           }
@@ -165,7 +171,7 @@ export class BoardComponent implements OnInit {
         }
         // Inside the cell
         else {
-          const cell = new BoardCell(this.boardGameService.getBronzor(coord));
+          const cell = new BoardCell(undefined);
           cells.set(coord.toString(), cell);
           this.boardCells.push(cell);
         }
@@ -227,6 +233,28 @@ export class BoardComponent implements OnInit {
     this.applyIOStates(inputs, outputs);
   }
 
+  private updateBoardCellStates(boardGame: BoardGame): void {
+    for (let bronzor of boardGame.board.bronzors) {
+      const boardCell = this.cells.get(bronzor.coord.toString()) as BoardCell;
+      boardCell.bronzor = bronzor;
+    }
+  }
+
+  private updatePrizeStates(boardGame: BoardGame): void {
+    for (let i = 0; i < boardGame.board.prizes.length; i++) {
+      const prizeState = boardGame.board.prizes[i];
+      const prizeCoord = boardGame.getPrizeCoord(i);
+      if (prizeState && prizeCoord) {
+        const segmentDir = this.grid.coordInEdgeSegments(prizeCoord, 1);
+        if (segmentDir !== undefined) {
+          const boardCoord = prizeCoord.coordAt(segmentDir, 1);
+          const prizeCell = this.cells.get(boardCoord.toString()) as PrizeCell;
+          prizeCell.prizeState = prizeState;
+        }
+      }
+    }
+  }
+
   private applyIOStates(inputs: Map<string, CellInput>, outputs: Map<string, CellOutput>): void {
     for (let [coord, input] of inputs) {
       const ioCell = this.cells.get(coord) as IOCell;
@@ -236,6 +264,18 @@ export class BoardComponent implements OnInit {
     for (let [coord, output] of outputs) {
       const ioCell = this.cells.get(coord) as IOCell;
       ioCell.ioState.output = output;
+    }
+  }
+
+  private clearBoardCellStates(): void {
+    for (let cell of this.boardCells) {
+      cell.bronzor = undefined;
+    }
+  }
+
+  private clearPrizeStates(): void {
+    for (let cell of this.prizeCells) {
+      cell.prizeState = undefined;
     }
   }
 

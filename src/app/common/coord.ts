@@ -1,6 +1,4 @@
-/**
- * Coordinates
- */
+import { Direction } from "./direction";
 
 export class Coord {
     row: number;
@@ -40,38 +38,6 @@ export class Coord {
     }
 }
 
-export enum Direction {
-    Up,
-    Right,
-    Down,
-    Left,
-}
-
-export const directions = [
-    Direction.Up,
-    Direction.Right,
-    Direction.Down,
-    Direction.Left
-] as const;
-
-enum Orientation {
-    Vertical,
-    Horizontal,
-}
-
-function toOrientation(dir: Direction): Orientation {
-    switch (dir) {
-        case Direction.Up:
-        // fallthrough
-        case Direction.Down:
-            return Orientation.Vertical;
-        case Direction.Right:
-        // fallthrough
-        case Direction.Left:
-            return Orientation.Horizontal;
-    }
-}
-
 export interface Vector {
     coord: Coord;
     dir: Direction;
@@ -106,15 +72,6 @@ export class LineSegment {
         }
         return coords;
     }
-}
-
-export function rotateClockwise(dir: Direction, turns: number): Direction {
-    const idx = directions.indexOf(dir);
-    return directions[(idx + turns) % 4]
-}
-
-export function oppositeDir(dir: Direction): Direction {
-    return rotateClockwise(dir, 2);
 }
 
 // True if you can reach `coord2` from `coord1` by traveling straight in

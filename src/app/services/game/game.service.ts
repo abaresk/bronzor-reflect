@@ -68,7 +68,7 @@ export class GameService {
   async play(): Promise<void> {
     while (true) {
       await this.doRound();
-      this.cleanupRound();
+      await this.cleanupRound();
     }
   }
 

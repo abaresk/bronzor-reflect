@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Cell, SelectionState } from '../../common/cell';
 import { BeamPointType, Board, BoardConfig } from '../../board';
-import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
+import { Coord, Direction, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
 import { BoardGameService } from 'src/app/services/board-game/board-game.service';
@@ -11,6 +11,7 @@ import { BoardCell } from './board-cell';
 import { BeamMove, CellInput, CellOutput, EmitType, IOCell, IOState, newIOState } from './io-cell';
 import { PrizeCell } from './prize-cell';
 import { Move } from 'src/app/moves';
+import { Grid } from 'src/app/common/grid';
 
 @Component({
   selector: 'game-board',

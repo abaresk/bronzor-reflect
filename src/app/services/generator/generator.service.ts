@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BeamPointType, BoardConfig, BoardHistory, Bronzor } from '../../board';
-import { BoardGameService } from '../board-game/board-game.service';
+import { BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from '../../board';
+import { BoardGame } from '../../core/board-game';
 import { Coord } from '../../common/geometry/coord';
 import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
@@ -25,10 +25,10 @@ export class GeneratorService {
   config: BoardConfig = {} as BoardConfig;
   grid: Grid = {} as Grid;
 
-  constructor(private boardGameService: BoardGameService) {
+  constructor() {
   }
 
-  generateBoard(config: BoardConfig, level: number): void {
+  generateBoard(config: BoardConfig, level: number): Board {
     this.config = config;
     this.grid = new Grid(config.length, config.length)
 
@@ -39,12 +39,12 @@ export class GeneratorService {
       prizes: [],
       history: history
     };
-    this.boardGameService.new(board);
-
+    const boardGame = new BoardGame(board);
     const bronzors = this.placeBronzors(level);
-    this.boardGameService.board.bronzors = bronzors;
+    boardGame.board.bronzors = bronzors;
 
-    this.placePrizes(level);
+    this.placePrizes(boardGame, level);
+    return boardGame.board;
   }
 
   // TODO: Factor in level when placing Bronzors.
@@ -67,12 +67,12 @@ export class GeneratorService {
     return bronzors;
   }
 
-  private placePrizes(level: number): void {
+  private placePrizes(boardGame: BoardGame, level: number): void {
     const prizeCounts: Map<Prize, number> = new Map();
     const prizeCategoryTally: PrizeCategoryTally = new Map();
     const takenCoords: Set<string> = new Set();
     const allCoordsSet = this.coordSet(this.ioCoords());
-    const reachableSet = this.coordSet(this.reachableCoords());
+    const reachableSet = this.coordSet(this.reachableCoords(boardGame));
 
     let currentPrizes = 0;
     const prizeLimit = this.getTotalPrizes(level);
@@ -81,7 +81,7 @@ export class GeneratorService {
     for (let prize of prizes) {
       const prizeYield = getYieldRange(prize, level);
       for (let i = 0; i < prizeYield.min; i++) {
-        this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+        this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
         this.incrementMap(prizeCounts, prize, 1);
         currentPrizes++;
       }
@@ -93,12 +93,12 @@ export class GeneratorService {
       const prize = this.getRandomAvailablePrize(prizeCounts, level);
       if (!prize) continue;
 
-      this.placePrizeOnBoard(prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+      this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
       this.incrementMap(prizeCounts, prize, 1);
     }
   }
 
-  private placePrizeOnBoard(prize: Prize, tally: PrizeCategoryTally, allCoords: Set<string>, takenCoords: Set<string>, reachableCoords: Set<string>): void {
+  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: Set<string>, takenCoords: Set<string>, reachableCoords: Set<string>): void {
     const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
     const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
       <= MAX_UNREACHABLE_PER_PRIZE;
@@ -118,16 +118,16 @@ export class GeneratorService {
     tally.set(getCategory(prize), prizeCount);
 
     const placedCoord = Coord.fromString(randCoord);
-    this.boardGameService.addPrize(placedCoord, prize);
+    boardGame.addPrize(placedCoord, prize);
   }
 
-  private reachableCoords(): Coord[] {
+  private reachableCoords(boardGame: BoardGame): Coord[] {
     const reachable = [];
     const ioCoords = this.ioCoords();
     for (let coord of ioCoords) {
       // Fire a beam into the board from this coord and record where it is
       // emitted.
-      const beamPath = this.boardGameService.fireBeam(Beam.Normal, coord, true);
+      const beamPath = boardGame.fireBeam(Beam.Normal, coord, true);
       if (!beamPath) continue;
 
       const lastPoint = beamPath.path[beamPath.path.length - 1];

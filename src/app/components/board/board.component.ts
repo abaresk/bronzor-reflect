@@ -4,7 +4,6 @@ import { BeamPointType, Board, BoardConfig } from '../../board';
 import { Coord } from '../../common/geometry/coord';
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
-import { BoardGameService } from 'src/app/services/board-game/board-game.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
@@ -20,7 +19,6 @@ import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry
   styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit {
-  board: Board = {} as Board;
   boardLength: number;
   grid: Grid = {} as Grid;
   boardCoords: Array<Array<Coord>> = [[]];
@@ -35,10 +33,7 @@ export class BoardComponent implements OnInit {
 
   constructor(
     private gameService: GameService,
-    private boardService: BoardService,
-    private boardGameService: BoardGameService) {
-    // Alias the board for easier referencing
-    this.board = this.boardService.board;
+    private boardService: BoardService) {
     this.boardLength = this.gameService.game.config.length;
     this.grid = new Grid(this.boardLength, this.boardLength);
 
@@ -151,7 +146,8 @@ export class BoardComponent implements OnInit {
         if (r === 0 || c === 0 || r === totalLength - 1 || c === totalLength - 1) {
           const prizeCoord = this.prizeCellCoord(coord);
           if (prizeCoord) {
-            const cell = new PrizeCell(this.boardGameService.getPrizeState(prizeCoord));
+            // TODO: Initialize this in the subscriber.
+            const cell = new PrizeCell(undefined);
             cells.set(coord.toString(), cell);
             this.prizeCells.push(cell);
           }
@@ -165,7 +161,8 @@ export class BoardComponent implements OnInit {
         }
         // Inside the cell
         else {
-          const cell = new BoardCell(this.boardGameService.getBronzor(coord));
+          // TODO: Initialize this in the subscriber.
+          const cell = new BoardCell(undefined);
           cells.set(coord.toString(), cell);
           this.boardCells.push(cell);
         }

@@ -1,21 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Beam, Prize, PrizeState } from '../../common/prizes';
-import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../../board';
-import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../../common/geometry/coord';
+import { Beam, Prize, PrizeState } from '../common/prizes';
+import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../board';
+import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../common/geometry/coord';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
 import { Vector } from 'src/app/common/geometry/vector';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class BoardGameService {
+export class BoardGame {
   board: Board = {} as Board;
   grid: Grid = {} as Grid;
 
-  constructor() { }
-
-  new(board: Board) {
+  constructor(board: Board) {
     this.board = board;
     this.grid = new Grid(board.config.length, board.config.length);
   }

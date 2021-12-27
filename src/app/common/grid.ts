@@ -1,5 +1,6 @@
-import { Coord, LineSegment } from "./coord";
+import { Coord } from "./coord";
 import { Direction, directions, rotateClockwise } from "./direction";
+import { LineSegment } from "./line-segment";
 
 export class Grid {
     width: number;

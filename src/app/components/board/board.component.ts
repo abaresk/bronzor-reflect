@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Cell, SelectionState } from '../../common/cell';
-import { Board, BoardConfig } from '../../board';
+import { BeamPointType, Board, BoardConfig } from '../../board';
 import { Coord, Direction, Grid, oppositeDir, rotateClockwise } from '../../common/coord';
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
@@ -8,8 +8,9 @@ import { BoardGameService } from 'src/app/services/board-game/board-game.service
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
-import { IOCell } from './io-cell';
+import { BeamMove, CellInput, CellOutput, EmitType, IOCell, IOState, newIOState } from './io-cell';
 import { PrizeCell } from './prize-cell';
+import { Move } from 'src/app/moves';
 
 @Component({
   selector: 'game-board',
@@ -23,9 +24,10 @@ export class BoardComponent implements OnInit {
   boardCoords: Array<Array<Coord>> = [[]];
   cells: Map<string, Cell> = new Map();
   prizeCells: Cell[] = [];
-  ioCells: Cell[] = [];
+  ioCells: IOCell[] = [];
   boardCells: Cell[] = [];
   boardSelectionFocusObservable: Subscription;
+  movesObservable: Subscription;
   // The number of rows used to display prizes and income/outcome state.
   outcomeRows: number = 2;
 
@@ -42,6 +44,8 @@ export class BoardComponent implements OnInit {
     this.boardSelectionFocusObservable =
       boardService.boardSelectionFocusSubject.subscribe(
         (focus) => { this.setSelectionFocus(focus) });
+    this.movesObservable = boardService.movesSubject.subscribe(
+      (moves) => { this.updateIOCells(moves) });
   }
 
   ngOnInit(): void {
@@ -197,5 +201,54 @@ export class BoardComponent implements OnInit {
     if (segmentDir === undefined) return;
 
     return coord.coordAt(oppositeDir(segmentDir), 1);
+  }
+
+  private updateIOCells(moves: Move[]): void {
+    const inputs: Map<string, CellInput> = new Map();
+    const outputs: Map<string, CellOutput> = new Map();
+    for (let i = 0; i < moves.length; i++) {
+      const move = moves[i];
+      const beamMove = { beam: move.beam, moveIndex: i };
+      const input =
+        { beamMove: beamMove, emitType: this.getEmitType(move) };
+      inputs.set(move.coord.toString(), input);
+
+      const lastPoint = move.beamPath.path[move.beamPath.path.length - 1];
+      if (lastPoint.type === BeamPointType.Emit) {
+        const existingOuts = outputs.get(lastPoint.coord.toString()) ?? { outputs: [] };
+        existingOuts.outputs.push(beamMove);
+        outputs.set(lastPoint.coord.toString(), existingOuts);
+      }
+    }
+
+    this.clearIOStates();
+    this.applyIOStates(inputs, outputs);
+  }
+
+  private applyIOStates(inputs: Map<string, CellInput>, outputs: Map<string, CellOutput>): void {
+    for (let [coord, input] of inputs) {
+      const ioCell = this.cells.get(coord) as IOCell;
+      ioCell.ioState.input = input;
+    }
+
+    for (let [coord, output] of outputs) {
+      const ioCell = this.cells.get(coord) as IOCell;
+      ioCell.ioState.output = output;
+    }
+  }
+
+  private clearIOStates(): void {
+    for (let cell of this.ioCells) {
+      cell.ioState = newIOState();
+    }
+  }
+
+  private getEmitType(move: Move): EmitType {
+    const firstCoord = move.coord;
+    const lastPoint = move.beamPath.path[move.beamPath.path.length - 1];
+
+    if (lastPoint.type === BeamPointType.Hit) return EmitType.Hit;
+    if (lastPoint.coord.equals(firstCoord)) return EmitType.Reflect;
+    return EmitType.Emit;
   }
 }

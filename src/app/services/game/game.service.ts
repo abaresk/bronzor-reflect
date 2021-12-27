@@ -8,16 +8,11 @@ import { WalletService } from '../wallet/wallet.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { GeneratorService } from '../generator/generator.service';
 import { BoardService } from '../board/board.service';
+import { Move } from 'src/app/moves';
 
 interface BeamPrize {
   beam: Beam;
   prize?: Prize;
-};
-
-interface Move {
-  beam: Beam;
-  coord: Coord;
-  beamPath: BeamPath
 };
 
 enum GameState {
@@ -61,6 +56,7 @@ export class GameService {
     this.generatorService.generateBoard(this.game.config, level);
     this.inventoryService.new(level);
     this.moves = [];
+    this.boardService.updateMoves(this.moves);
     this.wonJackpot = false;
     this.bombExploded = false;
   }
@@ -110,6 +106,7 @@ export class GameService {
     if (!move) return;
 
     this.moves.push(move);
+    this.boardService.updateMoves(this.moves);
 
     const prize = this.getPrize(move);
     if (!prize) return { beam: move.beam };

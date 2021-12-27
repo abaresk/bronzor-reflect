@@ -23,6 +23,12 @@ export class LineSegment {
             -1;
     }
 
+    at(index: number): Coord | undefined {
+        if (index < 0 || index >= this.length) return undefined;
+
+        return this.allCoords()[index];
+    }
+
     allCoords(): Coord[] {
         const coords = [];
         for (let i = 0; i < this.length; i++) {

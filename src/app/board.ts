@@ -58,6 +58,6 @@ export interface BoardHistory {
 export interface Board {
     config: BoardConfig;
     bronzors: Array<Bronzor>;
-    prizes: Array<PrizeState>;
+    prizes: Array<PrizeState | undefined>;
     history: BoardHistory;
 }

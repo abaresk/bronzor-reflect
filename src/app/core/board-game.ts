@@ -36,6 +36,12 @@ export class BoardGame {
     return prizeTileId !== -1 ? this.board.prizes[prizeTileId] : undefined;
   }
 
+  getPrizeCoord(tileId: number): Coord | undefined {
+    const edgeSegments = this.grid.edgeSegments(1);
+    const segment = edgeSegments[Math.floor(tileId / this.board.config.length)];
+    return segment.at(tileId % this.board.config.length);
+  }
+
   addPrize(coord: Coord, prize: Prize) {
     const prizeTileId = this.prizeTileId(coord);
     if (prizeTileId !== -1) {
@@ -45,12 +51,19 @@ export class BoardGame {
 
   takePrizeAt(coord: Coord) {
     const prizeTileId = this.prizeTileId(coord);
-    this.board.prizes[prizeTileId].taken = true;
+    const prizeState = this.board.prizes[prizeTileId];
+    if (prizeState) {
+      prizeState.taken = true;
+    }
   }
 
   remainingPrizes(): Prize[] {
-    const remaining = this.board.prizes
-      .filter((prizeState) => { return !prizeState.taken; });
+    const remaining = [];
+    for (let prizeState of this.board.prizes) {
+      if (prizeState && !prizeState.taken) {
+        remaining.push(prizeState);
+      }
+    }
     return remaining.map((prizeState) => { return prizeState.prize });
   }
 

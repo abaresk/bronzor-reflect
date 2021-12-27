@@ -13,16 +13,19 @@ export class BoardService {
   boardGame: BoardGame = {} as BoardGame;
   moves: Move[] = [];
   selectionResolve?: (coord: Coord) => void;
+  boardGameSubject: Subject<BoardGame>;
   boardSelectionFocusSubject: Subject<SelectionFocus>;
   movesSubject: Subject<Move[]>;
 
   constructor() {
+    this.boardGameSubject = new Subject<BoardGame>();
     this.boardSelectionFocusSubject = new Subject<SelectionFocus>();
     this.movesSubject = new Subject<Move[]>();
   }
 
   updateBoardGame(boardGame: BoardGame) {
     this.boardGame = boardGame;
+    this.boardGameSubject.next(boardGame);
   }
 
   updateMoves(moves: Move[]): void {

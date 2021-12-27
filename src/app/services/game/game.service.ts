@@ -3,7 +3,7 @@ import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, 
 import { BeamPath, BeamPointType, BoardConfig } from '../../board';
 import { BoardGameService } from '../board-game/board-game.service';
 import { Game } from '../../game';
-import { Coord, Vector } from '../../common/coord';
+import { Coord } from '../../common/coord';
 import { WalletService } from '../wallet/wallet.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { GeneratorService } from '../generator/generator.service';

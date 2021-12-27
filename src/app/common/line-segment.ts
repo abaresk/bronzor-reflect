@@ -1,4 +1,5 @@
-import { Coord, coordInDirection, distanceInDirection, Vector } from "./coord";
+import { Coord, coordInDirection, distanceInDirection } from "./coord";
+import { Vector } from "./vector";
 
 export class LineSegment {
     origin: Vector;

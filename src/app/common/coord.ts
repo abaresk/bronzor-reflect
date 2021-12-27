@@ -1,4 +1,5 @@
 import { Direction } from "./direction";
+import { Vector } from "./vector";
 
 export class Coord {
     row: number;
@@ -36,11 +37,6 @@ export class Coord {
         const split = noParens.split(',');
         return new Coord(Number(split[0]), Number(split[1]));
     }
-}
-
-export interface Vector {
-    coord: Coord;
-    dir: Direction;
 }
 
 // True if you can reach `coord2` from `coord1` by traveling straight in

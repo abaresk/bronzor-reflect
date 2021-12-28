@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
+import { InputAdapterService } from './services/input-adapter/input-adapter.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'bronzor-reflect';
+
+  constructor(private inputAdapterService: InputAdapterService) { }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    this.inputAdapterService.pressKey(event);
+  }
 }

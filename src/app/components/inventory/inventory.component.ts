@@ -8,6 +8,7 @@ import { InventoryCell } from './inventory-cell';
 import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
 import { GbaInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
 import { Coord } from 'src/app/common/geometry/coord';
+import { modulo } from 'src/app/util/modulo';
 
 const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -135,9 +136,9 @@ export class InventoryComponent implements OnInit {
     const delta = (input === GbaInput.Right || input === GbaInput.Down) ? 1 : -1;
 
     if (input === GbaInput.Right || input == GbaInput.Left) {
-      return new Coord(currentCoord.row, this.mod(currentCoord.col + delta, inventoryWidth));
+      return new Coord(currentCoord.row, modulo(currentCoord.col + delta, inventoryWidth));
     } else {
-      return new Coord(this.mod(currentCoord.row + delta, inventoryHeight), currentCoord.col);
+      return new Coord(modulo(currentCoord.row + delta, inventoryHeight), currentCoord.col);
     }
   }
 
@@ -162,9 +163,5 @@ export class InventoryComponent implements OnInit {
     if (coord.col < 0 || coord.col >= inventoryWidth) return undefined;
 
     return this.cells.get(this.inventoryOrder[coord.row][coord.col]);
-  }
-
-  private mod(n: number, m: number) {
-    return ((n % m) + m) % m;
   }
 }

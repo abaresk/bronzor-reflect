@@ -22,6 +22,14 @@ export function isDpadInput(input: GbaInput): boolean {
     return false;
 }
 
+export function isAInput(input: GbaInput): boolean {
+    return input === GbaInput.A;
+}
+
+export function isBInput(input: GbaInput): boolean {
+    return input === GbaInput.B;
+}
+
 export function keyboardInputToGbaInput(keyboardInput: string): GbaInput | undefined {
     switch (keyboardInput) {
         case 'KeyW':

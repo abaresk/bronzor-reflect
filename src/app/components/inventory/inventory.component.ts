@@ -6,7 +6,7 @@ import { InventoryService, InventoryStock } from 'src/app/services/inventory/inv
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { InventoryCell } from './inventory-cell';
 import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
-import { GbaInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
+import { GbaInput, isAInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
 import { Coord } from 'src/app/common/geometry/coord';
 import { modulo } from 'src/app/util/modulo';
 

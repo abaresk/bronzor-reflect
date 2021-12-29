@@ -1,5 +1,8 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { filter, Subscription } from 'rxjs';
 import { GameService } from 'src/app/services/game/game.service';
+import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
+import { GbaInput, isAInput } from 'src/app/services/input-adapter/inputs';
 import { Cell, SelectionState } from '../../common/cell';
 
 enum SelectionCssClass {
@@ -18,23 +21,23 @@ export class CellComponent implements OnInit {
   @Input() cell: Cell | undefined;
   @Output() selectedEvent = new EventEmitter<Cell>();
 
-  constructor(private gameService: GameService) { }
+  inputObservable: Subscription;
+
+  constructor(
+    private gameService: GameService,
+    private inputAdapterService: InputAdapterService) {
+    this.inputObservable = this.inputAdapterService.inputSubject
+      .pipe(filter((value) => isAInput(value)))
+      .subscribe((input) => { this.handleAInput(input); });
+  }
 
   ngOnInit(): void {
   }
 
   // If selectable, mark the cell as selected and pass an event to the parent
   // component.
-  @HostListener("click") onClick() {
-    if (!this.cell) return;
-
-    // Don't emit an event if the cell is not in a selectable state.
-    if (!this.getSelectable()) return;
-    if (!this.getInteractable()) return;
-    if (!this.cell.validSelection()) return;
-
-    this.cell.setSelectionState(SelectionState.Selected);
-    this.selectedEvent.emit(this.cell);
+  @HostListener("click") onClick(): void {
+    this.trySelect();
   }
 
   getClasses(): string {
@@ -59,10 +62,6 @@ export class CellComponent implements OnInit {
     return this.cell?.getSelectable() ?? false;
   }
 
-  private getInteractable(): boolean {
-    return this.cell?.interactable ?? false;
-  }
-
   private getSelectionCssClass(): string {
     if (!this.cell || !this.getSelectable()) return '';
 
@@ -81,5 +80,23 @@ export class CellComponent implements OnInit {
     }
 
     return '';
+  }
+
+  private trySelect(): void {
+    if (!this.cell) return;
+
+    // Don't emit an event if the cell is not in a selectable state.
+    if (!this.cell.getSelectable()) return;
+    if (!this.cell.interactable) return;
+    if (!this.cell.validSelection()) return;
+
+    this.cell.setSelectionState(SelectionState.Selected);
+    this.selectedEvent.emit(this.cell);
+  }
+
+  private handleAInput(input: GbaInput): void {
+    if (this.cell?.selectionState !== SelectionState.Focused) return;
+
+    this.trySelect();
   }
 }

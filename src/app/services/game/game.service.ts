@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize } from '../../common/prizes';
+import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize, jackpotPrize } from '../../common/prizes';
 import { BeamPath, BeamPointType, BoardConfig } from '../../board';
 import { Game } from '../../game';
 import { Coord } from '../../common/geometry/coord';
@@ -33,7 +33,8 @@ export class GameService {
   moves: Move[] = [];
   gameState: GameState = GameState.SelectItem;
   doRoundResolve?: () => void;
-  wonJackpot: boolean = false;
+  jackpotsCollected = 0;
+  totalJackpots = 0;
   bombExploded: boolean = false;
 
   constructor(
@@ -64,7 +65,8 @@ export class GameService {
     this.inventoryService.new(level);
     this.moves = [];
     this.boardService.updateMoves(this.moves);
-    this.wonJackpot = false;
+    this.jackpotsCollected = 0;
+    this.totalJackpots = this.boardGame.numPrizes(jackpotPrize);
     this.bombExploded = false;
     this.boardService.showHiddenBronzors(false);
   }
@@ -107,6 +109,12 @@ export class GameService {
     };
 
     return new Promise(doRoundInternal.bind(this));
+  }
+
+  // The user can access the next level if they have collected all the jackpots
+  // on the board.
+  wonAllJackpots(): boolean {
+    return this.totalJackpots > 0 && this.jackpotsCollected === this.totalJackpots;
   }
 
   private async doTurn(): Promise<BeamPrize | undefined> {
@@ -199,7 +207,7 @@ export class GameService {
     const payoutFactor = beam === Beam.DoublePrize ? 2 : 1;
 
     if (prize === MoneyPrize.Jackpot) {
-      this.wonJackpot = true;
+      this.jackpotsCollected++;
       const payout = (jackpotPayouts.get(this.game.level) ?? 0) * payoutFactor;
       this.walletService.addToPayout(payout);
       return;
@@ -224,7 +232,7 @@ export class GameService {
       return Math.max(this.game.level - 1, 1);
     }
 
-    if (!this.bombExploded && this.wonJackpot) {
+    if (!this.bombExploded && this.wonAllJackpots()) {
       return Math.min(this.game.level + 1, 8);
     }
 

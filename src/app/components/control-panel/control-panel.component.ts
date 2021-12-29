@@ -14,7 +14,7 @@ export class ControlPanelComponent implements OnInit {
   }
 
   getButtonText(): string {
-    return this.gameService.wonJackpot ? 'Next level' : 'End round';
+    return this.gameService.wonAllJackpots() ? 'Next level' : 'End round';
   }
 
   endRound(): void {

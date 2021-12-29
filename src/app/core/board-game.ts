@@ -42,6 +42,15 @@ export class BoardGame {
     return segment.at(tileId % this.board.config.length);
   }
 
+  // Returns the number of the given prize that exist on the board.
+  numPrizes(prize: Prize): number {
+    let count = 0;
+    for (let prizeState of this.board.prizes) {
+      if (prizeState?.prize === prize) count++;
+    }
+    return count;
+  }
+
   addPrize(coord: Coord, prize: Prize) {
     const prizeTileId = this.prizeTileId(coord);
     if (prizeTileId !== -1) {

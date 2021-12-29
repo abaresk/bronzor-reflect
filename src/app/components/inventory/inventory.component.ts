@@ -1,18 +1,16 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { Cell, SelectionState } from 'src/app/common/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
 import { InventoryCell } from './inventory-cell';
+import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
+import { GbaInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
 
-const inventoryOrder: ReadonlyArray<Beam> = [
-  Beam.Normal,
-  Beam.Water,
-  Beam.DoublePrize,
-  Beam.Flame,
-  Beam.Comet,
-  Beam.Phase,
+const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
+  [Beam.Normal, Beam.Water, Beam.DoublePrize],
+  [Beam.Flame, Beam.Comet, Beam.Phase],
 ];
 
 @Component({
@@ -21,18 +19,26 @@ const inventoryOrder: ReadonlyArray<Beam> = [
   styleUrls: ['./inventory.component.scss']
 })
 export class InventoryComponent implements OnInit {
-  inventoryOrder: ReadonlyArray<Beam> = inventoryOrder;
+  inventoryOrder: ReadonlyArray<ReadonlyArray<Beam>> = INVENTORY_ORDER;
   inventoryObservable: Subscription;
   inventorySelectionFocusObservable: Subscription;
+  inputObservable: Subscription;
   cells: Map<Beam, InventoryCell>;
+  // True if focus is inside the Inventory menu.
+  focused: boolean = false;
 
-  constructor(public inventoryService: InventoryService) {
+  constructor(
+    public inventoryService: InventoryService,
+    public inputAdapterService: InputAdapterService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
     this.inventorySelectionFocusObservable =
       inventoryService.inventorySelectionFocusSubject.subscribe(
         (focus) => { this.setSelectionFocus(focus) });
+    this.inputObservable = this.inputAdapterService.inputSubject
+      .pipe(filter((value) => isDpadInput(value)))
+      .subscribe((input) => { this.handleInput(input); });
   }
 
   ngOnInit(): void {
@@ -65,8 +71,10 @@ export class InventoryComponent implements OnInit {
 
   // Move focus into the inventory component.
   private focus(): void {
+    this.focused = true;
+
     // Make each item interactable.
-    for (let item of inventoryOrder) {
+    for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       cell?.setInteractability(true);
     }
@@ -76,7 +84,9 @@ export class InventoryComponent implements OnInit {
   }
 
   private unfocus(): void {
-    for (let item of inventoryOrder) {
+    this.focused = false;
+
+    for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       cell?.setInteractability(false);
     }
@@ -84,7 +94,9 @@ export class InventoryComponent implements OnInit {
 
   // Make items un-interactable and clear any selection state.
   private clearSelection() {
-    for (let item of inventoryOrder) {
+    this.focused = false;
+
+    for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       cell?.setInteractability(true);
       cell?.setSelectionState(SelectionState.Unselected);
@@ -94,7 +106,7 @@ export class InventoryComponent implements OnInit {
 
   private initializeCells(): Map<Beam, InventoryCell> {
     const cells = new Map();
-    for (let item of inventoryOrder) {
+    for (let item of this.inventoryOrder.flat()) {
       cells.set(item, new InventoryCell(item, 0,
         (checkItem: Beam) => { return this.inventoryService.validSelection(checkItem); }));
     }
@@ -107,5 +119,11 @@ export class InventoryComponent implements OnInit {
 
     cell.count = stock.count;
     this.cells.set(stock.beam, cell);
+  }
+
+  private handleInput(input: GbaInput): void {
+    if (!this.focused) return;
+
+    // TODO: Modify cell that currently has focus
   }
 }

@@ -41,21 +41,27 @@ export function isHorizontal(input: GbaInput): boolean {
 export function keyboardInputToGbaInput(keyboardInput: string): GbaInput | undefined {
     switch (keyboardInput) {
         case 'KeyW':
+        case 'KeyI':
         case 'ArrowUp':
             return GbaInput.Up;
         case 'KeyD':
+        case 'KeyL':
         case 'ArrowRight':
             return GbaInput.Right;
         case 'KeyS':
+        case 'KeyK':
         case 'ArrowDown':
             return GbaInput.Down;
         case 'KeyA':
+        case 'KeyJ':
         case 'ArrowLeft':
             return GbaInput.Left;
         case 'Space':
         case 'KeyX':
+        case 'KeyM':
             return GbaInput.A;
         case 'KeyZ':
+        case 'KeyN':
             return GbaInput.B;
         case 'Enter':
             return GbaInput.Start;

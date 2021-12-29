@@ -69,7 +69,6 @@ export class BoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.markCornersInvisible();
-    this.updateFocusedCell(this.focusedCellCoord);
   }
 
   getCell(coord: Coord): Cell | undefined {
@@ -106,6 +105,7 @@ export class BoardComponent implements OnInit {
 
   private focus(): void {
     this.focused = true;
+    this.updateFocusedCell(this.focusedCellCoord);
 
     // Make each I/O cell interactable.
     for (let cell of this.ioCells) {

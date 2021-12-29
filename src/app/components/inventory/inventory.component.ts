@@ -46,7 +46,6 @@ export class InventoryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.updateFocusedItem(this.focusedItemCoord);
   }
 
   getCell(item: Beam): InventoryCell | undefined {
@@ -77,6 +76,7 @@ export class InventoryComponent implements OnInit {
   // Move focus into the inventory component.
   private focus(): void {
     this.focused = true;
+    this.updateFocusedItem(this.focusedItemCoord);
 
     // Make each item interactable.
     for (let item of this.inventoryOrder.flat()) {

@@ -9,6 +9,8 @@ import { GeneratorService } from '../generator/generator.service';
 import { BoardService } from '../board/board.service';
 import { Move } from 'src/app/moves';
 import { BoardGame } from 'src/app/core/board-game';
+import { InputAdapterService } from '../input-adapter/input-adapter.service';
+import { GbaInput } from '../input-adapter/inputs';
 
 interface BeamPrize {
   beam: Beam;
@@ -38,7 +40,8 @@ export class GameService {
     private generatorService: GeneratorService,
     private boardService: BoardService,
     private walletService: WalletService,
-    private inventoryService: InventoryService) { }
+    private inventoryService: InventoryService,
+    private inputAdapterService: InputAdapterService) { }
 
   newGame(boardConfig: BoardConfig, credit: number) {
     const level = 1;
@@ -63,11 +66,18 @@ export class GameService {
     this.boardService.updateMoves(this.moves);
     this.wonJackpot = false;
     this.bombExploded = false;
+    this.boardService.showHiddenBronzors(false);
   }
 
   async play(): Promise<void> {
     while (true) {
       await this.doRound();
+
+      // Reveal hidden Bronzors
+      this.boardService.showHiddenBronzors(true);
+
+      // Wait for user to continue
+      await this.inputAdapterService.waitForInput(GbaInput.A);
       await this.cleanupRound();
     }
   }

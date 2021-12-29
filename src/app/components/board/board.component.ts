@@ -33,6 +33,7 @@ export class BoardComponent implements OnInit {
   boardSelectionFocusObservable: Subscription;
   movesObservable: Subscription;
   inputObservable: Subscription;
+  revealHiddenBronzorsObservable: Subscription;
 
   // True if focus is inside the Board.
   focused: boolean = false;
@@ -62,6 +63,8 @@ export class BoardComponent implements OnInit {
     this.inputObservable = this.inputAdapterService.inputSubject
       .pipe(filter((value) => isDpadInput(value)))
       .subscribe((input) => { this.handleDpadInput(input); });
+    this.revealHiddenBronzorsObservable = boardService.revealHiddenBronzorSubject
+      .subscribe((display) => { this.displayHiddenBronzors(display) });
   }
 
   ngOnInit(): void {
@@ -361,6 +364,12 @@ export class BoardComponent implements OnInit {
     if (newCell) {
       newCell.setSelectionState(SelectionState.Focused);
       this.focusedCellCoord = newCoord;
+    }
+  }
+
+  private displayHiddenBronzors(display: boolean) {
+    for (let cell of this.boardCells) {
+      cell.setRevealHidden(display);
     }
   }
 }

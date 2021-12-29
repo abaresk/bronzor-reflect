@@ -16,11 +16,13 @@ export class BoardService {
   boardGameSubject: Subject<BoardGame>;
   boardSelectionFocusSubject: Subject<SelectionFocus>;
   movesSubject: Subject<Move[]>;
+  revealHiddenBronzorSubject: Subject<boolean>;
 
   constructor() {
     this.boardGameSubject = new Subject<BoardGame>();
     this.boardSelectionFocusSubject = new Subject<SelectionFocus>();
     this.movesSubject = new Subject<Move[]>();
+    this.revealHiddenBronzorSubject = new Subject<boolean>();
   }
 
   updateBoardGame(boardGame: BoardGame) {
@@ -63,6 +65,10 @@ export class BoardService {
     if (!this.selectionResolve) return;
 
     this.selectionResolve(coord);
+  }
+
+  showHiddenBronzors(value: boolean): void {
+    this.revealHiddenBronzorSubject.next(value);
   }
 
   // Returns true if the given input tile has already been selected by the user.

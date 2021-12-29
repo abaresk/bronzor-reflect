@@ -5,6 +5,7 @@ export class BoardCell extends Cell {
     static CATEGORY = 'board-cell';
     static SELECTABLE = false;
     bronzor: Bronzor | undefined;
+    revealHidden: boolean = false;
 
     constructor(bronzor: Bronzor | undefined) {
         super();
@@ -17,10 +18,15 @@ export class BoardCell extends Cell {
     override getText(level: number): string {
         if (!this.bronzor) return '';
 
-        return this.bronzor.visible ? 'B' : 'H';
+        if (this.bronzor.visible) return 'B';
+        return this.revealHidden ? 'H' : '';
     }
 
     override getCategory(): string {
         return BoardCell.CATEGORY;
+    }
+
+    setRevealHidden(value: boolean): void {
+        this.revealHidden = value;
     }
 }

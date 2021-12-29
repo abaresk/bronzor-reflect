@@ -27,8 +27,8 @@ export class Cell {
     }
 
     setSelectionState(state: SelectionState) {
-        // You can only set this on selectable cells that are interactable.
-        if (!this.getSelectable() || !this.interactable) return;
+        // You can only set this on selectable cells.
+        if (!this.getSelectable()) return;
 
         this.selectionState = state;
     }

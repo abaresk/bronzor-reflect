@@ -5,7 +5,7 @@ import { Coord } from '../../common/geometry/coord';
 import { GameService } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
 import { BeamMove, CellInput, CellOutput, EmitType, IOCell, IOState, newIOState } from './io-cell';
 import { PrizeCell } from './prize-cell';
@@ -13,6 +13,8 @@ import { Move } from 'src/app/moves';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
 import { BoardGame } from 'src/app/core/board-game';
+import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
+import { GbaInput, isDpadInput, isHorizontal, isVertical } from 'src/app/services/input-adapter/inputs';
 
 @Component({
   selector: 'game-board',
@@ -30,12 +32,21 @@ export class BoardComponent implements OnInit {
   boardGameObservable: Subscription;
   boardSelectionFocusObservable: Subscription;
   movesObservable: Subscription;
+  inputObservable: Subscription;
+
+  // True if focus is inside the Board.
+  focused: boolean = false;
+  // The cell in the board that currently has focus. Initially in top-left
+  // corner.
+  focusedCellCoord: Coord = new Coord(-1, 0);
+
   // The number of rows used to display prizes and income/outcome state.
   outcomeRows: number = 2;
 
   constructor(
     private gameService: GameService,
-    private boardService: BoardService) {
+    private boardService: BoardService,
+    private inputAdapterService: InputAdapterService) {
     this.boardLength = this.gameService.game.config.length;
     this.grid = new Grid(this.boardLength, this.boardLength);
 
@@ -48,10 +59,14 @@ export class BoardComponent implements OnInit {
         (focus) => { this.setSelectionFocus(focus) });
     this.movesObservable = boardService.movesSubject.subscribe(
       (moves) => { this.updateIOCells(moves) });
+    this.inputObservable = this.inputAdapterService.inputSubject
+      .pipe(filter((value) => isDpadInput(value)))
+      .subscribe((input) => { this.handleDpadInput(input); });
   }
 
   ngOnInit(): void {
     this.markCornersInvisible();
+    this.updateFocusedCell(this.focusedCellCoord);
   }
 
   getCell(coord: Coord): Cell | undefined {
@@ -87,22 +102,25 @@ export class BoardComponent implements OnInit {
   }
 
   private focus(): void {
+    this.focused = true;
+
     // Make each I/O cell interactable.
     for (let cell of this.ioCells) {
       cell.setInteractability(true);
     }
-
-    // TODO: Automatically focus on the top-left tile.
-
   }
 
   private unfocus(): void {
+    this.focused = false;
+
     for (let cell of this.ioCells) {
       cell.setInteractability(false);
     }
   }
 
   private clearSelection(): void {
+    this.focused = false;
+
     for (let cell of this.ioCells) {
       cell.setInteractability(true);
       cell.setSelectionState(SelectionState.Unselected);
@@ -292,5 +310,57 @@ export class BoardComponent implements OnInit {
     if (lastPoint.type === BeamPointType.Hit) return EmitType.Hit;
     if (lastPoint.coord.equals(firstCoord)) return EmitType.Reflect;
     return EmitType.Emit;
+  }
+
+  private handleDpadInput(input: GbaInput): void {
+    if (!this.focused) return;
+
+    const newCoord = this.shiftedCoord(this.focusedCellCoord, input);
+    this.updateFocusedCell(newCoord);
+  }
+
+  private shiftedCoord(currentCoord: Coord, input: GbaInput): Coord {
+    // Flip to the opposite side
+    if (isVertical(input) && (currentCoord.row === -1 || currentCoord.row == this.boardLength)) {
+      const newRow = currentCoord.row === -1 ? this.boardLength : -1;
+      return new Coord(newRow, currentCoord.col);
+    }
+    if (isHorizontal(input) && (currentCoord.col === -1 || currentCoord.col == this.boardLength)) {
+      const newCol = currentCoord.col === -1 ? this.boardLength : -1;
+      return new Coord(currentCoord.row, newCol);
+    }
+
+    const delta = (input === GbaInput.Right || input === GbaInput.Down) ? 1 : -1;
+    let newRow = currentCoord.row;
+    let newCol = currentCoord.col;
+    if (isVertical(input)) {
+      newRow = currentCoord.row + delta;
+      // If out of bounds, snap coordinate onto the edge segment.
+      if (newRow === -1 || newRow === this.boardLength) {
+        newCol = newCol === -1 ? 0 : this.boardLength - 1;
+      }
+    } else {
+      newCol = currentCoord.col + delta;
+      // If out of bounds, snap coordinate onto the edge segment.
+      if (newCol === -1 || newCol === this.boardLength) {
+        newRow = newRow === -1 ? 0 : this.boardLength - 1;
+      }
+    }
+
+    return new Coord(newRow, newCol);
+  }
+
+  private updateFocusedCell(newCoord: Coord) {
+    // Remove focus from current cell.
+    if (this.focusedCellCoord) {
+      const currentCell = this.cells.get(this.focusedCellCoord.toString());
+      currentCell?.setSelectionState(SelectionState.Unselected);
+    }
+
+    const newCell = this.cells.get(newCoord.toString());
+    if (newCell) {
+      newCell.setSelectionState(SelectionState.Focused);
+      this.focusedCellCoord = newCoord;
+    }
   }
 }

@@ -30,6 +30,14 @@ export function isBInput(input: GbaInput): boolean {
     return input === GbaInput.B;
 }
 
+export function isVertical(input: GbaInput): boolean {
+    return input === GbaInput.Up || input === GbaInput.Down;
+}
+
+export function isHorizontal(input: GbaInput): boolean {
+    return input === GbaInput.Left || input === GbaInput.Right;
+}
+
 export function keyboardInputToGbaInput(keyboardInput: string): GbaInput | undefined {
     switch (keyboardInput) {
         case 'KeyW':

@@ -158,13 +158,12 @@ export class GeneratorService {
   }
 
   private getRandomAvailablePrize(prizeCounts: Map<Prize, number>, level: number): Prize | undefined {
-    const availablePrizeMap = new Map([...prizeCounts].filter(([prize, count]) => {
+    const availablePrizes = prizes.filter((prize) => {
+      const count = prizeCounts.get(prize) ?? 0;
       const distribution = getPrizeDistribution(prize);
       const maxCount = distribution?.get(level)?.max;
-      return maxCount && count <= maxCount;
-    }));
-
-    const availablePrizes = [...availablePrizeMap.keys()];
+      return (maxCount !== undefined) && count < maxCount;
+    });
     return availablePrizes[getRandomInt(availablePrizes.length)];
   }
 

@@ -7,6 +7,7 @@ import { SelectionFocus } from 'src/app/common/selection-focus';
 import { InventoryCell } from './inventory-cell';
 import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
 import { GbaInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
+import { Coord } from 'src/app/common/geometry/coord';
 
 const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -26,6 +27,8 @@ export class InventoryComponent implements OnInit {
   cells: Map<Beam, InventoryCell>;
   // True if focus is inside the Inventory menu.
   focused: boolean = false;
+  // The item in inventory that has currently has focus.
+  focusedItemCoord: Coord = new Coord(0, 0);
 
   constructor(
     public inventoryService: InventoryService,
@@ -38,10 +41,11 @@ export class InventoryComponent implements OnInit {
         (focus) => { this.setSelectionFocus(focus) });
     this.inputObservable = this.inputAdapterService.inputSubject
       .pipe(filter((value) => isDpadInput(value)))
-      .subscribe((input) => { this.handleInput(input); });
+      .subscribe((input) => { this.handleDpadInput(input); });
   }
 
   ngOnInit(): void {
+    this.updateFocusedItem(this.focusedItemCoord);
   }
 
   getCell(item: Beam): InventoryCell | undefined {
@@ -78,9 +82,6 @@ export class InventoryComponent implements OnInit {
       const cell = this.cells.get(item);
       cell?.setInteractability(true);
     }
-
-    // TODO: Automatically focus on the first cell in the inventory.
-
   }
 
   private unfocus(): void {
@@ -121,9 +122,49 @@ export class InventoryComponent implements OnInit {
     this.cells.set(stock.beam, cell);
   }
 
-  private handleInput(input: GbaInput): void {
+  private handleDpadInput(input: GbaInput): void {
     if (!this.focused) return;
 
-    // TODO: Modify cell that currently has focus
+    const newItemCoord = this.shiftedCoord(this.focusedItemCoord, input);
+    this.updateFocusedItem(newItemCoord);
+  }
+
+  private shiftedCoord(currentCoord: Coord, input: GbaInput): Coord {
+    const inventoryHeight = this.inventoryOrder.length;
+    const inventoryWidth = this.inventoryOrder[0].length;
+    const delta = (input === GbaInput.Right || input === GbaInput.Down) ? 1 : -1;
+
+    if (input === GbaInput.Right || input == GbaInput.Left) {
+      return new Coord(currentCoord.row, this.mod(currentCoord.col + delta, inventoryWidth));
+    } else {
+      return new Coord(this.mod(currentCoord.row + delta, inventoryHeight), currentCoord.col);
+    }
+  }
+
+  private updateFocusedItem(newItemCoord: Coord) {
+    // Remove focus from current item.
+    if (this.focusedItemCoord) {
+      const currentCell = this.getCellAtCoord(this.focusedItemCoord);
+      currentCell?.setSelectionState(SelectionState.Unselected);
+    }
+
+    const newCell = this.getCellAtCoord(newItemCoord);
+    if (newCell) {
+      newCell.setSelectionState(SelectionState.Focused);
+      this.focusedItemCoord = newItemCoord;
+    }
+  }
+
+  private getCellAtCoord(coord: Coord): InventoryCell | undefined {
+    const inventoryHeight = this.inventoryOrder.length;
+    const inventoryWidth = this.inventoryOrder[0].length;
+    if (coord.row < 0 || coord.row >= inventoryHeight) return undefined;
+    if (coord.col < 0 || coord.col >= inventoryWidth) return undefined;
+
+    return this.cells.get(this.inventoryOrder[coord.row][coord.col]);
+  }
+
+  private mod(n: number, m: number) {
+    return ((n % m) + m) % m;
   }
 }

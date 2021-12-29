@@ -77,6 +77,7 @@ export class GameService {
 
       // Reveal hidden Bronzors
       this.boardService.showHiddenBronzors(true);
+      this.clearSelections();
 
       // Wait for user to continue
       await this.inputAdapterService.waitForInput(GbaInput.A);

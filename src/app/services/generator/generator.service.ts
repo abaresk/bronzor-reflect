@@ -4,7 +4,7 @@ import { BoardGame } from '../../core/board-game';
 import { Coord } from '../../common/geometry/coord';
 import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
-import { getRandomInt, getRandomItemFromSet } from '../../util/random';
+import { randomInt, randomFromSet } from '../../util/random';
 import { Grid } from 'src/app/common/geometry/grid';
 import { CustomSet } from 'src/app/util/custom-set';
 
@@ -111,7 +111,7 @@ export class GeneratorService {
 
     const candidates = (unreachable && unreachableOpenCoords.size) ?
       unreachableOpenCoords : reachableOpenCoords;
-    const randCoord = getRandomItemFromSet(candidates);
+    const randCoord = randomFromSet(candidates);
 
     takenCoords.add(randCoord);
     prizeCount.total++;
@@ -155,7 +155,7 @@ export class GeneratorService {
 
   private getTotalPrizes(level: number): number {
     const totalRange = getTotalRange(level);
-    return getRandomInt(totalRange.max + 1 - totalRange.min) + totalRange.min;
+    return randomInt(totalRange.max + 1 - totalRange.min) + totalRange.min;
   }
 
   private getRandomAvailablePrize(prizeCounts: Map<Prize, number>, level: number): Prize | undefined {
@@ -165,7 +165,7 @@ export class GeneratorService {
       const maxCount = distribution?.get(level)?.max;
       return (maxCount !== undefined) && count < maxCount;
     });
-    return availablePrizes[getRandomInt(availablePrizes.length)];
+    return availablePrizes[randomInt(availablePrizes.length)];
   }
 
   private incrementMap(map: Map<string, number>, key: string, delta: number) {

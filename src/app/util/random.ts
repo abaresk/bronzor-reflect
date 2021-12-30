@@ -1,8 +1,8 @@
-export function getRandomInt(max: number) {
+export function randomInt(max: number) {
     return Math.floor(Math.random() * max);
 }
 
-export function getRandomItemFromSet<T>(set: Set<T>): T {
+export function randomFromSet<T>(set: Set<T>): T {
     let items = Array.from(set);
     return items[Math.floor(Math.random() * items.length)];
 }

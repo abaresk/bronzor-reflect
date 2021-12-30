@@ -6,6 +6,7 @@ import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange,
 import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
 import { getRandomInt, getRandomItemFromSet } from '../../util/random';
 import { Grid } from 'src/app/common/geometry/grid';
+import { CustomSet } from 'src/app/util/custom-set';
 
 // At most 50% of the prizes in each category (e.g. MoneyPrize, InventoryPrize),
 // will be in unreachable locations.
@@ -70,7 +71,7 @@ export class GeneratorService {
   private placePrizes(boardGame: BoardGame, level: number): void {
     const prizeCounts: Map<Prize, number> = new Map();
     const prizeCategoryTally: PrizeCategoryTally = new Map();
-    const takenCoords: Set<string> = new Set();
+    const takenCoords = new CustomSet();
     const allCoordsSet = this.coordSet(this.ioCoords());
     const reachableSet = this.coordSet(this.reachableCoords(boardGame));
 
@@ -98,15 +99,15 @@ export class GeneratorService {
     }
   }
 
-  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: Set<string>, takenCoords: Set<string>, reachableCoords: Set<string>): void {
+  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: CustomSet<string>, takenCoords: CustomSet<string>, reachableCoords: CustomSet<string>): void {
     const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
     const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
       <= MAX_UNREACHABLE_PER_PRIZE;
     const unreachable = Math.random() < getProbUnreachable(prize) && underThreshold;
 
-    const openCoords = new Set([...allCoords].filter((coord) => !takenCoords.has(coord)));
-    const reachableOpenCoords = new Set([...openCoords].filter((coord) => reachableCoords.has(coord)));
-    const unreachableOpenCoords = new Set([...openCoords].filter((coord) => !reachableCoords.has(coord)));
+    const openCoords = allCoords.difference(takenCoords);
+    const reachableOpenCoords = openCoords.intersect(reachableCoords);
+    const unreachableOpenCoords = openCoords.difference(reachableCoords);
 
     const candidates = (unreachable && unreachableOpenCoords.size) ?
       unreachableOpenCoords : reachableOpenCoords;
@@ -146,8 +147,8 @@ export class GeneratorService {
     return coords.flat(2);
   }
 
-  private coordSet(coords: Coord[]): Set<string> {
-    const set: Set<string> = new Set();
+  private coordSet(coords: Coord[]): CustomSet<string> {
+    const set = new CustomSet();
     coords.forEach((coord) => set.add(coord.toString()))
     return set;
   }

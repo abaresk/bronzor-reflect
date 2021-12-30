@@ -201,7 +201,7 @@ export class BoardGame {
     } else if (destroy) {
       if (!dryRun) bronzor.active = false;
       beamPath.path.push({ type: BeamPointType.Destroy, coord: bronzor.coord });
-      return { coord: bronzor.coord, dir: vector.dir };
+      return undefined;
     } else {
       beamPath.path.push({ type: BeamPointType.Hit, coord: bronzor.coord });
       return undefined;

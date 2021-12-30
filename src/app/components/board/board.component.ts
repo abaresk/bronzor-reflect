@@ -310,7 +310,8 @@ export class BoardComponent implements OnInit {
     const firstCoord = move.coord;
     const lastPoint = move.beamPath.path[move.beamPath.path.length - 1];
 
-    if (lastPoint.type === BeamPointType.Hit) return EmitType.Hit;
+    if (lastPoint.type === BeamPointType.Hit ||
+      lastPoint.type === BeamPointType.Destroy) return EmitType.Hit;
     if (lastPoint.coord.equals(firstCoord)) return EmitType.Reflect;
     return EmitType.Emit;
   }

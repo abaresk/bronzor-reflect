@@ -133,6 +133,7 @@ export class GeneratorService {
 
       const lastPoint = beamPath.path[beamPath.path.length - 1];
       if (lastPoint.type !== BeamPointType.Emit) continue;
+      if (coord.equals(lastPoint.coord)) continue;
 
       reachable.push(lastPoint.coord);
     }

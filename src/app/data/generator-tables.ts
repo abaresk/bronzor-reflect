@@ -1,4 +1,4 @@
-import { Beam, Bomb, cometBeam, doublePrizeBeam, flameBeam, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBomb, phaseBeam, plus1BeamPrize, plus3BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeam } from "../common/prizes";
+import { Beam, Bomb, cometBeam, doublePrizeBeam, flameBeam, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBomb, phaseBeam, plus3BeamsPrize, plus5BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeam } from "../common/prizes";
 
 interface Range {
     min: number; // inclusive
@@ -52,7 +52,7 @@ const smallSumsByLevel: LevelYield = new Map([
     [8, { min: 4, max: 7 }],
 ]);
 
-const plus1BeamsByLevel: LevelYield = new Map([
+const plus3BeamsByLevel: LevelYield = new Map([
     [1, { min: 0, max: 1 }],
     [2, { min: 0, max: 1 }],
     [3, { min: 0, max: 1 }],
@@ -63,7 +63,7 @@ const plus1BeamsByLevel: LevelYield = new Map([
     [8, { min: 1, max: 4 }],
 ]);
 
-const plus3BeamsByLevel: LevelYield = new Map([
+const plus5BeamsByLevel: LevelYield = new Map([
     [1, { min: 0, max: 0 }],
     [2, { min: 0, max: 0 }],
     [3, { min: 0, max: 0 }],
@@ -161,10 +161,10 @@ export function getPrizeDistribution(prize: Prize): LevelYield | undefined {
             return mediumSumsByLevel;
         case MoneyPrize.SmallSum:
             return smallSumsByLevel;
-        case InventoryPrize.Plus1Beam:
-            return plus1BeamsByLevel;
         case InventoryPrize.Plus3Beams:
             return plus3BeamsByLevel;
+        case InventoryPrize.Plus5Beams:
+            return plus5BeamsByLevel;
         case InventoryPrize.Minus1Beam:
             return minus1BeamsByLevel;
         case Beam.Comet:
@@ -224,8 +224,8 @@ const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
     [largeSumPrize.toString(), 0.2],
     [mediumSumPrize.toString(), 0.3],
     [smallSumPrize.toString(), 0.4],
-    [plus1BeamPrize.toString(), 0.2],
     [plus3BeamsPrize.toString(), 0.2],
+    [plus5BeamsPrize.toString(), 0.2],
     [minus1BeamPrize.toString(), 0.2],
     [cometBeam.toString(), 0.2],
     [flameBeam.toString(), 0.2],

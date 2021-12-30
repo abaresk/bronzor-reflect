@@ -6,8 +6,8 @@ export enum MoneyPrize {
 }
 
 export enum InventoryPrize {
-    Plus1Beam = 'InventoryPrize.Plus1Beam',
     Plus3Beams = 'InventoryPrize.Plus3Beams',
+    Plus5Beams = 'InventoryPrize.Plus5Beams',
     Minus1Beam = 'InventoryPrize.Minus1Beam',
 }
 
@@ -53,8 +53,8 @@ export const jackpotPrize = MoneyPrize.Jackpot;
 export const largeSumPrize = MoneyPrize.LargeSum;
 export const mediumSumPrize = MoneyPrize.MediumSum;
 export const smallSumPrize = MoneyPrize.SmallSum;
-export const plus1BeamPrize = InventoryPrize.Plus1Beam;
 export const plus3BeamsPrize = InventoryPrize.Plus3Beams;
+export const plus5BeamsPrize = InventoryPrize.Plus5Beams;
 export const minus1BeamPrize = InventoryPrize.Minus1Beam;
 export const cometBeam = Beam.Comet;
 export const flameBeam = Beam.Flame;
@@ -68,8 +68,8 @@ export const prizes: ReadonlyArray<Prize> = [
     largeSumPrize,
     mediumSumPrize,
     smallSumPrize,
-    plus1BeamPrize,
     plus3BeamsPrize,
+    plus5BeamsPrize,
     minus1BeamPrize,
     cometBeam,
     flameBeam,
@@ -117,8 +117,8 @@ export const prizePayouts: ReadonlyMap<string, number> = new Map([
     [largeSumPrize.toString(), 20],
     [mediumSumPrize.toString(), 10],
     [smallSumPrize.toString(), 3],
-    [plus1BeamPrize.toString(), 1],
     [plus3BeamsPrize.toString(), 3],
+    [plus5BeamsPrize.toString(), 5],
     [minus1BeamPrize.toString(), - 1],
     [cometBeam.toString(), 1],
     [flameBeam.toString(), 1],
@@ -137,8 +137,8 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
     [largeSumPrize.toString(), `$${prizePayouts.get(largeSumPrize.toString())}`],
     [mediumSumPrize.toString(), `$${prizePayouts.get(mediumSumPrize.toString())}`],
     [smallSumPrize.toString(), `$${prizePayouts.get(smallSumPrize.toString())}`],
-    [plus1BeamPrize.toString(), '+1 beam'],
     [plus3BeamsPrize.toString(), '+3 beams'],
+    [plus5BeamsPrize.toString(), '+5 beams'],
     [minus1BeamPrize.toString(), '-1 beam'],
     [normalBeam.toString(), 'normal beam'],
     [cometBeam.toString(), 'comet beam'],

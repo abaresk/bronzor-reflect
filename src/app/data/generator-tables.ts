@@ -7,16 +7,15 @@ interface Range {
 
 type LevelYield = ReadonlyMap<number, Range>;
 
-// Always 1 Jackpot per round
 const jackpotsByLevel: LevelYield = new Map([
     [1, { min: 1, max: 1 }],
-    [2, { min: 1, max: 1 }],
-    [3, { min: 1, max: 1 }],
-    [4, { min: 1, max: 1 }],
-    [5, { min: 1, max: 1 }],
-    [6, { min: 1, max: 1 }],
-    [7, { min: 1, max: 1 }],
-    [8, { min: 1, max: 1 }],
+    [2, { min: 2, max: 2 }],
+    [3, { min: 2, max: 3 }],
+    [4, { min: 3, max: 4 }],
+    [5, { min: 3, max: 5 }],
+    [6, { min: 4, max: 5 }],
+    [7, { min: 4, max: 6 }],
+    [8, { min: 5, max: 6 }],
 ]);
 
 const largeSumsByLevel: LevelYield = new Map([

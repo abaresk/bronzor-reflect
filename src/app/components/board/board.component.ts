@@ -87,6 +87,9 @@ export class BoardComponent implements OnInit {
     if (cell instanceof IOCell) {
       this.boardService.selectFiringCoord(cell.coord);
     }
+    if (cell instanceof BoardCell) {
+      cell.toggleMemoState();
+    }
   }
 
   setSelectionFocus(selectionFocus: SelectionFocus): void {

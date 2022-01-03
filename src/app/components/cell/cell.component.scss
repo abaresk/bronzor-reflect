@@ -9,10 +9,12 @@ $background-prize: rgb(160, 160, 160);
 /** Borders */
 $border-invisible: white;
 $border-visible: black;
-// TODO: Remove interactable border in final version. Focus will move
+// TODO: Remove interactable borders in final version. Focus will move
 // automatically to the set of interactable cells. Maybe we can make the
 // background color a bit lighter.
-$border-interactable: rgb(0, 0, 150);
+$border-traversable: rgb(0, 0, 150);
+$border-selectable: rgb(37, 105, 206);
+
 $border-focused: rgb(255, 0, 0);
 $border-hovered: rgb(255, 144, 144);
 $border-selected: rgb(218, 144, 8);
@@ -23,38 +25,46 @@ $border-selected: rgb(218, 144, 8);
     height: 54px;
 }
 
-.display-off {
+.invisible {
     border-color: $border-invisible;
     background: $background-invisible;
 }
 
-.display-on {
+.visible {
     border-color: $border-visible;
     background: $background-visible;
 }
 
 // Special cell backgrounds
-.display-on.io-cell {
+.visible.io-cell {
     background: $background-io;
 }
 
-.display-on.prize-cell {
+.visible.prize-cell {
     background: $background-prize;
 }
 
-.display-on.selectable.uninteractable {
+.visible.default {
     border-color: $border-visible;
 }
 
-.display-on.selectable.interactable {
-    border-color: $border-interactable;
+.visible.traversable {
+    border-color: $border-traversable;
 
     &:hover {
         border-color: $border-hovered;
     }
 }
 
-.display-on.selectable.focused {
+.visible.selectable {
+    border-color: $border-selectable;
+
+    &:hover {
+        border-color: $border-hovered;
+    }
+}
+
+.visible.focused {
     border-color: $border-focused;
 
     &:hover {
@@ -62,6 +72,6 @@ $border-selected: rgb(218, 144, 8);
     }
 }
 
-.display-on.selectable.selected {
+.visible.selected {
     border-color: $border-selected;
 }

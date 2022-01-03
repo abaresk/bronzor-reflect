@@ -6,8 +6,9 @@ import { GbaInput, isAInput } from 'src/app/services/input-adapter/inputs';
 import { Cell } from '../../common/cell';
 
 enum SelectionCssClass {
-  Uninteractable = 'uninteractable',
-  Interactable = 'interactable',
+  Default = 'default',
+  Traversable = 'traversable',
+  Selectable = 'selectable',
   Focused = 'focused',
   Selected = 'selected',
 };
@@ -41,11 +42,10 @@ export class CellComponent implements OnInit {
   }
 
   getClasses(): string {
-    const visibility = this.getVisible() ? 'display-on' : 'display-off';
+    const visibility = this.getVisible() ? 'visible' : 'invisible';
     const cellCategory = this.cell?.getCategory() ?? '';
-    const selectable = this.getSelectable() ? 'selectable' : '';
     const selectionState = this.getSelectionCssClass() ?? '';
-    return `${visibility} ${cellCategory} ${selectable} ${selectionState}`;
+    return `${visibility} ${cellCategory} ${selectionState}`;
   }
 
   getText(): string {
@@ -58,12 +58,8 @@ export class CellComponent implements OnInit {
     return this.cell?.visible ?? false;
   }
 
-  private getSelectable(): boolean {
-    return this.cell?.selectable ?? false;
-  }
-
   private getSelectionCssClass(): string {
-    if (!this.cell || !this.cell.selectable) return '';
+    if (!this.cell) return '';
 
     // Always show selection whether the cell is interactive or not.
     if (this.cell.selected) {
@@ -74,7 +70,10 @@ export class CellComponent implements OnInit {
       if (this.cell.focused) {
         return SelectionCssClass.Focused;
       }
-      return SelectionCssClass.Interactable;
+      if (this.cell.selectable) {
+        return SelectionCssClass.Selectable;
+      }
+      return SelectionCssClass.Traversable;
     }
 
     return '';

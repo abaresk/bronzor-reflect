@@ -3,7 +3,6 @@ import { getPrizeText, PrizeState } from "src/app/common/prizes";
 
 export class PrizeCell extends Cell {
     static CATEGORY = 'prize-cell';
-    static SELECTABLE = false;
     // PrizeState or `undefined` if the cell doesn't have a prize.
     prizeState: PrizeState | undefined;
 
@@ -11,8 +10,6 @@ export class PrizeCell extends Cell {
         super();
         this.prizeState = prizeState;
     }
-
-    override getSelectable(): boolean { return PrizeCell.SELECTABLE; }
 
     // Get text representation of the cell
     override getText(level: number): string {

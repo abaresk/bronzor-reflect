@@ -71,7 +71,6 @@ function getOutputText(output: CellOutput): string {
 
 export class IOCell extends Cell {
     static CATEGORY = 'io-cell';
-    static SELECTABLE = true;
     coord: Coord;
     validateSelection?: (coord: Coord) => boolean;
     ioState: IOState = newIOState();
@@ -81,8 +80,6 @@ export class IOCell extends Cell {
         this.coord = coord;
         this.validateSelection = validateSelection;
     }
-
-    override getSelectable(): boolean { return IOCell.SELECTABLE; }
 
     override validSelection(): boolean {
         if (!this.validateSelection) return false;

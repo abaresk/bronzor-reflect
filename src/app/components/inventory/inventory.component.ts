@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
-import { Cell, SelectionState } from 'src/app/common/cell';
+import { Cell } from 'src/app/common/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
 import { SelectionFocus } from 'src/app/common/selection-focus';
@@ -81,7 +81,10 @@ export class InventoryComponent implements OnInit {
     // Make each item interactable.
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
-      cell?.setInteractability(true);
+      if (!cell) continue;
+
+      cell.traversable = true;
+      cell.selectable = true;
     }
   }
 
@@ -90,7 +93,10 @@ export class InventoryComponent implements OnInit {
 
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
-      cell?.setInteractability(false);
+      if (!cell) continue;
+
+      cell.traversable = false;
+      cell.selectable = false;
     }
   }
 
@@ -100,9 +106,11 @@ export class InventoryComponent implements OnInit {
 
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
-      cell?.setInteractability(true);
-      cell?.setSelectionState(SelectionState.Unselected);
-      cell?.setInteractability(false);
+      if (!cell) continue;
+
+      cell.traversable = false;
+      cell.selectable = false;
+      cell.selected = false;
     }
   }
 
@@ -146,12 +154,12 @@ export class InventoryComponent implements OnInit {
     // Remove focus from current item.
     if (this.focusedItemCoord) {
       const currentCell = this.getCellAtCoord(this.focusedItemCoord);
-      currentCell?.setSelectionState(SelectionState.Unselected);
+      if (currentCell) currentCell.focused = false;
     }
 
     const newCell = this.getCellAtCoord(newItemCoord);
     if (newCell) {
-      newCell.setSelectionState(SelectionState.Focused);
+      newCell.focused = true;
       this.focusedItemCoord = newItemCoord;
     }
   }

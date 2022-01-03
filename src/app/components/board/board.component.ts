@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Cell, SelectionState } from '../../common/cell';
+import { Cell } from '../../common/cell';
 import { BeamPointType, Board, BoardConfig, Bronzor } from '../../board';
 import { Coord } from '../../common/geometry/coord';
 import { GameService } from '../../services/game/game.service';
@@ -112,7 +112,8 @@ export class BoardComponent implements OnInit {
 
     // Make each I/O cell interactable.
     for (let cell of this.ioCells) {
-      cell.setInteractability(true);
+      cell.traversable = true;
+      cell.selectable = true;
     }
   }
 
@@ -120,7 +121,8 @@ export class BoardComponent implements OnInit {
     this.focused = false;
 
     for (let cell of this.ioCells) {
-      cell.setInteractability(false);
+      cell.traversable = false;
+      cell.selectable = false;
     }
   }
 
@@ -128,9 +130,9 @@ export class BoardComponent implements OnInit {
     this.focused = false;
 
     for (let cell of this.ioCells) {
-      cell.setInteractability(true);
-      cell.setSelectionState(SelectionState.Unselected);
-      cell.setInteractability(false);
+      cell.traversable = false;
+      cell.selectable = false;
+      cell.selected = false;
     }
   }
 
@@ -361,12 +363,14 @@ export class BoardComponent implements OnInit {
     // Remove focus from current cell.
     if (this.focusedCellCoord) {
       const currentCell = this.cells.get(this.focusedCellCoord.toString());
-      currentCell?.setSelectionState(SelectionState.Unselected);
+      if (currentCell) {
+        currentCell.focused = false;
+      }
     }
 
     const newCell = this.cells.get(newCoord.toString());
     if (newCell) {
-      newCell.setSelectionState(SelectionState.Focused);
+      newCell.focused = true;
       this.focusedCellCoord = newCoord;
     }
   }

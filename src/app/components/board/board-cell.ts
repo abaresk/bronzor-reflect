@@ -4,7 +4,6 @@ import { MemoState, MEMO_DISLAYS, MEMO_STATES } from "src/app/common/memo";
 
 export class BoardCell extends Cell {
     static CATEGORY = 'board-cell';
-    static SELECTABLE = false;
     bronzor: Bronzor | undefined;
     revealHidden: boolean = false;
     memoState: MemoState = MemoState.UNMARKED;
@@ -13,8 +12,6 @@ export class BoardCell extends Cell {
         super();
         this.bronzor = bronzor;
     }
-
-    override getSelectable(): boolean { return BoardCell.SELECTABLE; }
 
     // Get text representation of the cell
     override getText(level: number): string {

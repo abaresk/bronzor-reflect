@@ -3,7 +3,6 @@ import { Beam, getPrizeText } from "src/app/common/prizes";
 
 export class InventoryCell extends Cell {
     static CATEGORY = 'inventory-cell';
-    static SELECTABLE = true;
     item: Beam;// The item this corresponds to
     count: number; // Current stock for item
     validateSelection?: (item: Beam) => boolean;
@@ -14,8 +13,6 @@ export class InventoryCell extends Cell {
         this.count = count;
         this.validateSelection = validateSelection;
     }
-
-    override getSelectable(): boolean { return InventoryCell.SELECTABLE; }
 
     override validSelection(): boolean {
         if (!this.validateSelection) return false;

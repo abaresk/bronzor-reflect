@@ -20,7 +20,7 @@ export class BoardCell extends Cell {
     override getText(level: number): string {
         if (this.bronzor) {
             if (this.bronzor.visible) return 'B';
-            return this.revealHidden ? 'H' : '';
+            if (this.revealHidden) return 'H';
         }
 
         return MEMO_DISLAYS.get(this.memoState.toString()) ?? '';

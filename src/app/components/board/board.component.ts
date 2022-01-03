@@ -110,7 +110,12 @@ export class BoardComponent implements OnInit {
     this.focused = true;
     this.updateFocusedCell(this.focusedCellCoord);
 
-    // Make each I/O cell interactable.
+    // Make each board cell traversable.
+    for (let cell of this.boardCells) {
+      cell.traversable = true;
+    }
+
+    // Make each I/O cell selectable.
     for (let cell of this.ioCells) {
       cell.traversable = true;
       cell.selectable = true;
@@ -119,6 +124,10 @@ export class BoardComponent implements OnInit {
 
   private unfocus(): void {
     this.focused = false;
+
+    for (let cell of this.boardCells) {
+      cell.traversable = false;
+    }
 
     for (let cell of this.ioCells) {
       cell.traversable = false;
@@ -329,14 +338,18 @@ export class BoardComponent implements OnInit {
   }
 
   private shiftedCoord(currentCoord: Coord, input: GbaInput): Coord {
-    // Flip to the opposite side
-    if (isVertical(input) && (currentCoord.row === -1 || currentCoord.row == this.boardLength)) {
-      const newRow = currentCoord.row === -1 ? this.boardLength : -1;
-      return new Coord(newRow, currentCoord.col);
+    // Wrap around the grid from the border tiles.
+    if (input === GbaInput.Up && currentCoord.row === -1) {
+      return new Coord(this.boardLength, currentCoord.col);
     }
-    if (isHorizontal(input) && (currentCoord.col === -1 || currentCoord.col == this.boardLength)) {
-      const newCol = currentCoord.col === -1 ? this.boardLength : -1;
-      return new Coord(currentCoord.row, newCol);
+    if (input === GbaInput.Down && currentCoord.row === this.boardLength) {
+      return new Coord(-1, currentCoord.col);
+    }
+    if (input === GbaInput.Right && currentCoord.col === this.boardLength) {
+      return new Coord(currentCoord.row, -1);
+    }
+    if (input === GbaInput.Left && currentCoord.col === -1) {
+      return new Coord(currentCoord.row, this.boardLength);
     }
 
     const delta = (input === GbaInput.Right || input === GbaInput.Down) ? 1 : -1;
@@ -345,14 +358,18 @@ export class BoardComponent implements OnInit {
     if (isVertical(input)) {
       newRow = currentCoord.row + delta;
       // If out of bounds, snap coordinate onto the edge segment.
-      if (newRow === -1 || newRow === this.boardLength) {
-        newCol = newCol === -1 ? 0 : this.boardLength - 1;
+      if (currentCoord.col === -1 || currentCoord.col === this.boardLength) {
+        if (newRow === -1 || newRow === this.boardLength) {
+          newCol = (newCol === -1) ? 0 : this.boardLength - 1;
+        }
       }
     } else {
       newCol = currentCoord.col + delta;
       // If out of bounds, snap coordinate onto the edge segment.
-      if (newCol === -1 || newCol === this.boardLength) {
-        newRow = newRow === -1 ? 0 : this.boardLength - 1;
+      if (currentCoord.row === -1 || currentCoord.row === this.boardLength) {
+        if (newCol === -1 || newCol === this.boardLength) {
+          newRow = (newRow === -1) ? 0 : this.boardLength - 1;
+        }
       }
     }
 

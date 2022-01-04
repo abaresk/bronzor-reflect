@@ -1,4 +1,4 @@
-import { Direction } from 'src/app/common/geometry/direction';
+import { Direction, oppositeDir } from 'src/app/common/geometry/direction';
 import { FocusHandle } from './focus-handle';
 
 export interface FocusConnection {
@@ -16,7 +16,6 @@ export class FocusManager {
   focusedHandle: FocusHandle
 
   constructor(graph: FocusGraph, initialHandle: FocusHandle) {
-    // TODO: Add the opposite direction to the graph to make lookups easier!!
     this.graph = graph;
     this.focusedHandle = initialHandle;
   }
@@ -34,10 +33,13 @@ export class FocusManager {
     // TODO: Handle updating original coordinate (with wrapping if focus didn't shift)!!
   }
 
-  getToHandle(fromHandle: FocusHandle, dir: Direction): FocusHandle | undefined {
+  private getToHandle(fromHandle: FocusHandle, dir: Direction): FocusHandle | undefined {
     for (let connection of this.graph.connections) {
       if (connection.fromHandle === fromHandle && connection.dir === dir) {
         return connection.toHandle;
+      }
+      if (connection.toHandle === fromHandle && connection.dir === oppositeDir(dir)) {
+        return connection.fromHandle;
       }
     }
     return undefined;

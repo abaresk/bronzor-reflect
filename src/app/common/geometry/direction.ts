@@ -20,3 +20,11 @@ export function rotateClockwise(dir: Direction, turns: number): Direction {
 export function oppositeDir(dir: Direction): Direction {
     return rotateClockwise(dir, 2);
 }
+
+export function isVertical(dir: Direction): boolean {
+    return dir === Direction.Up || dir === Direction.Down;
+}
+
+export function isHorizontal(dir: Direction): boolean {
+    return dir === Direction.Left || dir === Direction.Right;
+}

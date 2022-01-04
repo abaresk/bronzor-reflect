@@ -17,6 +17,8 @@ export class FocusManager {
 
   constructor(graph: FocusGraph, initialHandle: FocusHandle) {
     this.graph = graph;
+
+    initialHandle.setFocus(initialHandle.currentCoord);
     this.focusedHandle = initialHandle;
   }
 

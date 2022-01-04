@@ -28,9 +28,10 @@ export class FocusManager {
         toHandle.enter(nextFocus.overflow);
       }
       this.focusedHandle.leave();
+      return;
     }
 
-    // TODO: Handle updating original coordinate (with wrapping if focus didn't shift)!!
+    this.focusedHandle.setFocus(nextFocus.coord);
   }
 
   private getToHandle(fromHandle: FocusHandle, dir: Direction): FocusHandle | undefined {

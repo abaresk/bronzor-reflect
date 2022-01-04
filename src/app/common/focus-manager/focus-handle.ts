@@ -14,18 +14,21 @@ export abstract class FocusHandle {
         this.currentCoord = initialCoord;
     }
 
-    move(dir: Direction): NextFocus { return { coord: this.currentCoord }; }
+    abstract move(dir: Direction): NextFocus;
 
-    // Returns the Coord to focus on when you enter from direction `dir`.
-    enter(dir: Direction): Coord {
-        this.focused = true;
-        return this.enterImpl(dir);
+    // Set the focused Coord when you enter this handle from direction `dir`.
+    enter(dir: Direction): void {
+        this.setFocus(this.enterImpl(dir));
     }
 
-    // Override this method.
-    enterImpl(dir: Direction): Coord { return this.currentCoord; }
+    abstract enterImpl(dir: Direction): Coord;
 
     leave(): void {
         this.focused = false;
+    }
+
+    setFocus(coord: Coord): void {
+        this.focused = true;
+        this.currentCoord = coord;
     }
 }

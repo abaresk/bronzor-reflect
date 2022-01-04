@@ -14,9 +14,6 @@ export class InventoryFocusHandle extends FocusHandle {
     }
 
     override move(dir: Direction): NextFocus {
-        const delta = (dir === Direction.Right || dir === Direction.Down) ?
-            1 : -1;
-
         const nextCoord = this.currentCoord.coordAt(dir, 1);
 
         if (nextCoord.row < 0) {

@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BoardConfig } from 'src/app/board';
+import { BOARD_CONFIG } from 'src/app/common/config';
 import { GameService } from 'src/app/services/game/game.service';
-
-const BOARD_CONFIG: BoardConfig = { bronzorCount: 4, length: 8 };
 
 @Component({
   selector: 'game-screen',
@@ -18,5 +16,4 @@ export class ScreenComponent implements OnInit {
   ngOnInit(): void {
     this.gameService.play();
   }
-
 }

@@ -106,6 +106,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
+  // Moves focus into the board component.
   private focus(): void {
     this.focused = true;
     this.updateFocusedCell(this.focusedCellCoord);

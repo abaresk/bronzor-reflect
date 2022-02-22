@@ -1,3 +1,5 @@
+import { Direction } from "src/app/common/geometry/direction";
+
 export enum GbaInput {
     Up,
     Right,
@@ -36,6 +38,20 @@ export function isVertical(input: GbaInput): boolean {
 
 export function isHorizontal(input: GbaInput): boolean {
     return input === GbaInput.Left || input === GbaInput.Right;
+}
+
+export function toDirection(input: GbaInput): Direction | undefined {
+    switch (input) {
+        case GbaInput.Up:
+            return Direction.Up;
+        case GbaInput.Right:
+            return Direction.Right;
+        case GbaInput.Down:
+            return Direction.Down;
+        case GbaInput.Left:
+            return Direction.Left;
+    }
+    return undefined;
 }
 
 export function keyboardInputToGbaInput(keyboardInput: string): GbaInput | undefined {

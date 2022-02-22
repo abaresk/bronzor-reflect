@@ -1,21 +1,25 @@
+import { Injectable } from '@angular/core';
+import { filter } from 'rxjs';
 import { Direction, oppositeDir } from 'src/app/common/geometry/direction';
+import { InputAdapterService } from '../input-adapter/input-adapter.service';
+import { isDpadInput } from '../input-adapter/inputs';
+import { FocusGraph } from './focus-graph';
 import { FocusHandle } from './focus-handle';
 
-export interface FocusConnection {
-  fromHandle: FocusHandle;
-  toHandle: FocusHandle;
-  dir: Direction;
-};
+@Injectable({
+  providedIn: 'root'
+})
+export class FocusManagerService {
+  graph?: FocusGraph;
+  focusedHandle?: FocusHandle;
 
-export interface FocusGraph {
-  connections: FocusConnection[];
-};
+  constructor(private inputAdapterService: InputAdapterService) {
+    this.inputAdapterService.inputSubject
+      .pipe(filter((value) => isDpadInput(value)))
+      .subscribe((input) => { this.handleDpadInput(input); });
+  }
 
-export class FocusManager {
-  graph: FocusGraph;
-  focusedHandle: FocusHandle
-
-  constructor(graph: FocusGraph, initialHandle: FocusHandle) {
+  setGraph(graph: FocusGraph, initialHandle: FocusHandle): void {
     this.graph = graph;
 
     initialHandle.setFocus(initialHandle.currentCoord);
@@ -37,7 +41,7 @@ export class FocusManager {
   }
 
   private getToHandle(fromHandle: FocusHandle, dir: Direction): FocusHandle | undefined {
-    for (let connection of this.graph.connections) {
+    for (let connection of this.graph?.connections) {
       if (connection.fromHandle === fromHandle && connection.dir === dir) {
         return connection.toHandle;
       }

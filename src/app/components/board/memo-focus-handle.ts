@@ -1,6 +1,6 @@
 import { Coord } from "src/app/common/geometry/coord";
 import { Direction, isVertical } from "src/app/common/geometry/direction";
-import { FocusHandle, NextFocus } from "src/app/common/focus-manager/focus-handle";
+import { FocusHandle, NextFocus } from "src/app/services/focus-manager/focus-handle";
 
 export class MemoFocusHandle extends FocusHandle {
     boardLength: number;

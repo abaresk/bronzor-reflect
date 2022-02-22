@@ -17,7 +17,7 @@ interface BeamPrize {
   prize?: Prize;
 };
 
-enum GameState {
+export enum GameState {
   SelectItem,
   SelectFiringPlace,
   FireBeam,

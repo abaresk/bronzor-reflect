@@ -10,7 +10,7 @@ import { GbaInput, isAInput, isDpadInput } from 'src/app/services/input-adapter/
 import { Coord } from 'src/app/common/geometry/coord';
 import { modulo } from 'src/app/util/modulo';
 
-const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
+export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
   [Beam.Flame, Beam.Comet, Beam.Phase],
 ];

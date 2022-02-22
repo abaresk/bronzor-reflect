@@ -197,7 +197,7 @@ export class BoardComponent implements OnInit {
             this.prizeCells.push(cell);
           }
         }
-        // Second to outer-most row 
+        // Second to outer-most row
         else if (r === 1 || c === 1 || r === totalLength - 2 || c === totalLength - 2) {
           const cell = new IOCell(coord,
             (checkCoord: Coord) => { return this.boardService.validPlacementSelection(checkCoord); });

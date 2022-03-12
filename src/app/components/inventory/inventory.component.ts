@@ -5,7 +5,7 @@ import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
 import { InventoryCell } from './inventory-cell';
 import { Coord } from 'src/app/common/geometry/coord';
-import { Focus, GameComponent, MovementService } from 'src/app/services/movement/movement.service';
+import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -30,14 +30,14 @@ export class InventoryComponent implements OnInit {
 
   constructor(
     public inventoryService: InventoryService,
-    public movementService: MovementService) {
+    public focusService: FocusService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
     this.inventorySelectionFocusObservable =
       inventoryService.inventorySelectionClearSubject.subscribe(
         () => { this.clearSelection() });
-    this.focusObservable = this.movementService.focusSubject
+    this.focusObservable = this.focusService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
   }
 

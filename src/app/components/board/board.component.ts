@@ -12,7 +12,7 @@ import { Move } from 'src/app/moves';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
 import { BoardGame } from 'src/app/core/board-game';
-import { Focus, GameComponent, MovementService } from 'src/app/services/movement/movement.service';
+import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
 
 @Component({
   selector: 'game-board',
@@ -42,7 +42,7 @@ export class BoardComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private boardService: BoardService,
-    private movementService: MovementService) {
+    private focusService: FocusService) {
     this.boardLength = this.gameService.game.config.length;
     this.grid = new Grid(this.boardLength, this.boardLength);
 
@@ -55,7 +55,7 @@ export class BoardComponent implements OnInit {
         () => { this.clearSelection() });
     this.movesObservable = boardService.movesSubject.subscribe(
       (moves) => { this.updateIOCells(moves) });
-    this.focusObservable = this.movementService.focusSubject
+    this.focusObservable = this.focusService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
     this.revealHiddenBronzorsObservable = boardService.revealHiddenBronzorSubject
       .subscribe((display) => { this.displayHiddenBronzors(display) });

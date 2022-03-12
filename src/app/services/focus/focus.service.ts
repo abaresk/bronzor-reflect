@@ -29,7 +29,7 @@ interface ShiftedCoord {
 @Injectable({
   providedIn: 'root'
 })
-export class MovementService {
+export class FocusService {
   currentComponent: GameComponent;
   gameStateObservable: Subscription;
   inputObservable: Subscription;

@@ -9,6 +9,7 @@ import { InputAdapterService } from 'src/app/services/input-adapter/input-adapte
 import { GbaInput, isAInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
 import { Coord } from 'src/app/common/geometry/coord';
 import { modulo } from 'src/app/util/modulo';
+import { Focus, GameComponent, MovementService } from 'src/app/services/movement/movement.service';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -24,7 +25,7 @@ export class InventoryComponent implements OnInit {
   inventoryOrder: ReadonlyArray<ReadonlyArray<Beam>> = INVENTORY_ORDER;
   inventoryObservable: Subscription;
   inventorySelectionFocusObservable: Subscription;
-  inputObservable: Subscription;
+  focusObservable: Subscription;
   cells: Map<Beam, InventoryCell>;
   // True if focus is inside the Inventory menu.
   focused: boolean = false;
@@ -33,16 +34,15 @@ export class InventoryComponent implements OnInit {
 
   constructor(
     public inventoryService: InventoryService,
-    public inputAdapterService: InputAdapterService) {
+    public movementService: MovementService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
     this.inventorySelectionFocusObservable =
       inventoryService.inventorySelectionFocusSubject.subscribe(
         (focus) => { this.setSelectionFocus(focus) });
-    this.inputObservable = this.inputAdapterService.inputSubject
-      .pipe(filter((value) => isDpadInput(value)))
-      .subscribe((input) => { this.handleDpadInput(input); });
+    this.focusObservable = this.movementService.focusSubject
+      .subscribe((focus) => { this.handleFocus(focus) });
   }
 
   ngOnInit(): void {
@@ -74,9 +74,10 @@ export class InventoryComponent implements OnInit {
   }
 
   // Move focus into the inventory component.
-  private focus(): void {
+  private focus(coord?: Coord): void {
     this.focused = true;
-    this.updateFocusedItem(this.focusedItemCoord);
+    coord = coord ?? this.focusedItemCoord;
+    this.updateFocusedItem(coord);
 
     // Make each item interactable.
     for (let item of this.inventoryOrder.flat()) {
@@ -98,6 +99,15 @@ export class InventoryComponent implements OnInit {
       cell.traversable = false;
       cell.selectable = false;
     }
+  }
+
+  private handleFocus(focus: Focus): void {
+    if (focus.component !== GameComponent.InventoryComponent) {
+      this.unfocus();
+      return;
+    }
+
+    this.focus(focus.coord);
   }
 
   // Make items un-interactable and clear any selection state.
@@ -129,25 +139,6 @@ export class InventoryComponent implements OnInit {
 
     cell.count = stock.count;
     this.cells.set(stock.beam, cell);
-  }
-
-  private handleDpadInput(input: GbaInput): void {
-    if (!this.focused) return;
-
-    const newItemCoord = this.shiftedCoord(this.focusedItemCoord, input);
-    this.updateFocusedItem(newItemCoord);
-  }
-
-  private shiftedCoord(currentCoord: Coord, input: GbaInput): Coord {
-    const inventoryHeight = this.inventoryOrder.length;
-    const inventoryWidth = this.inventoryOrder[0].length;
-    const delta = (input === GbaInput.Right || input === GbaInput.Down) ? 1 : -1;
-
-    if (input === GbaInput.Right || input == GbaInput.Left) {
-      return new Coord(currentCoord.row, modulo(currentCoord.col + delta, inventoryWidth));
-    } else {
-      return new Coord(modulo(currentCoord.row + delta, inventoryHeight), currentCoord.col);
-    }
   }
 
   private updateFocusedItem(newItemCoord: Coord) {

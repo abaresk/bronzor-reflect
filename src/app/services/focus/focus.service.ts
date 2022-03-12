@@ -58,10 +58,10 @@ export class FocusService {
   private handleGameState(state: GameState): void {
     switch (state) {
       case GameState.SelectItem:
-        this.shiftIntoComponent(GameComponent.InventoryComponent, Direction.Right);
+        this.shiftComponent(GameComponent.InventoryComponent);
         break;
       case GameState.SelectFiringPlace:
-        this.shiftIntoComponent(GameComponent.BoardComponent, Direction.Right);
+        this.shiftComponent(GameComponent.BoardComponent);
         break;
     }
 
@@ -142,6 +142,10 @@ export class FocusService {
     }
 
     return { coord: newCoord, overflow: overflow };
+  }
+
+  private shiftComponent(component: GameComponent): void {
+    this.currentComponent = component;
   }
 
   private shiftIntoComponent(component: GameComponent, dir: Direction): void {

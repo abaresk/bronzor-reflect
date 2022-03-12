@@ -70,7 +70,7 @@ export class InventoryComponent implements OnInit {
   }
 
   private unfocus(): void {
-    this.focusedItemCoord = undefined;
+    this.updateFocusedItem(undefined);
 
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
@@ -119,18 +119,21 @@ export class InventoryComponent implements OnInit {
     this.cells.set(stock.beam, cell);
   }
 
-  private updateFocusedItem(newItemCoord: Coord) {
+  private updateFocusedItem(newItemCoord?: Coord) {
     // Remove focus from current item.
     if (this.focusedItemCoord) {
       const currentCell = this.getCellAtCoord(this.focusedItemCoord);
       if (currentCell) currentCell.focused = false;
     }
 
-    const newCell = this.getCellAtCoord(newItemCoord);
-    if (newCell) {
-      newCell.focused = true;
-      this.focusedItemCoord = newItemCoord;
+    if (newItemCoord) {
+      const newCell = this.getCellAtCoord(newItemCoord);
+      if (newCell) {
+        newCell.focused = true;
+      }
     }
+
+    this.focusedItemCoord = newItemCoord;
   }
 
   private getCellAtCoord(coord: Coord): InventoryCell | undefined {

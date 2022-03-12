@@ -103,7 +103,7 @@ export class BoardComponent implements OnInit {
   }
 
   private unfocus(): void {
-    this.focusedCellCoord = undefined;
+    this.updateFocusedCell(undefined);
 
     for (let cell of this.boardCells) {
       cell.traversable = false;
@@ -317,7 +317,7 @@ export class BoardComponent implements OnInit {
     return EmitType.Emit;
   }
 
-  private updateFocusedCell(newCoord: Coord) {
+  private updateFocusedCell(newCoord?: Coord) {
     // Remove focus from current cell.
     if (this.focusedCellCoord) {
       const currentCell = this.cells.get(this.focusedCellCoord.toString());
@@ -326,11 +326,14 @@ export class BoardComponent implements OnInit {
       }
     }
 
-    const newCell = this.cells.get(newCoord.toString());
-    if (newCell) {
-      newCell.focused = true;
-      this.focusedCellCoord = newCoord;
+    if (newCoord) {
+      const newCell = this.cells.get(newCoord.toString());
+      if (newCell) {
+        newCell.focused = true;
+      }
     }
+
+    this.focusedCellCoord = newCoord;
   }
 
   private displayHiddenBronzors(display: boolean) {

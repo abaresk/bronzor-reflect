@@ -58,7 +58,7 @@ export class FocusService {
   private handleGameState(state: GameState): void {
     switch (state) {
       case GameState.SelectItem:
-        this.shiftIntoComponent(GameComponent.InventoryComponent, Direction.Left);
+        this.shiftIntoComponent(GameComponent.InventoryComponent, Direction.Right);
         break;
       case GameState.SelectFiringPlace:
         this.shiftIntoComponent(GameComponent.BoardComponent, Direction.Right);

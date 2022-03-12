@@ -31,6 +31,7 @@ interface ShiftedCoord {
 })
 export class MovementService {
   currentComponent: GameComponent;
+  gameStateObservable: Subscription;
   inputObservable: Subscription;
   focusSubject: Subject<Focus>;
 
@@ -46,10 +47,25 @@ export class MovementService {
       [GameComponent.BoardComponent.toString(), new Coord(0, 0)],
     ]);
 
+    this.gameStateObservable = this.gameService.gameStateSubject
+      .subscribe((state) => { this.handleGameState(state); })
     this.inputObservable = this.inputAdapterService.inputSubject
       .pipe(filter((value) => isDpadInput(value)))
       .subscribe((input) => { this.handleDpadInput(input); });
     this.focusSubject = new Subject<Focus>();
+  }
+
+  private handleGameState(state: GameState): void {
+    switch (state) {
+      case GameState.SelectItem:
+        this.shiftIntoComponent(GameComponent.InventoryComponent, Direction.Left);
+        break;
+      case GameState.SelectFiringPlace:
+        this.shiftIntoComponent(GameComponent.BoardComponent, Direction.Right);
+        break;
+    }
+
+    this.publishFocus();
   }
 
   private handleDpadInput(input: GbaInput): void {
@@ -64,10 +80,7 @@ export class MovementService {
         break;
     }
 
-    const currentCoord = this.focusMap.get(this.currentComponent.toString())
-    if (!currentCoord) return;
-
-    this.focusSubject.next({ component: this.currentComponent, coord: currentCoord });
+    this.publishFocus();
   }
 
   private handleBoardMovement(dir: Direction): void {
@@ -174,5 +187,12 @@ export class MovementService {
       coord.row = (dir === Direction.Up) ? INVENTORY_ORDER.length - 1 : 0;
     }
     return coord;
+  }
+
+  private publishFocus(): void {
+    const currentCoord = this.focusMap.get(this.currentComponent.toString())
+    if (!currentCoord) return;
+
+    this.focusSubject.next({ component: this.currentComponent, coord: currentCoord });
   }
 }

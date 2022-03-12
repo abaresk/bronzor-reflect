@@ -4,7 +4,6 @@ import { BeamPointType, Board, BoardConfig, Bronzor } from '../../board';
 import { Coord } from '../../common/geometry/coord';
 import { GameService, GameState } from '../../services/game/game.service';
 import { BoardService } from 'src/app/services/board/board.service';
-import { SelectionFocus } from 'src/app/common/selection-focus';
 import { filter, Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
 import { BeamMove, CellInput, CellOutput, EmitType, IOCell, IOState, newIOState } from './io-cell';
@@ -34,10 +33,7 @@ export class BoardComponent implements OnInit {
   focusObservable: Subscription;
   revealHiddenBronzorsObservable: Subscription;
 
-  // True if focus is inside the Board.
-  focused: boolean = false;
-  // The cell in the board that currently has focus. Initially in top-left
-  // corner.
+  // The coord of the cell with focus or undefined if board doesn't have focus.
   focusedCellCoord?: Coord;
 
   // The number of rows used to display prizes and income/outcome state.
@@ -55,8 +51,8 @@ export class BoardComponent implements OnInit {
     this.boardGameObservable = boardService.boardGameSubject.subscribe(
       (boardGame) => { this.setupBoard(boardGame) });
     this.boardSelectionFocusObservable =
-      boardService.boardSelectionFocusSubject.subscribe(
-        (focus) => { this.setSelectionFocus(focus) });
+      boardService.boardSelectionClearSubject.subscribe(
+        () => { this.clearSelection() });
     this.movesObservable = boardService.movesSubject.subscribe(
       (moves) => { this.updateIOCells(moves) });
     this.focusObservable = this.movementService.focusSubject
@@ -90,24 +86,8 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  setSelectionFocus(selectionFocus: SelectionFocus): void {
-    switch (selectionFocus) {
-      case SelectionFocus.Focus:
-        this.focus();
-        break;
-      case SelectionFocus.Unfocus:
-        this.unfocus();
-        break;
-      case SelectionFocus.ClearSelection:
-        this.clearSelection();
-        break;
-    }
-  }
-
   // Moves focus into the board component.
-  private focus(coord?: Coord): void {
-    this.focused = true;
-    coord = coord ?? this.focusedCellCoord;
+  private focus(coord: Coord): void {
     this.updateFocusedCell(coord);
 
     // Make each board cell traversable.
@@ -123,7 +103,7 @@ export class BoardComponent implements OnInit {
   }
 
   private unfocus(): void {
-    this.focused = false;
+    this.focusedCellCoord = undefined;
 
     for (let cell of this.boardCells) {
       cell.traversable = false;
@@ -145,8 +125,6 @@ export class BoardComponent implements OnInit {
   }
 
   private clearSelection(): void {
-    this.focused = false;
-
     for (let cell of this.ioCells) {
       cell.traversable = false;
       cell.selectable = false;

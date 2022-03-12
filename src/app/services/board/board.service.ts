@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { SelectionFocus } from 'src/app/common/selection-focus';
 import { BoardGame } from 'src/app/core/board-game';
 import { Move } from 'src/app/moves';
-import { Board } from '../../board';
 import { Coord } from '../../common/geometry/coord';
 
 @Injectable({
@@ -14,13 +12,13 @@ export class BoardService {
   moves: Move[] = [];
   selectionResolve?: (coord: Coord) => void;
   boardGameSubject: Subject<BoardGame>;
-  boardSelectionFocusSubject: Subject<SelectionFocus>;
+  boardSelectionClearSubject: Subject<undefined>;
   movesSubject: Subject<Move[]>;
   revealHiddenBronzorSubject: Subject<boolean>;
 
   constructor() {
     this.boardGameSubject = new Subject<BoardGame>();
-    this.boardSelectionFocusSubject = new Subject<SelectionFocus>();
+    this.boardSelectionClearSubject = new Subject<undefined>();
     this.movesSubject = new Subject<Move[]>();
     this.revealHiddenBronzorSubject = new Subject<boolean>();
   }
@@ -39,23 +37,11 @@ export class BoardService {
     return !this.inputTileSelected(coord);
   }
 
-  async getSelection(): Promise<Coord> {
-    this.setSelectionFocus(SelectionFocus.Focus);
-    const selection = await this.waitForSelection();
-    this.setSelectionFocus(SelectionFocus.Unfocus);
-
-    return selection;
-  }
-
   clearSelection(): void {
-    this.setSelectionFocus(SelectionFocus.ClearSelection);
+    this.boardSelectionClearSubject.next(undefined);
   }
 
-  private setSelectionFocus(selectionFocus: SelectionFocus) {
-    this.boardSelectionFocusSubject.next(selectionFocus);
-  }
-
-  private async waitForSelection(): Promise<Coord> {
+  async waitForSelection(): Promise<Coord> {
     return new Promise((resolve) => {
       this.selectionResolve = resolve;
     });

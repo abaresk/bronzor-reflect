@@ -11,6 +11,7 @@ import { Move } from 'src/app/moves';
 import { BoardGame } from 'src/app/core/board-game';
 import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { GbaInput } from '../input-adapter/inputs';
+import { Subject } from 'rxjs';
 
 interface BeamPrize {
   beam: Beam;
@@ -37,12 +38,16 @@ export class GameService {
   totalJackpots = 0;
   bombExploded: boolean = false;
 
+  gameStateSubject: Subject<GameState>;
+
   constructor(
     private generatorService: GeneratorService,
     private boardService: BoardService,
     private walletService: WalletService,
     private inventoryService: InventoryService,
-    private inputAdapterService: InputAdapterService) { }
+    private inputAdapterService: InputAdapterService) {
+    this.gameStateSubject = new Subject<GameState>();
+  }
 
   newGame(boardConfig: BoardConfig, credit: number) {
     const level = 1;
@@ -151,18 +156,18 @@ export class GameService {
   private async cleanupRound(): Promise<void> {
     const nextLevel = this.nextLevel();
 
-    this.gameState = GameState.Payout;
+    this.updateGameState(GameState.Payout);
     await this.walletService.mergeFunds();
 
     this.game.level = nextLevel;
   }
 
   private async doMove(): Promise<Move | undefined> {
-    this.gameState = GameState.SelectItem;
-    const beam = await this.inventoryService.getSelection();
+    this.updateGameState(GameState.SelectItem);
+    const beam = await this.inventoryService.waitForSelection();
 
-    this.gameState = GameState.SelectFiringPlace;
-    const coord = await this.boardService.getSelection();
+    this.updateGameState(GameState.SelectFiringPlace);
+    const coord = await this.boardService.waitForSelection();
 
     // Selections are final. Decrement inventory, clear selection state and fire
     // the beam.
@@ -172,11 +177,16 @@ export class GameService {
     // TODO: Figure out where to set this. If other components react to this
     // (e.g. to start animations), then maybe it should be set after the path is
     // computed.
-    this.gameState = GameState.FireBeam;
+    this.updateGameState(GameState.FireBeam);
     const beamPath = this.boardGame.fireBeam(beam, coord);
     if (!beamPath) return undefined;
 
     return { beam: beam, coord: coord, beamPath: beamPath };
+  }
+
+  private updateGameState(state: GameState): void {
+    this.gameState = state;
+    this.gameStateSubject.next(state);
   }
 
   // Gets the prize the user wins as a result of `move`, or undefined if the

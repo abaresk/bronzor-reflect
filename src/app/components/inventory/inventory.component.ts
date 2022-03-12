@@ -3,12 +3,8 @@ import { filter, Subscription } from 'rxjs';
 import { Cell } from 'src/app/common/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
 import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
-import { SelectionFocus } from 'src/app/common/selection-focus';
 import { InventoryCell } from './inventory-cell';
-import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
-import { GbaInput, isAInput, isDpadInput } from 'src/app/services/input-adapter/inputs';
 import { Coord } from 'src/app/common/geometry/coord';
-import { modulo } from 'src/app/util/modulo';
 import { Focus, GameComponent, MovementService } from 'src/app/services/movement/movement.service';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
@@ -27,10 +23,10 @@ export class InventoryComponent implements OnInit {
   inventorySelectionFocusObservable: Subscription;
   focusObservable: Subscription;
   cells: Map<Beam, InventoryCell>;
-  // True if focus is inside the Inventory menu.
-  focused: boolean = false;
-  // The item in inventory that has currently has focus.
-  focusedItemCoord: Coord = new Coord(0, 0);
+
+  // The coord of the cell with focus or undefined if inventory doesn't have
+  // focus.
+  focusedItemCoord?: Coord;
 
   constructor(
     public inventoryService: InventoryService,
@@ -39,8 +35,8 @@ export class InventoryComponent implements OnInit {
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
     this.inventorySelectionFocusObservable =
-      inventoryService.inventorySelectionFocusSubject.subscribe(
-        (focus) => { this.setSelectionFocus(focus) });
+      inventoryService.inventorySelectionClearSubject.subscribe(
+        () => { this.clearSelection() });
     this.focusObservable = this.movementService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
   }
@@ -59,24 +55,8 @@ export class InventoryComponent implements OnInit {
     return undefined;
   }
 
-  setSelectionFocus(selectionFocus: SelectionFocus): void {
-    switch (selectionFocus) {
-      case SelectionFocus.Focus:
-        this.focus();
-        break;
-      case SelectionFocus.Unfocus:
-        this.unfocus();
-        break;
-      case SelectionFocus.ClearSelection:
-        this.clearSelection();
-        break;
-    }
-  }
-
   // Move focus into the inventory component.
-  private focus(coord?: Coord): void {
-    this.focused = true;
-    coord = coord ?? this.focusedItemCoord;
+  private focus(coord: Coord): void {
     this.updateFocusedItem(coord);
 
     // Make each item interactable.
@@ -90,7 +70,7 @@ export class InventoryComponent implements OnInit {
   }
 
   private unfocus(): void {
-    this.focused = false;
+    this.focusedItemCoord = undefined;
 
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
@@ -112,8 +92,6 @@ export class InventoryComponent implements OnInit {
 
   // Make items un-interactable and clear any selection state.
   private clearSelection() {
-    this.focused = false;
-
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       if (!cell) continue;

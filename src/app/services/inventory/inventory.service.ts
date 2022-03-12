@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { SelectionFocus } from 'src/app/common/selection-focus';
 import { Beam } from '../../common/prizes';
 import { Inventory } from '../../inventory';
 
@@ -16,11 +15,11 @@ export class InventoryService {
   inventory = {} as Inventory;
   selectionResolve?: (item: Beam) => void;
   inventorySubject: Subject<InventoryStock>;
-  inventorySelectionFocusSubject: Subject<SelectionFocus>;
+  inventorySelectionClearSubject: Subject<undefined>;
 
   constructor() {
     this.inventorySubject = new Subject<InventoryStock>();
-    this.inventorySelectionFocusSubject = new Subject<SelectionFocus>();
+    this.inventorySelectionClearSubject = new Subject<undefined>();
   }
 
   new(level: number) {
@@ -50,23 +49,11 @@ export class InventoryService {
     return count > 0;
   }
 
-  async getSelection(): Promise<Beam> {
-    this.setSelectionFocus(SelectionFocus.Focus);
-    const selection = await this.waitForSelection();
-    this.setSelectionFocus(SelectionFocus.Unfocus);
-
-    return selection;
-  }
-
   clearSelection(): void {
-    this.setSelectionFocus(SelectionFocus.ClearSelection);
+    this.inventorySelectionClearSubject.next(undefined);
   }
 
-  private setSelectionFocus(selectionFocus: SelectionFocus) {
-    this.inventorySelectionFocusSubject.next(selectionFocus);
-  }
-
-  private async waitForSelection(): Promise<Beam> {
+  async waitForSelection(): Promise<Beam> {
     return new Promise((resolve) => {
       this.selectionResolve = resolve;
     });

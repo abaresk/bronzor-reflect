@@ -61,15 +61,15 @@ export class CellComponent implements OnInit {
   private getSelectionCssClass(): string {
     if (!this.cell) return '';
 
-    // Always show selection whether the cell is interactive or not.
+    if (this.cell.focused) {
+      return SelectionCssClass.Focused;
+    }
+
     if (this.cell.selected) {
       return SelectionCssClass.Selected;
     }
 
     if (this.cell.traversable) {
-      if (this.cell.focused) {
-        return SelectionCssClass.Focused;
-      }
       if (this.cell.selectable) {
         return SelectionCssClass.Selectable;
       }

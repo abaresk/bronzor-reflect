@@ -60,10 +60,10 @@ $border-selected: rgb(218, 144, 8);
     }
 }
 
-.visible.focused {
-    border-color: $border-focused;
-}
-
 .visible.selected {
     border-color: $border-selected;
+}
+
+.visible.focused {
+    border-color: $border-focused;
 }

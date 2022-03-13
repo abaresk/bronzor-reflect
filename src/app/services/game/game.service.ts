@@ -23,6 +23,7 @@ export enum GameState {
   SelectFiringPlace,
   FireBeam,
   Payout,
+  RoundEnd,
 };
 
 @Injectable({
@@ -158,6 +159,7 @@ export class GameService {
     this.updateGameState(GameState.Payout);
     await this.walletService.mergeFunds();
 
+    this.updateGameState(GameState.RoundEnd);
     this.game.level = nextLevel;
   }
 

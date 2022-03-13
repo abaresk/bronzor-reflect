@@ -38,4 +38,8 @@ export class BoardCell extends Cell {
     const nextIdx = (idx + 1) % MEMO_STATES.length;
     this.memoState = MEMO_STATES[nextIdx];
   }
+
+  clearMemoState(): void {
+    this.memoState = MemoState.UNMARKED;
+  }
 }

@@ -105,6 +105,9 @@ export class BoardComponent implements OnInit {
       case GameState.FireBeam:
         this.clearSelection();
         break;
+      case GameState.RoundEnd:
+        this.clearBoard();
+        break;
     }
   }
 
@@ -146,6 +149,15 @@ export class BoardComponent implements OnInit {
     }
 
     for (let cell of this.ioCells) {
+      cell.traversable = false;
+      cell.selectable = false;
+      cell.selected = false;
+    }
+  }
+
+  private clearBoard(): void {
+    for (let cell of this.boardCells) {
+      cell.clearMemoState();
       cell.traversable = false;
       cell.selectable = false;
       cell.selected = false;

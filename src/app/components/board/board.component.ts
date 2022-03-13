@@ -127,16 +127,24 @@ export class BoardComponent implements OnInit {
     for (let cell of this.boardCells) {
       cell.traversable = true;
       cell.selectable = false;
+      cell.selected = false;
     }
 
     // Make each I/O cell selectable.
     for (let cell of this.ioCells) {
       cell.traversable = true;
       cell.selectable = true;
+      cell.selected = false;
     }
   }
 
   private clearSelection(): void {
+    for (let cell of this.boardCells) {
+      cell.traversable = false;
+      cell.selectable = false;
+      cell.selected = false;
+    }
+
     for (let cell of this.ioCells) {
       cell.traversable = false;
       cell.selectable = false;

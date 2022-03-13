@@ -58,6 +58,8 @@ $border-selected: rgb(218, 144, 8);
     &:hover {
         border-color: $border-hovered;
     }
+
+    cursor: pointer;
 }
 
 .visible.selected {

@@ -173,8 +173,14 @@ export class FocusService {
       BOARD_LENGTH : -1;
     if (isHorizontal(dir)) {
       coord.col = newPos;
+      if (coord.row < 0 || coord.row >= BOARD_LENGTH) {
+        coord.row = (coord.row < 0) ? 0 : BOARD_LENGTH - 1;
+      }
     } else {
       coord.row = newPos;
+      if (coord.col < 0 || coord.row >= BOARD_LENGTH) {
+        coord.col = (coord.col < 0) ? 0 : BOARD_LENGTH - 1;
+      }
     }
     return coord;
   }

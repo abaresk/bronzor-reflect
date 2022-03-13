@@ -82,7 +82,6 @@ export class GameService {
 
       // Reveal hidden Bronzors
       this.boardService.showHiddenBronzors(true);
-      this.clearSelections();
 
       // Wait for user to continue
       await this.inputAdapterService.waitForInput(GbaInput.A);
@@ -172,7 +171,6 @@ export class GameService {
     // Selections are final. Decrement inventory, clear selection state and fire
     // the beam.
     this.inventoryService.addBeams(beam, -1);
-    this.clearSelections();
 
     // TODO: Figure out where to set this. If other components react to this
     // (e.g. to start animations), then maybe it should be set after the path is
@@ -248,10 +246,5 @@ export class GameService {
     }
 
     return this.game.level;
-  }
-
-  private clearSelections(): void {
-    this.inventoryService.clearSelection();
-    this.boardService.clearSelection();
   }
 }

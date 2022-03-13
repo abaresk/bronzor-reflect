@@ -28,9 +28,9 @@ export class BoardComponent implements OnInit {
   prizeCells: PrizeCell[] = [];
   ioCells: IOCell[] = [];
   boardGameObservable: Subscription;
-  boardSelectionFocusObservable: Subscription;
   movesObservable: Subscription;
   focusObservable: Subscription;
+  gameStateObservable: Subscription;
   revealHiddenBronzorsObservable: Subscription;
 
   // The coord of the cell with focus or undefined if board doesn't have focus.
@@ -50,13 +50,12 @@ export class BoardComponent implements OnInit {
     this.cells = this.initializeCells(this.boardCoords);
     this.boardGameObservable = boardService.boardGameSubject.subscribe(
       (boardGame) => { this.setupBoard(boardGame) });
-    this.boardSelectionFocusObservable =
-      boardService.boardSelectionClearSubject.subscribe(
-        () => { this.clearSelection() });
     this.movesObservable = boardService.movesSubject.subscribe(
       (moves) => { this.updateIOCells(moves) });
     this.focusObservable = this.focusService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
+    this.gameStateObservable = this.gameService.gameStateSubject
+      .subscribe((state) => { this.handleGameState(state); })
     this.revealHiddenBronzorsObservable = boardService.revealHiddenBronzorSubject
       .subscribe((display) => { this.displayHiddenBronzors(display) });
   }
@@ -86,13 +85,34 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  // Moves focus into the board component.
-  private focus(coord: Coord): void {
-    this.updateFocusedCell(coord);
+  private handleFocus(focus: Focus): void {
+    if (focus.component !== GameComponent.BoardComponent) {
+      this.updateFocusedCell(undefined);
+      return;
+    }
 
-    // Make each board cell traversable.
+    this.updateFocusedCell(focus.coord);
+  }
+
+  private handleGameState(state: GameState): void {
+    switch (state) {
+      case GameState.SelectItem:
+        this.displaySelectItem();
+        break;
+      case GameState.SelectFiringPlace:
+        this.displaySelectFiringPlace();
+        break;
+      case GameState.FireBeam:
+        this.clearSelection();
+        break;
+    }
+  }
+
+  private displaySelectItem(): void {
+    // Make each board cell traversable and selectable.
     for (let cell of this.boardCells) {
       cell.traversable = true;
+      cell.selectable = true;
     }
 
     // Make each I/O cell selectable.
@@ -102,26 +122,18 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  private unfocus(): void {
-    this.updateFocusedCell(undefined);
-
+  private displaySelectFiringPlace(): void {
+    // Make each board cell traversable.
     for (let cell of this.boardCells) {
-      cell.traversable = false;
-    }
-
-    for (let cell of this.ioCells) {
-      cell.traversable = false;
+      cell.traversable = true;
       cell.selectable = false;
     }
-  }
 
-  private handleFocus(focus: Focus): void {
-    if (focus.component !== GameComponent.BoardComponent) {
-      this.unfocus();
-      return;
+    // Make each I/O cell selectable.
+    for (let cell of this.ioCells) {
+      cell.traversable = true;
+      cell.selectable = true;
     }
-
-    this.focus(focus.coord);
   }
 
   private clearSelection(): void {

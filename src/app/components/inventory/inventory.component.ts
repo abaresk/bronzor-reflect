@@ -6,6 +6,7 @@ import { InventoryService, InventoryStock } from 'src/app/services/inventory/inv
 import { InventoryCell } from './inventory-cell';
 import { Coord } from 'src/app/common/geometry/coord';
 import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
+import { GameService, GameState } from 'src/app/services/game/game.service';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -20,8 +21,8 @@ export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
 export class InventoryComponent implements OnInit {
   inventoryOrder: ReadonlyArray<ReadonlyArray<Beam>> = INVENTORY_ORDER;
   inventoryObservable: Subscription;
-  inventorySelectionFocusObservable: Subscription;
   focusObservable: Subscription;
+  gameStateObservable: Subscription;
   cells: Map<Beam, InventoryCell>;
 
   // The coord of the cell with focus or undefined if inventory doesn't have
@@ -29,16 +30,16 @@ export class InventoryComponent implements OnInit {
   focusedItemCoord?: Coord;
 
   constructor(
+    private gameService: GameService,
     public inventoryService: InventoryService,
     public focusService: FocusService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
       .subscribe((stock) => { this.setInventoryCount(stock); });
-    this.inventorySelectionFocusObservable =
-      inventoryService.inventorySelectionClearSubject.subscribe(
-        () => { this.clearSelection() });
     this.focusObservable = this.focusService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
+    this.gameStateObservable = this.gameService.gameStateSubject
+      .subscribe((state) => { this.handleGameState(state); })
   }
 
   ngOnInit(): void {
@@ -55,10 +56,30 @@ export class InventoryComponent implements OnInit {
     return undefined;
   }
 
-  // Move focus into the inventory component.
-  private focus(coord: Coord): void {
-    this.updateFocusedItem(coord);
+  private handleFocus(focus: Focus): void {
+    if (focus.component !== GameComponent.InventoryComponent) {
+      this.updateFocusedItem(undefined);
+      return;
+    }
 
+    this.updateFocusedItem(focus.coord);
+  }
+
+  private handleGameState(state: GameState): void {
+    switch (state) {
+      case GameState.SelectItem:
+        this.displaySelectItem();
+        break;
+      case GameState.SelectFiringPlace:
+        this.displaySelectFiringPlace();
+        break;
+      case GameState.FireBeam:
+        this.clearSelection();
+        break;
+    }
+  }
+
+  private displaySelectItem(): void {
     // Make each item interactable.
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
@@ -69,9 +90,8 @@ export class InventoryComponent implements OnInit {
     }
   }
 
-  private unfocus(): void {
-    this.updateFocusedItem(undefined);
-
+  private displaySelectFiringPlace(): void {
+    // Make each item un-interactable, but don't clear selection.
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       if (!cell) continue;
@@ -81,17 +101,8 @@ export class InventoryComponent implements OnInit {
     }
   }
 
-  private handleFocus(focus: Focus): void {
-    if (focus.component !== GameComponent.InventoryComponent) {
-      this.unfocus();
-      return;
-    }
-
-    this.focus(focus.coord);
-  }
-
-  // Make items un-interactable and clear any selection state.
   private clearSelection() {
+    // Make items un-interactable and clear any selection state.
     for (let item of this.inventoryOrder.flat()) {
       const cell = this.cells.get(item);
       if (!cell) continue;

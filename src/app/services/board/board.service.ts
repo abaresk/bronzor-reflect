@@ -12,13 +12,11 @@ export class BoardService {
   moves: Move[] = [];
   selectionResolve?: (coord: Coord) => void;
   boardGameSubject: Subject<BoardGame>;
-  boardSelectionClearSubject: Subject<undefined>;
   movesSubject: Subject<Move[]>;
   revealHiddenBronzorSubject: Subject<boolean>;
 
   constructor() {
     this.boardGameSubject = new Subject<BoardGame>();
-    this.boardSelectionClearSubject = new Subject<undefined>();
     this.movesSubject = new Subject<Move[]>();
     this.revealHiddenBronzorSubject = new Subject<boolean>();
   }
@@ -35,10 +33,6 @@ export class BoardService {
 
   validPlacementSelection(coord: Coord): boolean {
     return !this.inputTileSelected(coord);
-  }
-
-  clearSelection(): void {
-    this.boardSelectionClearSubject.next(undefined);
   }
 
   async waitForSelection(): Promise<Coord> {

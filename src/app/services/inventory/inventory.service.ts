@@ -15,11 +15,9 @@ export class InventoryService {
   inventory = {} as Inventory;
   selectionResolve?: (item: Beam) => void;
   inventorySubject: Subject<InventoryStock>;
-  inventorySelectionClearSubject: Subject<undefined>;
 
   constructor() {
     this.inventorySubject = new Subject<InventoryStock>();
-    this.inventorySelectionClearSubject = new Subject<undefined>();
   }
 
   new(level: number) {
@@ -47,10 +45,6 @@ export class InventoryService {
   validSelection(item: Beam): boolean {
     const count = this.inventory.beams.get(item) ?? 0;
     return count > 0;
-  }
-
-  clearSelection(): void {
-    this.inventorySelectionClearSubject.next(undefined);
   }
 
   async waitForSelection(): Promise<Beam> {

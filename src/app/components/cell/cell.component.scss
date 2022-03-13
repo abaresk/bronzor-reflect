@@ -50,10 +50,6 @@ $border-selected: rgb(218, 144, 8);
 
 .visible.traversable {
     border-color: $border-traversable;
-
-    &:hover {
-        border-color: $border-hovered;
-    }
 }
 
 .visible.selectable {
@@ -66,10 +62,6 @@ $border-selected: rgb(218, 144, 8);
 
 .visible.focused {
     border-color: $border-focused;
-
-    &:hover {
-        border-color: $border-hovered;
-    }
 }
 
 .visible.selected {

@@ -44,7 +44,7 @@ export class CellComponent implements OnInit {
   getClasses(): string {
     const visibility = this.getVisible() ? 'visible' : 'invisible';
     const cellCategory = this.cell?.getCategory() ?? '';
-    const selectionState = this.getSelectionCssClass() ?? '';
+    const selectionState = this.getSelectionCssClasses() ?? '';
     return `${visibility} ${cellCategory} ${selectionState}`;
   }
 
@@ -58,25 +58,26 @@ export class CellComponent implements OnInit {
     return this.cell?.visible ?? false;
   }
 
-  private getSelectionCssClass(): string {
+  private getSelectionCssClasses(): string {
+    const classes: SelectionCssClass[] = [];
     if (!this.cell) return '';
 
     if (this.cell.focused) {
-      return SelectionCssClass.Focused;
+      classes.push(SelectionCssClass.Focused);
     }
 
     if (this.cell.selected) {
-      return SelectionCssClass.Selected;
+      classes.push(SelectionCssClass.Selected);
     }
 
     if (this.cell.traversable) {
       if (this.cell.selectable) {
-        return SelectionCssClass.Selectable;
+        classes.push(SelectionCssClass.Selectable);
       }
-      return SelectionCssClass.Traversable;
+      classes.push(SelectionCssClass.Traversable);
     }
 
-    return '';
+    return classes.join(' ');
   }
 
   private trySelect(): void {

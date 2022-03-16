@@ -82,9 +82,11 @@ export class GeneratorService {
     for (let prize of prizes) {
       const prizeYield = getYieldRange(prize, level);
       for (let i = 0; i < prizeYield.min; i++) {
-        this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
-        this.incrementMap(prizeCounts, prize, 1);
-        currentPrizes++;
+        const success = this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+        if (success) {
+          this.incrementMap(prizeCounts, prize, 1);
+          currentPrizes++;
+        }
       }
     }
 
@@ -94,12 +96,15 @@ export class GeneratorService {
       const prize = this.getRandomAvailablePrize(prizeCounts, level);
       if (!prize) continue;
 
-      this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
-      this.incrementMap(prizeCounts, prize, 1);
+      const success = this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+      if (success) {
+        this.incrementMap(prizeCounts, prize, 1);
+      }
     }
   }
 
-  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: CustomSet<string>, takenCoords: CustomSet<string>, reachableCoords: CustomSet<string>): void {
+  // Returns true if we were able to place a prize on the board
+  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: CustomSet<string>, takenCoords: CustomSet<string>, reachableCoords: CustomSet<string>): boolean {
     const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
     const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
       <= MAX_UNREACHABLE_PER_PRIZE;
@@ -109,8 +114,18 @@ export class GeneratorService {
     const reachableOpenCoords = openCoords.intersect(reachableCoords);
     const unreachableOpenCoords = openCoords.difference(reachableCoords);
 
-    const candidates = (unreachable && unreachableOpenCoords.size) ?
-      unreachableOpenCoords : reachableOpenCoords;
+    // TODO: Re-think the prize placement algorithm completely. Be more
+    // methodical - don't allow for failure cases, like running out of
+    // (un)reachable spots. Perhaps there should be a separate distribution
+    // tables for reachable/unreachable prize counts?
+    let candidates = undefined;
+    if (unreachable && unreachableOpenCoords.size) {
+      candidates = unreachableOpenCoords;
+    } else if (reachableOpenCoords.size) {
+      candidates = reachableOpenCoords;
+    }
+    if (!candidates) return false;
+
     const randCoord = randomFromSet(candidates);
 
     takenCoords.add(randCoord);
@@ -120,6 +135,7 @@ export class GeneratorService {
 
     const placedCoord = Coord.fromString(randCoord);
     boardGame.addPrize(placedCoord, prize);
+    return true;
   }
 
   private reachableCoords(boardGame: BoardGame): Coord[] {

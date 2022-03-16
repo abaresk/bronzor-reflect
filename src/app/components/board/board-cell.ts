@@ -1,4 +1,4 @@
-import { Bronzor } from "src/app/board";
+import { Bronzor } from "src/app/common/board";
 import { Cell } from "src/app/common/cell";
 import { MemoState, MEMO_DISLAYS, MEMO_STATES } from "src/app/common/memo";
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Beam } from '../../common/prizes';
-import { Inventory } from '../../inventory';
+import { Inventory } from '../../common/inventory';
 
 export interface InventoryStock {
   beam: Beam;

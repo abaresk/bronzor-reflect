@@ -1,5 +1,5 @@
 import { Beam, Prize, PrizeState } from '../common/prizes';
-import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../board';
+import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from 'src/app/common/board';
 import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../common/geometry/coord';
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
@@ -250,7 +250,7 @@ export class BoardGame {
     return Math.abs(distance) === 1;
   }
 
-  // Return the prize tile ID at the specified coordinate, or -1 if `coord` 
+  // Return the prize tile ID at the specified coordinate, or -1 if `coord`
   // doesn't correspond to a prize tile.
   private prizeTileId(coord: Coord): number {
     const edgeSegments = this.grid.edgeSegments(1);
@@ -282,7 +282,7 @@ export class BoardGame {
     return undefined;
   }
 
-  // Returns true if the coordinate is on the `direction`-most edge of the 
+  // Returns true if the coordinate is on the `direction`-most edge of the
   // board (e.g. `Up`-most edge or `Right`-most edge).
   private onBoardEdge(coord: Coord, dir: Direction): boolean {
     switch (dir) {

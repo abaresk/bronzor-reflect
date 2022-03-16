@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize, jackpotPrize } from '../../common/prizes';
-import { BeamPath, BeamPointType, BoardConfig } from '../../board';
-import { Game } from '../../game';
+import { BeamPath, BeamPointType, BoardConfig } from 'src/app/common/board';
+import { Game } from '../../common/game';
 import { Coord } from '../../common/geometry/coord';
 import { WalletService } from '../wallet/wallet.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { GeneratorService } from '../generator/generator.service';
 import { BoardService } from '../board/board.service';
-import { Move } from 'src/app/moves';
+import { Move } from 'src/app/common/moves';
 import { BoardGame } from 'src/app/core/board-game';
 import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { GbaInput } from '../input-adapter/inputs';

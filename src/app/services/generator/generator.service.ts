@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from '../../board';
+import { BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from 'src/app/common/board';
 import { BoardGame } from '../../core/board-game';
 import { Coord } from '../../common/geometry/coord';
 import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';

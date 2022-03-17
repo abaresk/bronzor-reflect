@@ -85,6 +85,12 @@ export class BoardGame {
     const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
     const beamPath: BeamPath = { type: beam, path: [entry] };
 
+    // First check for edge reflection
+    if (this.reflectsOffEdge(firstVector)) {
+      beamPath.path.push({ type: BeamPointType.Emit, coord: firstCoord });
+      return beamPath;
+    }
+
     // Generate next steps until the beam is emitted from the board or hits a
     // Bronzor.
     let nextVector = this.generateNextStep(firstVector, beamPath, dryRun);
@@ -110,12 +116,6 @@ export class BoardGame {
   private generateNextStep(vector: Vector, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
     const collisions = this.bronzorsInPath(vector);
     const closestBronzors = this.closestInPath(vector, collisions);
-
-    if (this.edgeReflectionInCoords(vector, closestBronzors)) {
-      const beamPoint: BeamPoint = { type: BeamPointType.Emit, coord: vector.coord };
-      beamPath.path.push(beamPoint);
-      return undefined;
-    }
 
     return this.addToBeamPath(vector, closestBronzors, beamPath, dryRun);
   }
@@ -229,6 +229,13 @@ export class BoardGame {
     return { coord: nextCoord, dir: oppositeDir(vector.dir) };
   }
 
+  private reflectsOffEdge(vector: Vector): boolean {
+    const collisions = this.bronzorsInPath(vector);
+    const closestBronzors = this.closestInPath(vector, collisions);
+
+    return this.edgeReflectionInCoords(vector, closestBronzors);
+  }
+
   private edgeReflectionInCoords(vector: Vector, bronzors: Array<Bronzor>): boolean {
     const coords = bronzors.map((bronzor) => bronzor.coord);
     for (let coord of coords) {
@@ -241,7 +248,6 @@ export class BoardGame {
     // Vector initially starts off the board, so move it onto the board to
     // check if it's on the edge.
     const onBoard = vector.coord.coordAt(vector.dir, 1);
-
     const edgeDirection = this.onSameEdge(onBoard, coord);
     if (edgeDirection === undefined) return false;
 

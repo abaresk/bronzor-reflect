@@ -85,9 +85,8 @@ export class BoardGame {
     const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
     const beamPath: BeamPath = { type: beam, path: [entry] };
 
-    // First check for edge reflection
-    if (this.reflectsOffEdge(firstVector)) {
-      beamPath.path.push({ type: BeamPointType.Emit, coord: firstCoord });
+    // First check for edge collision
+    if (this.checkEdgeCollision(firstVector, beamPath)) {
       return beamPath;
     }
 
@@ -229,31 +228,27 @@ export class BoardGame {
     return { coord: nextCoord, dir: oppositeDir(vector.dir) };
   }
 
-  private reflectsOffEdge(vector: Vector): boolean {
+  private checkEdgeCollision(vector: Vector, beamPath: BeamPath): boolean {
     const collisions = this.bronzorsInPath(vector);
-    const closestBronzors = this.closestInPath(vector, collisions);
+    const edgeBronzors = collisions.filter((bronzor) => {
+      return distanceInDirection(vector.coord, bronzor.coord, vector.dir) === 1;
+    });
+    const edgeBronzorCoords = edgeBronzors.map((bronzor) => {
+      return bronzor.coord.toString();
+    });
 
-    return this.edgeReflectionInCoords(vector, closestBronzors);
-  }
+    const nextSpace = vector.coord.coordAt(vector.dir, 1);
 
-  private edgeReflectionInCoords(vector: Vector, bronzors: Array<Bronzor>): boolean {
-    const coords = bronzors.map((bronzor) => bronzor.coord);
-    for (let coord of coords) {
-      if (this.edgeReflection(vector, coord)) return true;
+    if (edgeBronzorCoords.length) {
+      if (edgeBronzorCoords.includes(nextSpace.toString())) {
+        beamPath.path.push({ type: BeamPointType.Hit, coord: nextSpace });
+      } else {
+        beamPath.path.push({ type: BeamPointType.Emit, coord: vector.coord });
+      }
+      return true;
     }
+
     return false;
-  }
-
-  private edgeReflection(vector: Vector, coord: Coord): boolean {
-    // Vector initially starts off the board, so move it onto the board to
-    // check if it's on the edge.
-    const onBoard = vector.coord.coordAt(vector.dir, 1);
-    const edgeDirection = this.onSameEdge(onBoard, coord);
-    if (edgeDirection === undefined) return false;
-
-    const perpendicular = rotateClockwise(edgeDirection, 1);
-    const distance = distanceInDirection(onBoard, coord, perpendicular);
-    return Math.abs(distance) === 1;
   }
 
   // Return the prize tile ID at the specified coordinate, or -1 if `coord`
@@ -275,32 +270,6 @@ export class BoardGame {
     }
 
     return false;
-  }
-
-  // Returns the direction of the edge the coordinates share, or undefined if
-  // they are not on the same edge.
-  private onSameEdge(coord1: Coord, coord2: Coord): Direction | undefined {
-    for (let dir of directions) {
-      if (this.onBoardEdge(coord1, dir) && this.onBoardEdge(coord2, dir)) {
-        return dir;
-      }
-    }
-    return undefined;
-  }
-
-  // Returns true if the coordinate is on the `direction`-most edge of the
-  // board (e.g. `Up`-most edge or `Right`-most edge).
-  private onBoardEdge(coord: Coord, dir: Direction): boolean {
-    switch (dir) {
-      case Direction.Up:
-        return coord.row === 0;
-      case Direction.Right:
-        return coord.col === this.board.config.length - 1;
-      case Direction.Down:
-        return coord.row === this.board.config.length - 1;
-      case Direction.Left:
-        return coord.col === 0;
-    }
   }
 
   private projectToEdge(coord: Coord, dir: Direction): Coord {

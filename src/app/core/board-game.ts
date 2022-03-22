@@ -85,6 +85,14 @@ export class BoardGame {
     const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
     const beamPath: BeamPath = { type: beam, path: [entry] };
 
+    // Psybeams always emit at the opposite coordinate
+    if (beam === Beam.Psybeam) {
+      const nextCoord =
+        this.projectToEdge(firstVector.coord, firstVector.dir).coordAt(firstVector.dir, 1)
+      beamPath.path.push({ type: BeamPointType.Emit, coord: nextCoord });
+      return beamPath;
+    }
+
     // First check for edge collision
     if (this.checkEdgeCollision(firstVector, beamPath)) {
       return beamPath;
@@ -128,7 +136,7 @@ export class BoardGame {
       // neighboring parallel vectors.
       for (let i = -1; i <= 1; i++) {
         const perpendicular = rotateClockwise(vector.dir, 1);
-        const checkCoord = vector.coord.coordAt(perpendicular, i);
+        const checkCoord = vector.coord.coordAt(vector.dir, 1).coordAt(perpendicular, i);
         if (coordInDirection(checkCoord, bronzor.coord, vector.dir)) {
           collisions.push(bronzor);
         }
@@ -191,16 +199,11 @@ export class BoardGame {
   }
 
   private addToBeamPathDirectHit(vector: Vector, beamPath: BeamPath, bronzor: Bronzor, dryRun: boolean): Vector | undefined {
-    const destroy = beamPath.type === Beam.Flame;
-    const phase = beamPath.type === Beam.Phase;
+    const phase = (beamPath.type === Beam.Shadow);
 
     if (phase) {
       beamPath.path.push({ type: BeamPointType.Phase, coord: bronzor.coord });
       return { coord: bronzor.coord, dir: vector.dir };
-    } else if (destroy) {
-      if (!dryRun) bronzor.active = false;
-      beamPath.path.push({ type: BeamPointType.Destroy, coord: bronzor.coord });
-      return undefined;
     } else {
       beamPath.path.push({ type: BeamPointType.Hit, coord: bronzor.coord });
       return undefined;
@@ -228,27 +231,38 @@ export class BoardGame {
     return { coord: nextCoord, dir: oppositeDir(vector.dir) };
   }
 
+  // Returns true if there's a collision that terminates the beam path.
   private checkEdgeCollision(vector: Vector, beamPath: BeamPath): boolean {
     const collisions = this.bronzorsInPath(vector);
     const edgeBronzors = collisions.filter((bronzor) => {
       return distanceInDirection(vector.coord, bronzor.coord, vector.dir) === 1;
     });
-    const edgeBronzorCoords = edgeBronzors.map((bronzor) => {
-      return bronzor.coord.toString();
-    });
+    const directCoords = edgeBronzors.filter(
+      (bronzor) => coordInDirection(vector.coord, bronzor.coord, vector.dir));
+    const indirectCoords = edgeBronzors.filter(
+      (bronzor) => !coordInDirection(vector.coord, bronzor.coord, vector.dir));
 
     const nextSpace = vector.coord.coordAt(vector.dir, 1);
 
-    if (edgeBronzorCoords.length) {
-      if (edgeBronzorCoords.includes(nextSpace.toString())) {
+    if (!edgeBronzors.length) return false;
+
+    if (beamPath.type === Beam.Shadow) {
+      if (indirectCoords.length) {
+        beamPath.path.push({ type: BeamPointType.Emit, coord: vector.coord });
+        return true;
+      } else {
+        beamPath.path.push({ type: BeamPointType.Phase, coord: nextSpace });
+        return false;
+      }
+    } else {
+      if (directCoords.length) {
         beamPath.path.push({ type: BeamPointType.Hit, coord: nextSpace });
+        return true;
       } else {
         beamPath.path.push({ type: BeamPointType.Emit, coord: vector.coord });
+        return true;
       }
-      return true;
     }
-
-    return false;
   }
 
   // Return the prize tile ID at the specified coordinate, or -1 if `coord`

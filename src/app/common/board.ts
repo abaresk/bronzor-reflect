@@ -22,10 +22,12 @@ export enum BeamPointType {
   Deflect,
   // Bounces off two Bronzors on the same tile.
   DoubleDeflect,
-  // Destroys a Bronzor. A final step.
-  Destroy,
   // Phases through a Bronzor
   Phase,
+  // Ignores a Deflect or a DoubleDeflect
+  IgnoreDeflect,
+  // Destroys a Bronzor. A final step.
+  Destroy,
   // Emitted from the box. A final step.
   Emit,
   // Collides with a Bronzor. A final step.

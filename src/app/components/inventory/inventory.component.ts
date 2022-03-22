@@ -10,7 +10,7 @@ import { GameService, GameState } from 'src/app/services/game/game.service';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
-  [Beam.Flame, Beam.Comet, Beam.Phase],
+  [Beam.Comet, Beam.Shadow, Beam.Psybeam],
 ];
 
 @Component({

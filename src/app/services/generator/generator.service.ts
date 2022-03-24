@@ -3,7 +3,7 @@ import { BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from 'src/ap
 import { BoardGame } from '../../core/board-game';
 import { Coord } from '../../common/geometry/coord';
 import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
-import { Beam, getCategory, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
+import { Beam, getCategory, MoneyPrize, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
 import { randomInt, randomFromSet } from '../../util/random';
 import { Grid } from 'src/app/common/geometry/grid';
 import { CustomSet } from 'src/app/util/custom-set';
@@ -17,6 +17,17 @@ type PrizeCategoryTally = Map<PrizeCategory, PrizeCount>;
 interface PrizeCount {
   unreachable: number;
   total: number;
+};
+
+interface PrizeGenConstraints {
+  reachableCoords: CustomSet<string>;
+  ioMap: Map<string, Coord | undefined>;
+};
+
+interface PrizeGenState {
+  takenCoords: Map<string, Prize>;
+  prizeCounts: Map<Prize, number>;
+  prizeCategoryTally: PrizeCategoryTally;
 };
 
 @Injectable({
@@ -69,11 +80,15 @@ export class GeneratorService {
   }
 
   private placePrizes(boardGame: BoardGame, level: number): void {
-    const prizeCounts: Map<Prize, number> = new Map();
-    const prizeCategoryTally: PrizeCategoryTally = new Map();
-    const takenCoords = new CustomSet();
-    const allCoordsSet = this.coordSet(this.ioCoords());
-    const reachableSet = this.coordSet(this.reachableCoords(boardGame));
+    const state: PrizeGenState = {
+      takenCoords: new Map(),
+      prizeCounts: new Map(),
+      prizeCategoryTally: new Map(),
+    };
+    const constraints: PrizeGenConstraints = {
+      reachableCoords: this.coordSet(this.reachableCoords(boardGame)),
+      ioMap: this.inputOutputMap(boardGame),
+    };
 
     let currentPrizes = 0;
     const prizeLimit = this.getTotalPrizes(level);
@@ -82,9 +97,9 @@ export class GeneratorService {
     for (let prize of prizes) {
       const prizeYield = getYieldRange(prize, level);
       for (let i = 0; i < prizeYield.min; i++) {
-        const success = this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+        const success = this.placePrizeOnBoard(boardGame, prize, state, constraints);
         if (success) {
-          this.incrementMap(prizeCounts, prize, 1);
+          this.incrementMap(state.prizeCounts, prize, 1);
           currentPrizes++;
         }
       }
@@ -93,24 +108,32 @@ export class GeneratorService {
     // Place remaining prizes on the board.
     for (let i = currentPrizes; i < prizeLimit; i++) {
       // Pick a prize that isn't maxed out at random and place it on the board.
-      const prize = this.getRandomAvailablePrize(prizeCounts, level);
+      const prize = this.getRandomAvailablePrize(state.prizeCounts, level);
       if (!prize) continue;
 
-      const success = this.placePrizeOnBoard(boardGame, prize, prizeCategoryTally, allCoordsSet, takenCoords, reachableSet);
+      const success = this.placePrizeOnBoard(boardGame, prize, state, constraints);
       if (success) {
-        this.incrementMap(prizeCounts, prize, 1);
+        this.incrementMap(state.prizeCounts, prize, 1);
       }
     }
   }
 
   // Returns true if we were able to place a prize on the board
-  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, tally: PrizeCategoryTally, allCoords: CustomSet<string>, takenCoords: CustomSet<string>, reachableCoords: CustomSet<string>): boolean {
-    const prizeCount = tally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
+  private placePrizeOnBoard(boardGame: BoardGame, prize: Prize, state: PrizeGenState, constraints: PrizeGenConstraints): boolean {
+    const prizeCount = state.prizeCategoryTally.get(getCategory(prize)) ?? { unreachable: 0, total: 0 };
     const underThreshold = (prizeCount.unreachable + 1) / (prizeCount.total + 1)
       <= MAX_UNREACHABLE_PER_PRIZE;
     const unreachable = Math.random() < getProbUnreachable(prize) && underThreshold;
 
+    const takenCoords = new CustomSet(Array.from(state.takenCoords.keys()));
+    const allCoords = this.coordSet(this.ioCoords());
     const openCoords = allCoords.difference(takenCoords);
+
+    let reachableCoords = constraints.reachableCoords;
+    if (prize === MoneyPrize.Jackpot) {
+      reachableCoords = this.updateJackpotReachable(state, constraints, reachableCoords);
+    }
+
     const reachableOpenCoords = openCoords.intersect(reachableCoords);
     const unreachableOpenCoords = openCoords.difference(reachableCoords);
 
@@ -128,14 +151,48 @@ export class GeneratorService {
 
     const randCoord = randomFromSet(candidates);
 
-    takenCoords.add(randCoord);
+    state.takenCoords.set(randCoord, prize);
     prizeCount.total++;
     if (candidates === unreachableOpenCoords) prizeCount.unreachable++;
-    tally.set(getCategory(prize), prizeCount);
+    state.prizeCategoryTally.set(getCategory(prize), prizeCount);
 
     const placedCoord = Coord.fromString(randCoord);
     boardGame.addPrize(placedCoord, prize);
     return true;
+  }
+
+  // The Jackpot is a special case because it must always be reachable.
+  // Therefore, it shouldn't be paired with another Jackpot.
+  private updateJackpotReachable(state: PrizeGenState, constraints: PrizeGenConstraints, reachableCoords: CustomSet<string>): CustomSet<string> {
+    for (let [coord, prize] of state.takenCoords) {
+      if (prize === MoneyPrize.Jackpot) {
+        const outputCoord = constraints.ioMap.get(coord);
+        if (outputCoord) {
+          reachableCoords.delete(outputCoord.toString());
+        }
+      }
+    }
+    return reachableCoords;
+  }
+
+  private inputOutputMap(boardGame: BoardGame): Map<string, Coord | undefined> {
+    const inputOutputMap: Map<string, Coord | undefined> = new Map();
+    const ioCoords = this.ioCoords();
+    for (let coord of ioCoords) {
+      // Fire a beam into the board from this coord and record where it is
+      // emitted.
+      const beamPath = boardGame.fireBeam(Beam.Normal, coord, true);
+      if (!beamPath) continue;
+
+      const lastPoint = beamPath.path[beamPath.path.length - 1];
+      let outputCoord: Coord | undefined = lastPoint.coord;
+      if (lastPoint.type !== BeamPointType.Emit || coord.equals(lastPoint.coord)) {
+        outputCoord = undefined;
+      }
+
+      inputOutputMap.set(coord.toString(), outputCoord);
+    }
+    return inputOutputMap;
   }
 
   private reachableCoords(boardGame: BoardGame): Coord[] {

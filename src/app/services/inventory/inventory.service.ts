@@ -2,28 +2,24 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Beam } from '../../common/prizes';
 import { Inventory } from '../../common/inventory';
-
-export interface InventoryStock {
-  beam: Beam;
-  count: number;
-};
+import { items } from 'src/app/common/item';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryService {
-  inventory = {} as Inventory;
+  inventory = { beams: new Map() } as Inventory;
   selectionResolve?: (item: Beam) => void;
-  inventorySubject: Subject<InventoryStock>;
+  inventorySubject: Subject<Inventory>;
 
   constructor() {
-    this.inventorySubject = new Subject<InventoryStock>();
+    this.inventorySubject = new Subject<Inventory>();
   }
 
   new(level: number) {
     // TODO: Provide an initial number of normal beams depending on the level.
     // Use addBeams() so it gets broadcasted to subscribers.
-    this.inventory = { beams: new Map() };
+    this.resetBeams();
     this.addBeams(Beam.Normal, 8);
   }
 
@@ -32,7 +28,14 @@ export class InventoryService {
     const currentCount = this.inventory.beams.get(beam) ?? 0;
     const newCount = Math.max(currentCount + delta, 0);
     this.inventory.beams.set(beam, newCount);
-    this.inventorySubject.next({ beam: beam, count: newCount });
+    this.inventorySubject.next(this.inventory);
+  }
+
+  resetBeams(): void {
+    for (let item of items) {
+      this.inventory.beams.set(item, 0);
+    }
+    this.inventorySubject.next(this.inventory);
   }
 
   anyBeams(): boolean {

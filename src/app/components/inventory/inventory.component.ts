@@ -2,11 +2,12 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { Cell } from 'src/app/common/cell';
 import { Beam, InventoryPrize } from 'src/app/common/prizes';
-import { InventoryService, InventoryStock } from 'src/app/services/inventory/inventory.service';
+import { InventoryService } from 'src/app/services/inventory/inventory.service';
 import { InventoryCell } from './inventory-cell';
 import { Coord } from 'src/app/common/geometry/coord';
 import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
 import { GameService, GameState } from 'src/app/services/game/game.service';
+import { Inventory } from 'src/app/common/inventory';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -35,7 +36,7 @@ export class InventoryComponent implements OnInit {
     public focusService: FocusService) {
     this.cells = this.initializeCells();
     this.inventoryObservable = inventoryService.inventorySubject
-      .subscribe((stock) => { this.setInventoryCount(stock); });
+      .subscribe((inventory) => { this.setInventoryCounts(inventory); });
     this.focusObservable = this.focusService.focusSubject
       .subscribe((focus) => { this.handleFocus(focus) });
     this.gameStateObservable = this.gameService.gameStateSubject
@@ -122,12 +123,14 @@ export class InventoryComponent implements OnInit {
     return cells;
   }
 
-  private setInventoryCount(stock: InventoryStock): void {
-    const cell = this.cells.get(stock.beam);
-    if (!cell) return;
+  private setInventoryCounts(inventory: Inventory): void {
+    for (let [item, count] of inventory.beams) {
+      const cell = this.cells.get(item);
+      if (!cell) continue;
 
-    cell.count = stock.count;
-    this.cells.set(stock.beam, cell);
+      cell.count = count;
+      this.cells.set(item, cell);
+    }
   }
 
   private updateFocusedItem(newItemCoord?: Coord) {

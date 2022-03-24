@@ -102,20 +102,13 @@ export function triggersBomb(beam: Beam): boolean {
 }
 
 // Jackpot payout by level
-export const jackpotPayouts: ReadonlyMap<number, number> = new Map([
-  [1, 30],
-  [2, 50],
-  [3, 80],
-  [4, 120],
-  [5, 180],
-  [6, 280],
-  [7, 400],
-  [8, 600],
-]);
+export function jackpotPayout(jackpotsCollected: number): number {
+  return 20 * Math.pow(2, jackpotsCollected);
+}
 
 export const prizePayouts: ReadonlyMap<string, number> = new Map([
-  [largeSumPrize.toString(), 20],
-  [mediumSumPrize.toString(), 10],
+  [largeSumPrize.toString(), 10],
+  [mediumSumPrize.toString(), 5],
   [smallSumPrize.toString(), 3],
   [plus3BeamsPrize.toString(), 3],
   [plus5BeamsPrize.toString(), 5],
@@ -149,10 +142,9 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
   [normalBomb.toString(), 'bomb'],
 ]);
 
-export function getPrizeText(prize: Prize, level: number): string {
+export function getPrizeText(prize: Prize, jackpotsCollected: number): string {
   if (prize === MoneyPrize.Jackpot) {
-    const payout = jackpotPayouts.get(level) ?? 0;
-    return `J ($${payout})`;
+    return `J ($${jackpotPayout(jackpotsCollected)})`;
   }
 
   return prizeDisplays.get(prize.toString()) ?? '';

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, Prize, jackpotPayouts, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize, jackpotPrize } from '../../common/prizes';
+import { Beam, Prize, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize, jackpotPrize, jackpotPayout } from '../../common/prizes';
 import { BeamPath, BeamPointType, BoardConfig } from 'src/app/common/board';
 import { Game } from '../../common/game';
 import { Coord } from '../../common/geometry/coord';
@@ -218,9 +218,9 @@ export class GameService {
     const payoutFactor = beam === Beam.DoublePrize ? 2 : 1;
 
     if (prize === MoneyPrize.Jackpot) {
-      this.jackpotsCollected++;
-      const payout = (jackpotPayouts.get(this.game.level) ?? 0) * payoutFactor;
+      const payout = jackpotPayout(this.jackpotsCollected) * payoutFactor;
       this.walletService.addToPayout(payout);
+      this.jackpotsCollected++;
       return;
     }
 

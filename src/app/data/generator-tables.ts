@@ -14,8 +14,8 @@ const jackpotsByLevel: LevelYield = new Map([
   [4, { min: 3, max: 4 }],
   [5, { min: 3, max: 5 }],
   [6, { min: 4, max: 5 }],
-  [7, { min: 4, max: 6 }],
-  [8, { min: 5, max: 6 }],
+  [7, { min: 5, max: 6 }],
+  [8, { min: 6, max: 7 }],
 ]);
 
 const largeSumsByLevel: LevelYield = new Map([

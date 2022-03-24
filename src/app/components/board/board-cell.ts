@@ -14,7 +14,7 @@ export class BoardCell extends Cell {
   }
 
   // Get text representation of the cell
-  override getText(level: number): string {
+  override getText(jackpotsCollected: number): string {
     if (this.bronzor) {
       if (this.bronzor.visible) return 'B';
       if (this.revealHidden) return 'H';

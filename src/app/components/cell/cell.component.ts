@@ -51,7 +51,7 @@ export class CellComponent implements OnInit {
   getText(): string {
     if (!this.cell) return '';
 
-    return this.cell.getText(this.gameService.game.level);
+    return this.cell.getText(this.gameService.jackpotsCollected);
   }
 
   private getVisible(): boolean {

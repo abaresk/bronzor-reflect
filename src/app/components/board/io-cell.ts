@@ -88,7 +88,7 @@ export class IOCell extends Cell {
   }
 
   // Get text representation of the cell
-  override getText(level: number): string {
+  override getText(jackpotsCollected: number): string {
     const inputText = getInputText(this.ioState.input);
     const outputText = getOutputText(this.ioState.output);
     return `${inputText}\n${outputText}`;

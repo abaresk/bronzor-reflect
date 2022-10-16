@@ -182,8 +182,6 @@ export class GeneratorService {
       // Fire a beam into the board from this coord and record where it is
       // emitted.
       const beamPath = boardGame.fireBeam(Beam.Normal, coord, true);
-      if (!beamPath) continue;
-
       const lastPoint = beamPath.path[beamPath.path.length - 1];
       let outputCoord: Coord | undefined = lastPoint.coord;
       if (lastPoint.type !== BeamPointType.Emit || coord.equals(lastPoint.coord)) {
@@ -202,8 +200,6 @@ export class GeneratorService {
       // Fire a beam into the board from this coord and record where it is
       // emitted.
       const beamPath = boardGame.fireBeam(Beam.Normal, coord, true);
-      if (!beamPath) continue;
-
       const lastPoint = beamPath.path[beamPath.path.length - 1];
       if (lastPoint.type !== BeamPointType.Emit) continue;
       if (coord.equals(lastPoint.coord)) continue;

@@ -18,15 +18,16 @@ export interface Bronzor {
 export enum BeamPointType {
   // Enters the box
   Entry,
-  // Bounces off a Bronzor
+  // Bounces off a Bronzor. It is a final step for reflections.
   Deflect,
-  // Bounces off two Bronzors on the same tile.
+  // Bounces off two Bronzors on the same tile. It is a final step for
+  // reflections.
   DoubleDeflect,
   // Phases through a Bronzor
   Phase,
   // Ignores a Deflect or a DoubleDeflect
   IgnoreDeflect,
-  // Destroys a Bronzor. A final step.
+  // Destroys a Bronzor.
   Destroy,
   // Emitted from the box. A final step.
   Emit,

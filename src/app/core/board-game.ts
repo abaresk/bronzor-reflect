@@ -4,6 +4,7 @@ import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '..
 import { Grid } from 'src/app/common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
 import { Vector } from 'src/app/common/geometry/vector';
+import { BeamInMotion, FiredBeam, newFiredBeam } from './beam-in-motion';
 
 export class BoardGame {
   board: Board = {} as Board;
@@ -14,10 +15,13 @@ export class BoardGame {
     this.grid = new Grid(board.config.length, board.config.length);
   }
 
-  fireBeam(beam: Beam, coord: Coord, dryRun: boolean = false): BeamPath | undefined {
-    if (!this.isOuterEdge(coord)) return;
+  fireBeam(beam: Beam, coord: Coord, dryRun: boolean = false): BeamPath {
+    if (!this.isOuterEdge(coord)) {
+      throw Error('Beam must be fired from edge of the board.');
+    }
 
-    const beamPath = this.generatePath(beam, coord, dryRun);
+    const firedBeam = newFiredBeam(beam);
+    const beamPath = this.generatePath(firedBeam, coord, dryRun);
     if (!dryRun) {
       this.board.history.beamPaths.push(beamPath);
     }
@@ -87,33 +91,22 @@ export class BoardGame {
     return ret;
   }
 
-  private generatePath(beam: Beam, coord: Coord, dryRun: boolean): BeamPath {
+  private generatePath(firedBeam: FiredBeam, coord: Coord, dryRun: boolean): BeamPath {
     // Place the first coordinate just outside the board. This allows
     // collision detection to work when a Bronzor is on the board edge.
     const firstVector = this.initialVector(coord);
+    const beamInMotion: BeamInMotion = { firedBeam: firedBeam, curVector: firstVector };
+
     let firstCoord = firstVector.coord;
-
     const entry: BeamPoint = { type: BeamPointType.Entry, coord: firstCoord };
-    const beamPath: BeamPath = { type: beam, path: [entry] };
+    const beamPath: BeamPath = { type: firedBeam.beam, path: [entry] };
 
-    // Psybeams always emit at the opposite coordinate
-    if (beam === Beam.Psybeam) {
-      const nextCoord =
-        this.projectToEdge(firstVector.coord, firstVector.dir).coordAt(firstVector.dir, 1)
-      beamPath.path.push({ type: BeamPointType.Emit, coord: nextCoord });
-      return beamPath;
-    }
-
-    // First check for edge collision
-    if (this.checkEdgeCollision(firstVector, beamPath)) {
-      return beamPath;
-    }
-
-    // Generate next steps until the beam is emitted from the board or hits a
-    // Bronzor.
-    let nextVector = this.generateNextStep(firstVector, beamPath, dryRun);
-    while (nextVector !== undefined) {
-      nextVector = this.generateNextStep(nextVector, beamPath, dryRun);
+    // Generate next steps until the beam is reflected, is emitted from the
+    // board, or hits a Bronzor.
+    let nextVector = this.generateNextStep(beamInMotion, beamPath, dryRun);
+    while (nextVector !== undefined && this.isInsideBoard(nextVector)) {
+      beamInMotion.curVector = nextVector;
+      nextVector = this.generateNextStep(beamInMotion, beamPath, dryRun);
     }
     return beamPath;
   }
@@ -131,11 +124,11 @@ export class BoardGame {
     return { coord: coord, dir: oppositeDir(dir) };
   }
 
-  private generateNextStep(vector: Vector, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
-    const collisions = this.bronzorsInPath(vector);
-    const closestBronzors = this.closestInPath(vector, collisions);
+  private generateNextStep(beamInMotion: BeamInMotion, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
+    const collisions = this.bronzorsInPath(beamInMotion.curVector);
+    const closestBronzors = this.closestInPath(beamInMotion.curVector, collisions);
 
-    return this.addToBeamPath(vector, closestBronzors, beamPath, dryRun);
+    return this.addToBeamPath(beamInMotion, closestBronzors, beamPath, dryRun);
   }
 
   private bronzorsInPath(vector: Vector): Array<Bronzor> {
@@ -178,55 +171,88 @@ export class BoardGame {
 
   // Adds collision to the beam path. Returns the next Vector of the beam, or
   // undefined if the path is finished.
-  private addToBeamPath(vector: Vector, closestBronzors: Array<Bronzor>, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
+  private addToBeamPath(beamInMotion: BeamInMotion, closestBronzors: Array<Bronzor>, beamPath: BeamPath, dryRun: boolean): Vector | undefined {
     if (closestBronzors.length === 0) {
-      return this.addToBeamPathMiss(vector, beamPath);
+      return this.addToBeamPathMiss(beamInMotion, beamPath);
     } else {
-      return this.addToBeamPathMultiple(vector, beamPath, closestBronzors, dryRun);
+      return this.addToBeamPathMultiple(beamInMotion, beamPath, closestBronzors, dryRun);
     }
   }
 
-  private addToBeamPathMiss(vector: Vector, beamPath: BeamPath): undefined {
+  private addToBeamPathMiss(beamInMotion: BeamInMotion, beamPath: BeamPath): undefined {
+    const curVector = beamInMotion.curVector;
     const nextCoord =
-      this.projectToEdge(vector.coord, vector.dir).coordAt(vector.dir, 1);
+      this.projectToEdge(curVector.coord, curVector.dir).coordAt(curVector.dir, 1);
     const beamPoint: BeamPoint = { type: BeamPointType.Emit, coord: nextCoord };
     beamPath.path.push(beamPoint);
     return undefined;
   }
 
-  private addToBeamPathMultiple(vector: Vector, beamPath: BeamPath, bronzors: Array<Bronzor>, dryRun: boolean): Vector | undefined {
+  private addToBeamPathMultiple(beamInMotion: BeamInMotion, beamPath: BeamPath, bronzors: Array<Bronzor>, dryRun: boolean): Vector | undefined {
+    const curVector = beamInMotion.curVector;
     const directCoords = bronzors.filter(
-      (bronzor) => coordInDirection(vector.coord, bronzor.coord, vector.dir));
+      (bronzor) => coordInDirection(curVector.coord, bronzor.coord, curVector.dir));
     const indirectCoords = bronzors.filter(
-      (bronzor) => !coordInDirection(vector.coord, bronzor.coord, vector.dir));
+      (bronzor) => !coordInDirection(curVector.coord, bronzor.coord, curVector.dir));
 
+    // NOTE: Official game rules prioritize HIT over DEFLECT. But I imagine the
+    // expectation most players will develop is: the beam will get deflected if
+    // there's any adjacent Bronzors. So consider re-prioritizing DEFLECT over
+    // HIT to align with that expectation.
     if (directCoords.length) {
-      return this.addToBeamPathDirectHit(vector, beamPath, directCoords[0], dryRun);
+      return this.addToBeamPathDirectHit(beamInMotion, beamPath, directCoords[0], dryRun);
     } else if (indirectCoords.length === 1) {
-      return this.addToBeamPathDeflect(vector, beamPath, indirectCoords[0]);
+      return this.addToBeamPathDeflect(beamInMotion, beamPath, indirectCoords[0]);
     } else {
-      return this.addToBeamPathDoubleDeflect(vector, beamPath, indirectCoords);
+      return this.addToBeamPathDoubleDeflect(beamInMotion, beamPath, indirectCoords);
     }
   }
 
-  private addToBeamPathDirectHit(vector: Vector, beamPath: BeamPath, bronzor: Bronzor, dryRun: boolean): Vector | undefined {
-    const phase = (beamPath.type === Beam.Shadow);
-
-    if (phase) {
-      beamPath.path.push({ type: BeamPointType.Phase, coord: bronzor.coord });
-      return { coord: bronzor.coord, dir: vector.dir };
-    } else {
-      beamPath.path.push({ type: BeamPointType.Hit, coord: bronzor.coord });
-      return undefined;
+  private addToBeamPathDirectHit(beamInMotion: BeamInMotion, beamPath: BeamPath, bronzor: Bronzor, dryRun: boolean): Vector | undefined {
+    const firedBeam = beamInMotion.firedBeam;
+    if (firedBeam.state.canDestroy && !dryRun) {
+      bronzor.active = false;
     }
+
+    const nextVector = (firedBeam.state.collidable) ?
+      undefined : { coord: bronzor.coord, dir: beamInMotion.curVector.dir };
+
+    let beamPointType = BeamPointType.Hit;
+    if (firedBeam.state.canDestroy) {
+      beamPointType = BeamPointType.Destroy;
+    } else if (!firedBeam.state.collidable) {
+      beamPointType = BeamPointType.Phase;
+    }
+
+    // Post-interaction state transitions:
+    //
+    // Flame beams can destroy at most 1 Bronzor, at which point they become
+    // collidable.
+    if (firedBeam.beam === Beam.Flame) {
+      firedBeam.state.canDestroy = false;
+      firedBeam.state.collidable = true;
+    }
+
+    beamPath.path.push({ type: beamPointType, coord: bronzor.coord });
+    return nextVector;
   }
 
-  private addToBeamPathDeflect(vector: Vector, beamPath: BeamPath, bronzor: Bronzor): Vector | undefined {
+  private addToBeamPathDeflect(beamInMotion: BeamInMotion, beamPath: BeamPath, bronzor: Bronzor): Vector | undefined {
+    const curVector = beamInMotion.curVector;
+
+    // If the beam cannot be deflected, let it advance until it is adjacent to
+    // the Bronzor.
+    if (!beamInMotion.firedBeam.state.deflectable) {
+      const nextCoord = projectToCoord(curVector, bronzor.coord);
+      beamPath.path.push({ type: BeamPointType.IgnoreDeflect, coord: nextCoord });
+      return { coord: nextCoord, dir: curVector.dir };
+    }
+
     // The Coord directly in front of the Bronzor facing the incoming beam.
-    const shieldCoord = bronzor.coord.coordAt(oppositeDir(vector.dir), 1);
+    const shieldCoord = bronzor.coord.coordAt(oppositeDir(curVector.dir), 1);
 
-    const nextCoord = projectToCoord(vector, shieldCoord);
-    const perpendicular = rotateClockwise(vector.dir, 1);
+    const nextCoord = projectToCoord(curVector, shieldCoord);
+    const perpendicular = rotateClockwise(curVector.dir, 1);
     const nextDir =
       coordInDirection(shieldCoord, nextCoord, perpendicular) ?
         perpendicular : oppositeDir(perpendicular);
@@ -234,46 +260,22 @@ export class BoardGame {
     return { coord: nextCoord, dir: nextDir };
   }
 
-  private addToBeamPathDoubleDeflect(vector: Vector, beamPath: BeamPath, bronzors: Array<Bronzor>): Vector | undefined {
-    const nextCoord =
-      projectToCoord(vector, bronzors[0].coord)
-        .coordAt(oppositeDir(vector.dir), 1);
-    beamPath.path.push({ type: BeamPointType.DoubleDeflect, coord: nextCoord });
-    return { coord: nextCoord, dir: oppositeDir(vector.dir) };
-  }
+  private addToBeamPathDoubleDeflect(beamInMotion: BeamInMotion, beamPath: BeamPath, bronzors: Array<Bronzor>): Vector | undefined {
+    const curVector = beamInMotion.curVector;
 
-  // Returns true if there's a collision that terminates the beam path.
-  private checkEdgeCollision(vector: Vector, beamPath: BeamPath): boolean {
-    const collisions = this.bronzorsInPath(vector);
-    const edgeBronzors = collisions.filter((bronzor) => {
-      return distanceInDirection(vector.coord, bronzor.coord, vector.dir) === 1;
-    });
-    const directCoords = edgeBronzors.filter(
-      (bronzor) => coordInDirection(vector.coord, bronzor.coord, vector.dir));
-    const indirectCoords = edgeBronzors.filter(
-      (bronzor) => !coordInDirection(vector.coord, bronzor.coord, vector.dir));
-
-    const nextSpace = vector.coord.coordAt(vector.dir, 1);
-
-    if (!edgeBronzors.length) return false;
-
-    if (beamPath.type === Beam.Shadow) {
-      if (indirectCoords.length) {
-        beamPath.path.push({ type: BeamPointType.Emit, coord: vector.coord });
-        return true;
-      } else {
-        beamPath.path.push({ type: BeamPointType.Phase, coord: nextSpace });
-        return false;
-      }
-    } else {
-      if (directCoords.length) {
-        beamPath.path.push({ type: BeamPointType.Hit, coord: nextSpace });
-        return true;
-      } else {
-        beamPath.path.push({ type: BeamPointType.Emit, coord: vector.coord });
-        return true;
-      }
+    // If the beam cannot be deflected, let it advance until it is adjacent to
+    // both Bronzors.
+    if (!beamInMotion.firedBeam.state.deflectable) {
+      const nextCoord = projectToCoord(curVector, bronzors[0].coord);
+      beamPath.path.push({ type: BeamPointType.IgnoreDeflect, coord: nextCoord });
+      return { coord: nextCoord, dir: curVector.dir };
     }
+
+    const nextCoord =
+      projectToCoord(curVector, bronzors[0].coord)
+        .coordAt(oppositeDir(curVector.dir), 1);
+    beamPath.path.push({ type: BeamPointType.DoubleDeflect, coord: nextCoord });
+    return { coord: nextCoord, dir: oppositeDir(curVector.dir) };
   }
 
   // Return the prize tile ID at the specified coordinate, or -1 if `coord`
@@ -295,6 +297,10 @@ export class BoardGame {
     }
 
     return false;
+  }
+
+  private isInsideBoard(vector: Vector): boolean {
+    return this.grid.contains(vector.coord);
   }
 
   private projectToEdge(coord: Coord, dir: Direction): Coord {

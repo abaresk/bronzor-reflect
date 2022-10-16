@@ -1,4 +1,4 @@
-import { Beam, Prize, PrizeState } from '../common/prizes';
+import { Beam, getPrizeTextMini, Prize, PrizeState } from '../common/prizes';
 import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from 'src/app/common/board';
 import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../common/geometry/coord';
 import { Grid } from 'src/app/common/geometry/grid';
@@ -74,6 +74,17 @@ export class BoardGame {
       }
     }
     return remaining.map((prizeState) => { return prizeState.prize });
+  }
+
+  toString(): string {
+    let ret = '';
+    for (let row = -1; row < this.board.config.length + 1; row++) {
+      ret += this.boardRowToString(row);
+      if (row != this.board.config.length) {
+        ret += '\n';
+      }
+    }
+    return ret;
   }
 
   private generatePath(beam: Beam, coord: Coord, dryRun: boolean): BeamPath {
@@ -297,5 +308,48 @@ export class BoardGame {
       case Direction.Left:
         return new Coord(coord.row, 0);
     }
+  }
+
+  // String builder helpers
+  private boardRowToString(row: number): string {
+    const rowHeaderDivider = '----|---------------------------------|----';
+
+    if (row === -1) {
+      return this.endRowToString(row) + '\n' + rowHeaderDivider;
+    }
+    if (row === this.board.config.length) {
+      return rowHeaderDivider + '\n' + this.endRowToString(row);
+    }
+    return this.middleRowToString(row);
+  }
+
+  private endRowToString(row: number): string {
+    const prizeStrings =
+      this.prizeStrings(row, [...Array(this.board.config.length).keys()]);
+    return `[*] | ${prizeStrings.join(' ')} | [*]`;
+  }
+
+  private middleRowToString(row: number): string {
+    const prizeStrings = this.prizeStrings(row, [-1, this.board.config.length]);
+    const bronzorStrings = this.bronzorStrings(row);
+    return `${prizeStrings[0]} | ${bronzorStrings.join(' ')} | ${prizeStrings[1]}`;
+  }
+
+  private prizeStrings(row: number, cols: Array<number>): Array<string> {
+    const coords = cols.map(col => new Coord(row, col));
+    const prizeIdxs = coords.map(coord => this.prizeTileId(coord));
+    const prizes = prizeIdxs.map(prizeIdx => this.board.prizes[prizeIdx]);
+    return prizes.map(prize =>
+      (prize !== undefined) ? `[${getPrizeTextMini(prize.prize)}]` : '[ ]'
+    );
+  }
+
+  private bronzorStrings(row: number): Array<string> {
+    const coords = [...Array(this.board.config.length).keys()]
+      .map(col => new Coord(row, col));
+    const bronzors = coords.map(coord => this.getBronzor(coord));
+    return bronzors.map(bronzor =>
+      (bronzor !== undefined) ? '[B]' : '[ ]'
+    );
   }
 }

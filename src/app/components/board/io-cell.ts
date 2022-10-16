@@ -1,6 +1,6 @@
 import { Cell } from "src/app/common/cell";
 import { Coord } from "src/app/common/geometry/coord";
-import { Beam, cometBeam, doublePrizeBeam, shadowBeam, psyBeam, normalBeam, waterBeam, flameBeam, flashCannonBeam } from "src/app/common/prizes";
+import { Beam, cometBeam, doublePrizeBeam, shadowBeam, psyBeam, normalBeam, waterBeam, flameBeam, flashCannonBeam, getPrizeTextMini } from "src/app/common/prizes";
 
 export interface BeamMove {
   beam: Beam;
@@ -31,17 +31,6 @@ export function newIOState(): IOState {
   return { output: { outputs: [] } };
 }
 
-const BEAM_TEXT: ReadonlyMap<string, string> = new Map([
-  [normalBeam.toString(), 'N'],
-  [cometBeam.toString(), 'M'],
-  [flameBeam.toString(), 'F'],
-  [flashCannonBeam.toString(), 'C'],
-  [shadowBeam.toString(), 'S'],
-  [psyBeam.toString(), 'P'],
-  [doublePrizeBeam.toString(), 'D'],
-  [waterBeam.toString(), 'W'],
-]);
-
 const EMIT_TYPE_TEXT: ReadonlyMap<EmitType, string> = new Map([
   [EmitType.Emit, ''],
   [EmitType.Hit, ' - hit'],
@@ -51,7 +40,7 @@ const EMIT_TYPE_TEXT: ReadonlyMap<EmitType, string> = new Map([
 function getBeamMoveText(beamMove?: BeamMove): string {
   if (!beamMove) return '';
 
-  const beamText = BEAM_TEXT.get(beamMove.beam) ?? '';
+  const beamText = getPrizeTextMini(beamMove.beam);
   const moveNumberText = beamMove.moveIndex + 1;
   return `${beamText}${moveNumberText}`;
 }

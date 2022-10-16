@@ -157,3 +157,28 @@ export function getPrizeText(prize: Prize, jackpotsCollected: number): string {
 
   return prizeDisplays.get(prize.toString()) ?? '';
 }
+
+// Single-character abbreviation for the prize.
+const prizeDisplaysMini: ReadonlyMap<string, string> = new Map([
+  [jackpotPrize.toString(), 'J'],
+  [largeSumPrize.toString(), 'l'],
+  [mediumSumPrize.toString(), 'm'],
+  [smallSumPrize.toString(), 's'],
+  [normalBeam.toString(), 'N'],
+  [cometBeam.toString(), 'M'],
+  [flameBeam.toString(), 'F'],
+  [flashCannonBeam.toString(), 'C'],
+  [shadowBeam.toString(), 'S'],
+  [psyBeam.toString(), 'P'],
+  [doublePrizeBeam.toString(), 'D'],
+  [waterBeam.toString(), 'W'],
+  [plus3BeamsPrize.toString(), '3'],
+  [plus5BeamsPrize.toString(), '5'],
+  [minus1BeamPrize.toString(), '-'],
+  [normalBomb.toString(), 'X'],
+]);
+
+// Returns a single-character abbreviation for the prize.
+export function getPrizeTextMini(prize: Prize): string {
+  return prizeDisplaysMini.get(prize.toString()) ?? '';
+}

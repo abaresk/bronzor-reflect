@@ -14,6 +14,8 @@ export enum InventoryPrize {
 export enum Beam {
   Normal = 'Beam.Normal',
   Comet = 'Beam.Comet',
+  Flame = 'Beam.Flame',
+  FlashCannon = 'Beam.FlashCannon',
   Shadow = 'Beam.Shadow',
   Psybeam = 'Beam.Pysbeam',
   DoublePrize = 'Beam.DoublePrize',
@@ -57,6 +59,8 @@ export const plus3BeamsPrize = InventoryPrize.Plus3Beams;
 export const plus5BeamsPrize = InventoryPrize.Plus5Beams;
 export const minus1BeamPrize = InventoryPrize.Minus1Beam;
 export const cometBeam = Beam.Comet;
+export const flameBeam = Beam.Flame;
+export const flashCannonBeam = Beam.FlashCannon;
 export const shadowBeam = Beam.Shadow;
 export const psyBeam = Beam.Psybeam;
 export const doublePrizeBeam = Beam.DoublePrize;
@@ -72,6 +76,8 @@ export const prizes: ReadonlyArray<Prize> = [
   plus5BeamsPrize,
   minus1BeamPrize,
   cometBeam,
+  flameBeam,
+  flashCannonBeam,
   shadowBeam,
   psyBeam,
   doublePrizeBeam,
@@ -135,6 +141,8 @@ const prizeDisplays: ReadonlyMap<string, string> = new Map([
   [minus1BeamPrize.toString(), '-1 beam'],
   [normalBeam.toString(), 'normal beam'],
   [cometBeam.toString(), 'comet beam'],
+  [flameBeam.toString(), 'flame beam'],
+  [flashCannonBeam.toString(), 'flash cannon'],
   [shadowBeam.toString(), 'shadow beam'],
   [psyBeam.toString(), 'psy beam'],
   [doublePrizeBeam.toString(), 'x2 beam'],

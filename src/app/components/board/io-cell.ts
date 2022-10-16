@@ -1,6 +1,6 @@
 import { Cell } from "src/app/common/cell";
 import { Coord } from "src/app/common/geometry/coord";
-import { Beam, cometBeam, doublePrizeBeam, shadowBeam, psyBeam, normalBeam, waterBeam } from "src/app/common/prizes";
+import { Beam, cometBeam, doublePrizeBeam, shadowBeam, psyBeam, normalBeam, waterBeam, flameBeam, flashCannonBeam } from "src/app/common/prizes";
 
 export interface BeamMove {
   beam: Beam;
@@ -33,7 +33,9 @@ export function newIOState(): IOState {
 
 const BEAM_TEXT: ReadonlyMap<string, string> = new Map([
   [normalBeam.toString(), 'N'],
-  [cometBeam.toString(), 'C'],
+  [cometBeam.toString(), 'M'],
+  [flameBeam.toString(), 'F'],
+  [flashCannonBeam.toString(), 'C'],
   [shadowBeam.toString(), 'S'],
   [psyBeam.toString(), 'P'],
   [doublePrizeBeam.toString(), 'D'],

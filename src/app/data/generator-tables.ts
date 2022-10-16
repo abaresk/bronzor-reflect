@@ -95,6 +95,28 @@ const cometBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 2 }],
 ]);
 
+const flameBeamsByLevel: LevelYield = new Map([
+  [1, { min: 0, max: 0 }],
+  [2, { min: 0, max: 0 }],
+  [3, { min: 0, max: 0 }],
+  [4, { min: 0, max: 0 }],
+  [5, { min: 0, max: 0 }],
+  [6, { min: 0, max: 0 }],
+  [7, { min: 0, max: 0 }],
+  [8, { min: 0, max: 0 }],
+]);
+
+const flashCannonsByLevel: LevelYield = new Map([
+  [1, { min: 0, max: 0 }],
+  [2, { min: 0, max: 0 }],
+  [3, { min: 0, max: 0 }],
+  [4, { min: 0, max: 0 }],
+  [5, { min: 0, max: 0 }],
+  [6, { min: 0, max: 0 }],
+  [7, { min: 0, max: 0 }],
+  [8, { min: 0, max: 0 }],
+]);
+
 const shadowBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
@@ -168,6 +190,10 @@ export function getPrizeDistribution(prize: Prize): LevelYield | undefined {
       return minus1BeamsByLevel;
     case Beam.Comet:
       return cometBeamsByLevel;
+    case Beam.Flame:
+      return flameBeamsByLevel;
+    case Beam.FlashCannon:
+      return flashCannonsByLevel;
     case Beam.Shadow:
       return shadowBeamsByLevel;
     case Beam.Psybeam:

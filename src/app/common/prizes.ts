@@ -120,6 +120,8 @@ export const prizePayouts: ReadonlyMap<string, number> = new Map([
   [plus5BeamsPrize.toString(), 5],
   [minus1BeamPrize.toString(), - 1],
   [cometBeam.toString(), 1],
+  [flameBeam.toString(), 1],
+  [flashCannonBeam.toString(), 1],
   [shadowBeam.toString(), 1],
   [psyBeam.toString(), 1],
   [doublePrizeBeam.toString(), 1],

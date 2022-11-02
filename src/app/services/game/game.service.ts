@@ -157,7 +157,7 @@ export class GameService {
     const nextLevel = this.nextLevel();
 
     this.updateGameState(GameState.Payout);
-    await this.walletService.mergeFunds();
+    await this.walletService.awardPayout();
 
     this.updateGameState(GameState.RoundEnd);
     this.game.level = nextLevel;

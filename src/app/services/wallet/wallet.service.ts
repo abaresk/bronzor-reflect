@@ -8,7 +8,7 @@ import { GbaInput } from '../input-adapter/inputs';
 // Number of coins merged per tick.
 const DEFAULT_COINS_PER_TICK = 1;
 
-enum MergeSpeed {
+enum PayoutSpeed {
   Normal,
   Fast,
 }
@@ -18,7 +18,7 @@ enum MergeSpeed {
 })
 export class WalletService {
   wallet = {} as Wallet;
-  mergeSpeed = MergeSpeed.Normal;
+  payoutSpeed = PayoutSpeed.Normal;
 
   inputObservable: Subscription;
 
@@ -47,12 +47,12 @@ export class WalletService {
   }
 
   coinsPerTick() {
-    return (this.mergeSpeed === MergeSpeed.Fast) ?
+    return (this.payoutSpeed === PayoutSpeed.Fast) ?
       2 * DEFAULT_COINS_PER_TICK : DEFAULT_COINS_PER_TICK;
   }
 
   // Incrementally add payout to credit. Resolves when the merge is finished.
-  async mergeFunds() {
+  async awardPayout() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (this.wallet.payout <= 0) {

@@ -10,6 +10,7 @@ import { LevelComponent } from './components/level/level.component';
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { ScreenComponent } from './components/screen/screen.component';
 import { ControlPanelComponent } from './components/control-panel/control-panel.component';
+import { ClientFileComponent } from './components/client-file/client-file.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { ControlPanelComponent } from './components/control-panel/control-panel.
     LevelComponent,
     InventoryComponent,
     ScreenComponent,
-    ControlPanelComponent
+    ControlPanelComponent,
+    ClientFileComponent
   ],
   imports: [
     BrowserModule,

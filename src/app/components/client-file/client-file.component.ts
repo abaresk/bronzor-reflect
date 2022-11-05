@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { DownloadFile } from 'src/app/common/download-file';
+import { ClientFileService } from 'src/app/services/client-file/client-file.service';
 
 @Component({
   selector: 'client-file',
@@ -6,10 +9,25 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./client-file.component.scss']
 })
 export class ClientFileComponent implements OnInit {
+  @ViewChild('downloadAnchor', { static: true }) anchorTag!:
+    ElementRef<HTMLAnchorElement>;
 
-  constructor() { }
+  downloadFileObservable: Subscription;
+
+  constructor(private clientFileService: ClientFileService) {
+    this.downloadFileObservable = this.clientFileService.downloadFileSubject
+      .subscribe((downloadFile) => { this.handleFileDownload(downloadFile) });
+  }
 
   ngOnInit(): void {
   }
 
+  handleFileDownload(downloadFile: DownloadFile): void {
+    const tag = this.anchorTag.nativeElement;
+
+    tag.setAttribute(
+      'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(downloadFile.contents));
+    tag.setAttribute('download', downloadFile.fileName);
+    tag.click();
+  }
 }

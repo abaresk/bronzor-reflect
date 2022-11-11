@@ -1,6 +1,7 @@
-# This is a basic workflow to help you get started with Actions
+name: Angular GitHub Pages
 
-name: Angular Github CI
+# Followed these instructions:
+# https://dev.to/rodrigokamada/hosting-an-angular-application-on-github-pages-using-github-actions-5ag8
 
 # Controls when the workflow will run
 on:
@@ -10,7 +11,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  ci:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,10 +38,16 @@ jobs:
       - name: Install Dependencies
         if:
           steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm install
+
+      - name: Build
+        run: npm run build:prod
 
       - name: Deploy
-        run: |
-          npm run deploy
-        env:
-          GH_TOKEN: ${{ github.token }}
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist/bronzor-reflect
+          enable_jekyll: true
+          cname: bronzor-reflect.abaresk.com

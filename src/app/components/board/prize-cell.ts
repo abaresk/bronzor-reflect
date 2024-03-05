@@ -1,5 +1,5 @@
-import { Cell } from "src/app/common/cell";
-import { getPrizeText, PrizeState } from "src/app/common/prizes";
+import { Cell } from '../../common/cell';
+import { getPrizeText, PrizeState } from '../../common/prizes';
 
 export class PrizeCell extends Cell {
   static CATEGORY = 'prize-cell';

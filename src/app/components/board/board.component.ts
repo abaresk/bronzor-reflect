@@ -1,21 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { Cell } from '../../common/cell';
-import { BeamPointType, Board, BoardConfig, Bronzor } from 'src/app/common/board';
+import { BeamPointType, Board, BoardConfig, Bronzor } from '../../common/board';
 import { Coord } from '../../common/geometry/coord';
+import { CellComponent } from '../../components/cell/cell.component';
 import { GameService, GameState } from '../../services/game/game.service';
-import { BoardService } from 'src/app/services/board/board.service';
+import { BoardService } from '../../services/board/board.service';
 import { filter, Subscription } from 'rxjs';
 import { BoardCell } from './board-cell';
 import { BeamMove, CellInput, CellOutput, EmitType, IOCell, IOState, newIOState } from './io-cell';
 import { PrizeCell } from './prize-cell';
-import { Move } from 'src/app/common/moves';
-import { Grid } from 'src/app/common/geometry/grid';
-import { Direction, oppositeDir, rotateClockwise } from 'src/app/common/geometry/direction';
-import { BoardGame } from 'src/app/core/board-game';
-import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
+import { Move } from '../../common/moves';
+import { Grid } from '../../common/geometry/grid';
+import { Direction, oppositeDir, rotateClockwise } from '../../common/geometry/direction';
+import { BoardGame } from '../../core/board-game';
+import { Focus, GameComponent, FocusService } from '../../services/focus/focus.service';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'game-board',
+  standalone: true,
+  imports: [CellComponent, NgFor],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })

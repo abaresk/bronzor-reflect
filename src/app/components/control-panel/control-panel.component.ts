@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { GameService } from 'src/app/services/game/game.service';
+import { GameService } from '../../services/game/game.service';
 
 @Component({
   selector: 'game-control-panel',
+  standalone: true,
   templateUrl: './control-panel.component.html',
   styleUrls: ['./control-panel.component.scss']
 })

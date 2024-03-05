@@ -1,4 +1,4 @@
-import { Direction } from "src/app/common/geometry/direction";
+import { Direction } from "../../common/geometry/direction";
 
 export enum GbaInput {
   Up,

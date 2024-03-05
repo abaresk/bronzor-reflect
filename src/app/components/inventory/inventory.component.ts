@@ -1,13 +1,15 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
-import { Cell } from 'src/app/common/cell';
-import { Beam, InventoryPrize } from 'src/app/common/prizes';
-import { InventoryService } from 'src/app/services/inventory/inventory.service';
+import { Cell } from '../../common/cell';
+import { Beam, InventoryPrize } from '../../common/prizes';
+import { InventoryService } from '../../services/inventory/inventory.service';
 import { InventoryCell } from './inventory-cell';
-import { Coord } from 'src/app/common/geometry/coord';
-import { Focus, GameComponent, FocusService } from 'src/app/services/focus/focus.service';
-import { GameService, GameState } from 'src/app/services/game/game.service';
-import { Inventory } from 'src/app/common/inventory';
+import { Coord } from '../../common/geometry/coord';
+import { Focus, GameComponent, FocusService } from '../../services/focus/focus.service';
+import { GameService, GameState } from '../../services/game/game.service';
+import { Inventory } from '../../common/inventory';
+import { CellComponent } from '../cell/cell.component';
+import { NgFor } from '@angular/common';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],
@@ -16,6 +18,8 @@ export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
 
 @Component({
   selector: 'game-inventory',
+  standalone: true,
+  imports: [CellComponent, NgFor],
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss']
 })

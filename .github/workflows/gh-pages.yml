@@ -3,6 +3,10 @@ name: Angular GitHub Pages
 # Followed these instructions:
 # https://dev.to/rodrigokamada/hosting-an-angular-application-on-github-pages-using-github-actions-5ag8
 
+permissions:
+  contents: write
+  id-token: write
+
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -48,6 +52,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist/bronzor-reflect
+          publish_dir: dist/bronzor-reflect/browser
           enable_jekyll: true
           cname: bronzor-reflect.abaresk.com

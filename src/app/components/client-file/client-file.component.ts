@@ -1,10 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { DownloadFile } from 'src/app/common/download-file';
-import { ClientFileService } from 'src/app/services/client-file/client-file.service';
+import { DownloadFile } from '../../common/download-file';
+import { ClientFileService } from '../../services/client-file/client-file.service';
 
 @Component({
   selector: 'client-file',
+  standalone: true,
   templateUrl: './client-file.component.html',
   styleUrls: ['./client-file.component.scss']
 })

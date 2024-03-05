@@ -1,9 +1,10 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
-import { GameService } from 'src/app/services/game/game.service';
-import { InputAdapterService } from 'src/app/services/input-adapter/input-adapter.service';
-import { GbaInput, isAInput } from 'src/app/services/input-adapter/inputs';
+import { GameService } from '../../services/game/game.service';
+import { InputAdapterService } from '../../services/input-adapter/input-adapter.service';
+import { GbaInput, isAInput } from '../../services/input-adapter/inputs';
 import { Cell } from '../../common/cell';
+import { NgClass } from '@angular/common';
 
 enum SelectionCssClass {
   Default = 'default',
@@ -15,6 +16,8 @@ enum SelectionCssClass {
 
 @Component({
   selector: 'game-cell',
+  standalone: true,
+  imports: [NgClass],
   templateUrl: './cell.component.html',
   styleUrls: ['./cell.component.scss']
 })

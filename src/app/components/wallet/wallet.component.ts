@@ -3,6 +3,7 @@ import { WalletService } from '../../services/wallet/wallet.service';
 
 @Component({
   selector: 'game-wallet',
+  standalone: true,
   templateUrl: './wallet.component.html',
   styleUrls: ['./wallet.component.scss']
 })

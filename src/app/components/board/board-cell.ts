@@ -1,6 +1,6 @@
-import { Bronzor } from "src/app/common/board";
-import { Cell } from "src/app/common/cell";
-import { MemoState, MEMO_DISLAYS, MEMO_STATES } from "src/app/common/memo";
+import { Bronzor } from "../../common/board";
+import { Cell } from "../../common/cell";
+import { MemoState, MEMO_DISLAYS, MEMO_STATES } from "../../common/memo";
 
 export class BoardCell extends Cell {
   static CATEGORY = 'board-cell';

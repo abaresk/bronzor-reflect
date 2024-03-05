@@ -1,6 +1,6 @@
-import { Cell } from "src/app/common/cell";
-import { Coord } from "src/app/common/geometry/coord";
-import { Beam, cometBeam, doublePrizeBeam, shadowBeam, psyBeam, normalBeam, waterBeam, flameBeam, flashCannonBeam, getPrizeTextMini } from "src/app/common/prizes";
+import { Cell } from '../../common/cell';
+import { Coord } from '../../common/geometry/coord';
+import { Beam, getPrizeTextMini } from '../../common/prizes';
 
 export interface BeamMove {
   beam: Beam;

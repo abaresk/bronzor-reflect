@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { DownloadFile } from 'src/app/common/download-file';
+import { DownloadFile } from '../../common/download-file';
 
 const DEFAULT_FILE_NAME = 'bronzor-reflect';
 

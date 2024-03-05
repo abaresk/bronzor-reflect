@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { filter, Subject, Subscription } from 'rxjs';
-import { BOARD_LENGTH } from 'src/app/common/config';
-import { Coord } from 'src/app/common/geometry/coord';
-import { Direction, isHorizontal, oppositeDir } from 'src/app/common/geometry/direction';
-import { INVENTORY_ORDER } from 'src/app/components/inventory/inventory.component';
-import { modulo } from 'src/app/util/modulo';
+import { BOARD_LENGTH } from '../../common/config';
+import { Coord } from '../../common/geometry/coord';
+import { Direction, isHorizontal, oppositeDir } from '../../common/geometry/direction';
+import { INVENTORY_ORDER } from '../../components/inventory/inventory.component';
+import { modulo } from '../../util/modulo';
 import { GameService, GameState } from '../game/game.service';
 import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { coerceDirection, GbaInput, isDpadInput, toDirection } from '../input-adapter/inputs';

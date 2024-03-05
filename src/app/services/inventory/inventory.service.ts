@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Beam } from '../../common/prizes';
 import { Inventory } from '../../common/inventory';
-import { items } from 'src/app/common/item';
+import { items } from '../../common/item';
 
 @Injectable({
   providedIn: 'root'

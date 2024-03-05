@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { BoardGame } from 'src/app/core/board-game';
-import { Move } from 'src/app/common/moves';
+import { BoardGame } from '../../core/board-game';
+import { Move } from '../../common/moves';
 import { Coord } from '../../common/geometry/coord';
 
 @Injectable({

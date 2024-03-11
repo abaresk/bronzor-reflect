@@ -20,6 +20,11 @@ $border-hovered: rgb(255, 144, 144);
 $border-selected: rgb(218, 144, 8);
 
 .square {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
     border-style: solid;
     width: 54px;
     height: 54px;

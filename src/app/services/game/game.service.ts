@@ -12,6 +12,7 @@ import { BoardGame } from '../../core/board-game';
 import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { GbaInput } from '../input-adapter/inputs';
 import { Subject } from 'rxjs';
+import { sleepTicks } from '../../util/timing';
 
 interface BeamPrize {
   beam: Beam;
@@ -84,8 +85,10 @@ export class GameService {
       // Reveal hidden Bronzors
       this.boardService.showHiddenBronzors(true);
 
-      // Wait for user to continue
-      await this.inputAdapterService.waitForInput(GbaInput.A);
+      // Wait for user to continue. Wait a frame so button click doesn't count
+      // as `Touch`.
+      await sleepTicks(1);
+      await this.inputAdapterService.waitForAnyInput(GbaInput.A, GbaInput.Touch);
       await this.cleanupRound();
     }
   }

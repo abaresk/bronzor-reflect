@@ -11,6 +11,7 @@ export enum GbaInput {
   Select,
   L,
   R,
+  Touch,  // Not technically a GBA input.
 };
 
 export function isDpadInput(input: GbaInput): boolean {

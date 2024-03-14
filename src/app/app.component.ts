@@ -21,4 +21,9 @@ export class AppComponent {
   handleKeyboardEvent(event: KeyboardEvent) {
     this.inputAdapterService.pressKey(event);
   }
+
+  @HostListener('click', ['$event'])
+  handleTouchEvent(event: MouseEvent) {
+    this.inputAdapterService.touch(event);
+  }
 }

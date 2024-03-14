@@ -25,11 +25,23 @@ export class InputAdapterService {
     this.resetPromise(gbaInput);
   }
 
+  touch(event: MouseEvent): void {
+    const gbaInput = GbaInput.Touch;
+    this.inputSubject.next(gbaInput);
+
+    this.resolveInputPromise(gbaInput);
+    this.resetPromise(gbaInput);
+  }
+
   async waitForInput(input: GbaInput): Promise<void> {
     const promise = this.inputPromises.get(input.toString());
     if (!promise) return undefined;
 
     return promise;
+  }
+
+  async waitForAnyInput(...inputs: GbaInput[]): Promise<void> {
+    return Promise.any(inputs.map(input => this.waitForInput(input)));
   }
 
   private initializePromises(): void {

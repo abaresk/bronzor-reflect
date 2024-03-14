@@ -1,3 +1,16 @@
-<div class="square" [ngClass]="getClasses()">
-    <span>{{getText()}}</span>
+<div
+  class="square"
+  [class]="getCategory()"
+  [class.visible]="getVisible()"
+  [class.focused]="getFocused()"
+  [class.selected]="getSelected()"
+  [class.selectable]="getSelectable()"
+  [class.traversable]="getTraversable()"
+>
+    <span
+      [class]="getCategory()"
+      [class.visible]="getVisible()"
+    >
+        {{ getText() }}
+    </span>
 </div>

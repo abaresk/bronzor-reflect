@@ -30,34 +30,29 @@ $border-selected: rgb(218, 144, 8);
     height: 54px;
 }
 
-.invisible {
-    border-color: $border-invisible;
-    background: $background-invisible;
-}
-
 .visible {
     border-color: $border-visible;
     background: $background-visible;
 }
 
 // Special cell backgrounds
-.visible.io-cell {
+.io-cell {
     background: $background-io;
 }
 
-.visible.prize-cell {
+.prize-cell {
     background: $background-prize;
 }
 
-.visible.default {
+.default {
     border-color: $border-visible;
 }
 
-.visible.traversable {
+.traversable {
     border-color: $border-traversable;
 }
 
-.visible.selectable {
+.selectable {
     border-color: $border-selectable;
 
     &:hover {
@@ -67,10 +62,15 @@ $border-selected: rgb(218, 144, 8);
     cursor: pointer;
 }
 
-.visible.selected {
+.selected {
     border-color: $border-selected;
 }
 
-.visible.focused {
+.focused {
     border-color: $border-focused;
+}
+
+:not(.visible) {
+    border-color: $border-invisible;
+    background: $background-invisible;
 }

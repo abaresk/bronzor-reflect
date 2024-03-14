@@ -44,43 +44,38 @@ export class CellComponent implements OnInit {
     this.trySelect();
   }
 
-  getClasses(): string {
-    const visibility = this.getVisible() ? 'visible' : 'invisible';
-    const cellCategory = this.cell?.getCategory() ?? '';
-    const selectionState = this.getSelectionCssClasses() ?? '';
-    return `${visibility} ${cellCategory} ${selectionState}`;
-  }
-
   getText(): string {
     if (!this.cell) return '';
 
     return this.cell.getText(this.gameService.jackpotsCollected);
   }
 
-  private getVisible(): boolean {
+  getVisible(): boolean {
     return this.cell?.visible ?? false;
   }
 
-  private getSelectionCssClasses(): string {
-    const classes: SelectionCssClass[] = [];
-    if (!this.cell) return '';
+  getCategory(): string {
+    return this.cell?.getCategory() ?? '';
+  }
 
-    if (this.cell.focused) {
-      classes.push(SelectionCssClass.Focused);
-    }
+  getFocused(): boolean {
+    return this.cell?.focused ?? false;
+  }
 
-    if (this.cell.selected) {
-      classes.push(SelectionCssClass.Selected);
-    }
+  getSelected(): boolean {
+    return this.cell?.selected ?? false;
+  }
 
-    if (this.cell.traversable) {
-      if (this.cell.selectable) {
-        classes.push(SelectionCssClass.Selectable);
-      }
-      classes.push(SelectionCssClass.Traversable);
-    }
+  getSelectable(): boolean {
+    if (!this.cell) return false;
 
-    return classes.join(' ');
+    return this.cell.traversable && this.cell.selectable;
+  }
+
+  getTraversable(): boolean {
+    if (!this.cell) return false;
+
+    return this.cell.traversable && !this.cell.selectable;
   }
 
   private trySelect(): void {

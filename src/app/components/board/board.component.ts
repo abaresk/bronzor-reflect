@@ -85,7 +85,7 @@ export class BoardComponent implements OnInit {
       this.boardService.selectFiringCoord(cell.coord);
     }
     if (cell instanceof BoardCell) {
-      cell.toggleMemoState();
+      cell.select();
     }
   }
 
@@ -122,10 +122,9 @@ export class BoardComponent implements OnInit {
       cell.selectable = true;
     }
 
-    // Make each I/O cell selectable.
+    // Make each I/O cell traversable.
     for (let cell of this.ioCells) {
       cell.traversable = true;
-      cell.selectable = true;
     }
   }
 

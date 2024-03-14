@@ -33,13 +33,22 @@ export class BoardCell extends Cell {
 
   override validSelection(): boolean { return true; }
 
-  toggleMemoState(): void {
-    const idx = MEMO_STATES.indexOf(this.memoState);
-    const nextIdx = (idx + 1) % MEMO_STATES.length;
-    this.memoState = MEMO_STATES[nextIdx];
+  select(): void {
+    this.toggleMemoState();
+
+    // Tiles with marked memo state appear selected. Visible Bronzors can't be
+    // selected.
+    this.selected = (this.memoState !== MemoState.UNMARKED) &&
+        !(this.bronzor && this.bronzor.visible);
   }
 
   clearMemoState(): void {
     this.memoState = MemoState.UNMARKED;
+  }
+
+  private toggleMemoState(): void {
+    const idx = MEMO_STATES.indexOf(this.memoState);
+    const nextIdx = (idx + 1) % MEMO_STATES.length;
+    this.memoState = MEMO_STATES[nextIdx];
   }
 }

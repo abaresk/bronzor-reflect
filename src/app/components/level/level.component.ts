@@ -21,4 +21,8 @@ export class LevelComponent implements OnInit {
 
     return count.toString();
   }
+
+  getRemainingJackpots(): number {
+    return this.gameService.totalJackpots - this.gameService.jackpotsCollected;
+  }
 }

@@ -1,3 +1,5 @@
+import { CustomSet } from "../util/custom-set";
+
 export enum Beam {
     Normal = 'Beam.Normal',
     Comet = 'Beam.Comet',
@@ -65,11 +67,24 @@ export const destroyBronzorBeams: ReadonlySet<Beam> = new Set([
     flameBeam,
 ]);
 
-export const bombTriggers: ReadonlySet<Beam> = new Set([
-    normalBeam,
-    cometBeam,
-    shadowBeam,
-    psyBeam,
-    doublePrizeBeam,
+// Only water beams will not detonate a bomb.
+export const bombDetonators: ReadonlySet<Beam> = new CustomSet(beams)
+    .difference(new Set([waterBeam]));
+
+// Water beams can defuse bombs.
+export const bombDefusers: ReadonlySet<Beam> = new Set([
+    waterBeam,
 ]);
 
+// The range at which a beam will trigger a bomb.
+export function bombEffectRange(beam: Beam): number {
+    switch (beam) {
+        case Beam.Flame:
+        case Beam.Water:
+            // Triggers on adjacent cells.
+            return 1;
+        default:
+            // Must hit dead-on.
+            return 0;
+    }
+}

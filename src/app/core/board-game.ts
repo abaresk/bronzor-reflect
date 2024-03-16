@@ -4,9 +4,10 @@ import { Grid } from '../common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from '../common/geometry/direction';
 import { Vector } from '../common/geometry/vector';
 import { BeamInMotion, FiredBeam, newFiredBeam } from './beam-in-motion';
-import { Beam } from '../parameters/beams';
-import { PrizeState, getPrizeTextMini } from '../common/prizes';
-import { Prize } from '../parameters/prizes';
+import { Beam, normalBeam } from '../parameters/beams';
+import { BombState, PrizeState, PrizeStateType, RewardState, getPrizeTextMini } from '../common/prizes';
+import { Bomb, Prize, normalBomb, prizes } from '../parameters/prizes';
+import { modulo } from '../util/modulo';
 
 export class BoardGame {
   board: Board = {} as Board;
@@ -48,6 +49,34 @@ export class BoardGame {
     return segment.at(tileId % this.board.config.length);
   }
 
+  getPrizeCoordsWithinRange(coord: Coord, range: number): Coord[] {
+    const prizeTileId = this.prizeTileId(coord);
+    const edgeDirection = this.grid.coordInEdgeSegments(coord, 1);
+    if (prizeTileId === -1 || edgeDirection === undefined) {
+      throw Error('Prize at invalid coordinate');
+    }
+
+    const coords = [coord];
+    for (let i = 1; i <= range; i++) {
+      // Left tile
+      const leftTileId = modulo(prizeTileId - i, this.grid.perimeter());
+      const leftCoord = this.getPrizeCoord(leftTileId)!;
+      const leftEdgeDir = this.grid.coordInEdgeSegments(leftCoord, 1);
+      if (leftEdgeDir === edgeDirection) {
+        coords.push(leftCoord);
+      }
+
+      // Right tile
+      const rightTileId = modulo(prizeTileId + i, this.grid.perimeter());
+      const rightCoord = this.getPrizeCoord(rightTileId)!;
+      const rightEdgeDir = this.grid.coordInEdgeSegments(rightCoord, 1);
+      if (rightEdgeDir === edgeDirection) {
+        coords.push(rightCoord);
+      }
+    }
+    return coords;
+  }
+
   // Returns the number of the given prize that exist on the board.
   numPrizes(prize: Prize): number {
     let count = 0;
@@ -59,27 +88,42 @@ export class BoardGame {
 
   addPrize(coord: Coord, prize: Prize) {
     const prizeTileId = this.prizeTileId(coord);
-    if (prizeTileId !== -1) {
-      this.board.prizes[prizeTileId] = { prize: prize, taken: false };
+    if (prizeTileId === -1) {
+      throw Error('Prize added to invalid coordinate');
+    }
+
+    if (Object.values(Bomb).includes(prize as Bomb)) {
+      const bombState: BombState = { type: PrizeStateType.Bomb, prize: prize, defused: false };
+      this.board.prizes[prizeTileId] = bombState;
+    } else {
+      const rewardState: RewardState = { type: PrizeStateType.Reward, prize: prize, taken: false };
+      this.board.prizes[prizeTileId] = rewardState;
     }
   }
 
   takePrizeAt(coord: Coord) {
     const prizeTileId = this.prizeTileId(coord);
     const prizeState = this.board.prizes[prizeTileId];
-    if (prizeState) {
+    if (prizeState?.type === PrizeStateType.Reward) {
       prizeState.taken = true;
     }
   }
 
   remainingPrizes(): Prize[] {
-    const remaining = [];
+    const remaining: Prize[] = [];
     for (let prizeState of this.board.prizes) {
-      if (prizeState && !prizeState.taken) {
-        remaining.push(prizeState);
+      switch (prizeState?.type) {
+        case PrizeStateType.Bomb:
+          remaining.push(prizeState.prize);
+          break;
+        case PrizeStateType.Reward:
+          if (!prizeState.taken) {
+            remaining.push(prizeState.prize);
+          }
+          break;
       }
     }
-    return remaining.map((prizeState) => { return prizeState.prize });
+    return remaining;
   }
 
   toString(): string {

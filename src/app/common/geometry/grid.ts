@@ -31,6 +31,10 @@ export class Grid {
         return coord.col >= this.width;
     }
 
+    perimeter(): number {
+        return 2 * this.width + 2 * this.height;
+    }
+
     // Return the four corners of the grid in the following order: 
     // [top-left, top-right, bottom-right, bottom-left].
     corners(): Array<Coord> {

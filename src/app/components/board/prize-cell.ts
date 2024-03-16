@@ -1,5 +1,5 @@
 import { Cell } from '../../common/cell';
-import { getPrizeText, PrizeState } from '../../common/prizes';
+import { getPrizeText, PrizeState, PrizeStateType } from '../../common/prizes';
 
 export class PrizeCell extends Cell {
   static CATEGORY = 'prize-cell';
@@ -15,9 +15,13 @@ export class PrizeCell extends Cell {
   override getText(jackpotsCollected: number): string {
     if (!this.prizeState) return '';
 
-    const taken = this.prizeState.taken ? 'taken' : '';
-    const prizeName = getPrizeText(this.prizeState.prize, jackpotsCollected);
-    return taken ? `${prizeName}\n${taken}` : `${prizeName}`;
+    switch (this.prizeState.type) {
+      case PrizeStateType.Bomb:
+        return this.prizeState.defused ? `Bomb\ndefused` : 'Bomb';
+      case PrizeStateType.Reward:
+        const prizeName = getPrizeText(this.prizeState.prize, jackpotsCollected);
+        return this.prizeState.taken ? `${prizeName}\ntaken` : `${prizeName}`;
+    }
   }
 
   override getCategory(): string {

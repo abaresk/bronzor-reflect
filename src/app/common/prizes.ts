@@ -1,9 +1,28 @@
-import { Beam, bombTriggers, cometBeam, doublePrizeBeam, flameBeam, flashCannonBeam, normalBeam, psyBeam, shadowBeam, waterBeam } from "../parameters/beams";
+import { Beam, bombDefusers, bombDetonators, cometBeam, doublePrizeBeam, flameBeam, flashCannonBeam, normalBeam, psyBeam, shadowBeam, waterBeam } from "../parameters/beams";
 import { Bomb, InventoryPrize, MoneyPrize, Prize, jackpotPayout, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, negativePrizes, normalBomb, plus3BeamsPrize, plus5BeamsPrize, prizePayouts, smallSumPrize } from "../parameters/prizes";
 
 export interface PrizeDictionary<T> {
   [key: string]: T;
 };
+
+export enum PrizeStateType {
+  Reward,
+  Bomb,
+}
+
+export interface BombState {
+  type: PrizeStateType.Bomb;
+  prize: Prize;
+  defused: boolean;
+}
+
+export interface RewardState {
+  type: PrizeStateType.Reward;
+  prize: Prize;
+  taken: boolean;
+}
+
+export type PrizeState = RewardState | BombState;
 
 export type PrizeCategory = string;
 
@@ -24,13 +43,12 @@ export function positivePrize(prize: Prize): boolean {
   return !negativePrizes.has(prize)
 }
 
-export function triggersBomb(beam: Beam): boolean {
-  return bombTriggers.has(beam);
+export function detonatesBomb(beam: Beam): boolean {
+  return bombDetonators.has(beam);
 }
 
-export interface PrizeState {
-  prize: Prize;
-  taken: boolean;
+export function defusesBomb(beam: Beam): boolean {
+  return bombDefusers.has(beam);
 }
 
 const prizeDisplays: ReadonlyMap<string, string> = new Map([

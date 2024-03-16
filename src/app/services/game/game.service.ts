@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { triggersBomb, positivePrize } from '../../common/prizes';
+import { detonatesBomb, positivePrize, PrizeStateType, defusesBomb } from '../../common/prizes';
 import { BeamPointType, BoardConfig } from '../../common/board';
 import { Game } from '../../common/game';
 import { Coord } from '../../common/geometry/coord';
@@ -13,8 +13,8 @@ import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { GbaInput } from '../input-adapter/inputs';
 import { Subject } from 'rxjs';
 import { sleepTicks } from '../../util/timing';
-import { Beam } from '../../parameters/beams';
-import { Bomb, InventoryPrize, MoneyPrize, Prize, jackpotPayout, jackpotPrize, prizePayouts } from '../../parameters/prizes';
+import { Beam, bombEffectRange } from '../../parameters/beams';
+import { Bomb, InventoryPrize, MoneyPrize, Prize, jackpotPayout, jackpotPrize, normalBomb, prizePayouts } from '../../parameters/prizes';
 
 interface BeamPrize {
   beam: Beam;
@@ -135,7 +135,15 @@ export class GameService {
     this.moves.push(move);
     this.boardService.updateMoves(this.moves);
 
-    const prize = this.getPrize(move);
+    // Move onto next turn if the beam didn't get emitted.
+    const emitPoint = move.beamPath.path[move.beamPath.path.length - 1];
+    if (emitPoint.type !== BeamPointType.Emit) return { beam: move.beam };
+
+    // Update states for any bombs that were detonated / defused.
+    const detonatedCoord = this.handleBombInteraction(emitPoint.coord, move.beam);
+
+    const prizeCoord = detonatedCoord ?? emitPoint.coord;
+    const prize = this.tryGetPrize(prizeCoord);
     if (!prize) return { beam: move.beam };
 
     this.applyPrize(move.beam, prize);
@@ -147,8 +155,7 @@ export class GameService {
   //  - No more beams in inventory
   //  - No more positive prizes on the board
   private roundOver(beamPrize: BeamPrize): boolean {
-    if (Object.values(Bomb).includes(beamPrize.prize as Bomb) &&
-      triggersBomb(beamPrize.beam)) return true;
+    if (Object.values(Bomb).includes(beamPrize.prize as Bomb)) return true;
 
     if (!this.inventoryService.anyBeams()) return true;
 
@@ -194,20 +201,42 @@ export class GameService {
     this.gameStateSubject.next(state);
   }
 
-  // Gets the prize the user wins as a result of `move`, or undefined if the
-  // user does not win a prize.
-  private getPrize(move: Move): Prize | undefined {
-    // Find prize at emission coordinate
-    const emitPoint = move.beamPath.path[move.beamPath.path.length - 1];
-    if (emitPoint.type !== BeamPointType.Emit) return undefined;
+  // Returns the coordinate of any detonated bomb, or else undefined.
+  private handleBombInteraction(coord: Coord, beam: Beam): Coord | undefined {
+    const coordsToCheck =
+      this.boardGame.getPrizeCoordsWithinRange(coord, bombEffectRange(beam));
+    for (const coord of coordsToCheck) {
+      const prizeState = this.boardGame.getPrizeState(coord);
+      if (prizeState?.type !== PrizeStateType.Bomb) continue;
 
-    if (this.prizeBlocked(emitPoint.coord)) return undefined;
+      if (this.prizeBlocked(coord)) continue;
 
-    const prizeState = this.boardGame.getPrizeState(emitPoint.coord);
-    if (!prizeState || prizeState.taken) return undefined;
+      if (defusesBomb(beam)) {
+        prizeState.defused = true;
+      }
+      if (detonatesBomb(beam) && !prizeState.defused) {
+        return coord;
+      }
+    }
+    return undefined;
+  }
 
-    this.boardGame.takePrizeAt(emitPoint.coord);
-    return prizeState.prize;
+  // Gets the prize at `coord`, or undefined if there is no prize or the prize
+  // is blocked.
+  private tryGetPrize(coord: Coord): Prize | undefined {
+    if (this.prizeBlocked(coord)) return undefined;
+
+    const prizeState = this.boardGame.getPrizeState(coord);
+    switch (prizeState?.type) {
+      case PrizeStateType.Bomb:
+        return (prizeState.defused) ? undefined : prizeState.prize;
+      case PrizeStateType.Reward:
+        if (!prizeState.taken) {
+          this.boardGame.takePrizeAt(coord);
+          return prizeState.prize;
+        }
+    }
+    return undefined;
   }
 
   // Returns true if a placed Pokémon is blocking the prize at the given
@@ -236,7 +265,7 @@ export class GameService {
       this.inventoryService.addBeams(Beam.Normal, payout);
     } else if (Object.values(Beam).includes(prize as Beam)) {
       this.inventoryService.addBeams(prize as Beam, payout);
-    } else if (Object.values(Bomb).includes(prize as Bomb) && triggersBomb(beam)) {
+    } else if (Object.values(Bomb).includes(prize as Bomb) && detonatesBomb(beam)) {
       this.bombExploded = true;
       this.walletService.setPayout(0);
     }

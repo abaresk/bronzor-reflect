@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Beam, Prize, MoneyPrize, InventoryPrize, prizePayouts, Bomb, triggersBomb, positivePrize, jackpotPrize, jackpotPayout } from '../../common/prizes';
+import { triggersBomb, positivePrize } from '../../common/prizes';
 import { BeamPointType, BoardConfig } from '../../common/board';
 import { Game } from '../../common/game';
 import { Coord } from '../../common/geometry/coord';
@@ -13,6 +13,8 @@ import { InputAdapterService } from '../input-adapter/input-adapter.service';
 import { GbaInput } from '../input-adapter/inputs';
 import { Subject } from 'rxjs';
 import { sleepTicks } from '../../util/timing';
+import { Beam } from '../../parameters/beams';
+import { Bomb, InventoryPrize, MoneyPrize, Prize, jackpotPayout, jackpotPrize, prizePayouts } from '../../parameters/prizes';
 
 interface BeamPrize {
   beam: Beam;

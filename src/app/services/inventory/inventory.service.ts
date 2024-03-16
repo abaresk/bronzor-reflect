@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Beam } from '../../common/prizes';
 import { Inventory } from '../../common/inventory';
-import { items } from '../../common/item';
+import { Beam, beams } from '../../parameters/beams';
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +31,8 @@ export class InventoryService {
   }
 
   resetBeams(): void {
-    for (let item of items) {
-      this.inventory.beams.set(item, 0);
+    for (let beam of beams) {
+      this.inventory.beams.set(beam, 0);
     }
     this.inventorySubject.next(this.inventory);
   }

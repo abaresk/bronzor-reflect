@@ -1,13 +1,14 @@
-import { Beam, Bomb, cometBeam, doublePrizeBeam, InventoryPrize, jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, MoneyPrize, normalBomb, shadowBeam, psyBeam, plus3BeamsPrize, plus5BeamsPrize, Prize, PrizeDictionary, prizes, smallSumPrize, waterBeam } from "../common/prizes";
+import { Range } from "../common/range";
+import { cometBeam, doublePrizeBeam, psyBeam, shadowBeam, waterBeam } from "./beams";
+import { jackpotPrize, largeSumPrize, mediumSumPrize, minus1BeamPrize, normalBomb, plus3BeamsPrize, plus5BeamsPrize, smallSumPrize } from "./prizes";
 
-interface Range {
-  min: number; // inclusive
-  max: number; // inclusive
-};
+// At most 50% of the prizes in each category (e.g. MoneyPrize, InventoryPrize),
+// will be in unreachable locations.
+export const MAX_UNREACHABLE_PER_PRIZE = 0.5;
 
-type LevelYield = ReadonlyMap<number, Range>;
+export type LevelYield = ReadonlyMap<number, Range>;
 
-const jackpotsByLevel: LevelYield = new Map([
+export const jackpotsByLevel: LevelYield = new Map([
   [1, { min: 1, max: 1 }],
   [2, { min: 2, max: 2 }],
   [3, { min: 2, max: 3 }],
@@ -18,7 +19,7 @@ const jackpotsByLevel: LevelYield = new Map([
   [8, { min: 6, max: 7 }],
 ]);
 
-const largeSumsByLevel: LevelYield = new Map([
+export const largeSumsByLevel: LevelYield = new Map([
   [1, { min: 1, max: 1 }],
   [2, { min: 1, max: 1 }],
   [3, { min: 1, max: 2 }],
@@ -29,7 +30,7 @@ const largeSumsByLevel: LevelYield = new Map([
   [8, { min: 2, max: 4 }],
 ]);
 
-const mediumSumsByLevel: LevelYield = new Map([
+export const mediumSumsByLevel: LevelYield = new Map([
   [1, { min: 1, max: 3 }],
   [2, { min: 1, max: 3 }],
   [3, { min: 2, max: 4 }],
@@ -40,7 +41,7 @@ const mediumSumsByLevel: LevelYield = new Map([
   [8, { min: 4, max: 6 }],
 ]);
 
-const smallSumsByLevel: LevelYield = new Map([
+export const smallSumsByLevel: LevelYield = new Map([
   [1, { min: 3, max: 5 }],
   [2, { min: 3, max: 5 }],
   [3, { min: 3, max: 5 }],
@@ -51,7 +52,7 @@ const smallSumsByLevel: LevelYield = new Map([
   [8, { min: 4, max: 7 }],
 ]);
 
-const plus3BeamsByLevel: LevelYield = new Map([
+export const plus3BeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 1 }],
   [2, { min: 0, max: 1 }],
   [3, { min: 0, max: 1 }],
@@ -62,7 +63,7 @@ const plus3BeamsByLevel: LevelYield = new Map([
   [8, { min: 1, max: 4 }],
 ]);
 
-const plus5BeamsByLevel: LevelYield = new Map([
+export const plus5BeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 0 }],
@@ -73,7 +74,7 @@ const plus5BeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 2 }],
 ]);
 
-const minus1BeamsByLevel: LevelYield = new Map([
+export const minus1BeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 1 }],
@@ -84,7 +85,7 @@ const minus1BeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 2 }],
 ]);
 
-const cometBeamsByLevel: LevelYield = new Map([
+export const cometBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 0 }],
@@ -95,7 +96,7 @@ const cometBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 2 }],
 ]);
 
-const flameBeamsByLevel: LevelYield = new Map([
+export const flameBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 0 }],
@@ -106,7 +107,7 @@ const flameBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 0 }],
 ]);
 
-const flashCannonsByLevel: LevelYield = new Map([
+export const flashCannonsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 0 }],
@@ -117,7 +118,7 @@ const flashCannonsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 0 }],
 ]);
 
-const shadowBeamsByLevel: LevelYield = new Map([
+export const shadowBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 1 }],
@@ -128,7 +129,7 @@ const shadowBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 3 }],
 ]);
 
-const psyBeamsByLevel: LevelYield = new Map([
+export const psyBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 0 }],
@@ -139,7 +140,7 @@ const psyBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 1 }],
 ]);
 
-const doublePrizeBeamsByLevel: LevelYield = new Map([
+export const doublePrizeBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 0 }],
   [3, { min: 0, max: 1 }],
@@ -150,7 +151,7 @@ const doublePrizeBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 3 }],
 ]);
 
-const waterBeamsByLevel: LevelYield = new Map([
+export const waterBeamsByLevel: LevelYield = new Map([
   [1, { min: 0, max: 0 }],
   [2, { min: 0, max: 1 }],
   [3, { min: 0, max: 1 }],
@@ -161,7 +162,7 @@ const waterBeamsByLevel: LevelYield = new Map([
   [8, { min: 0, max: 2 }],
 ]);
 
-const normalBombsByLevel: LevelYield = new Map([
+export const normalBombsByLevel: LevelYield = new Map([
   [1, { min: 2, max: 2 }],
   [2, { min: 2, max: 3 }],
   [3, { min: 2, max: 3 }],
@@ -172,79 +173,7 @@ const normalBombsByLevel: LevelYield = new Map([
   [8, { min: 4, max: 6 }],
 ]);
 
-export function getPrizeDistribution(prize: Prize): LevelYield | undefined {
-  switch (prize) {
-    case MoneyPrize.Jackpot:
-      return jackpotsByLevel;
-    case MoneyPrize.LargeSum:
-      return largeSumsByLevel;
-    case MoneyPrize.MediumSum:
-      return mediumSumsByLevel;
-    case MoneyPrize.SmallSum:
-      return smallSumsByLevel;
-    case InventoryPrize.Plus3Beams:
-      return plus3BeamsByLevel;
-    case InventoryPrize.Plus5Beams:
-      return plus5BeamsByLevel;
-    case InventoryPrize.Minus1Beam:
-      return minus1BeamsByLevel;
-    case Beam.Comet:
-      return cometBeamsByLevel;
-    case Beam.Flame:
-      return flameBeamsByLevel;
-    case Beam.FlashCannon:
-      return flashCannonsByLevel;
-    case Beam.Shadow:
-      return shadowBeamsByLevel;
-    case Beam.Psybeam:
-      return psyBeamsByLevel;
-    case Beam.DoublePrize:
-      return doublePrizeBeamsByLevel;
-    case Beam.Water:
-      return waterBeamsByLevel;
-    case Bomb.Normal:
-      return normalBombsByLevel;
-  }
-  return undefined;
-}
-
-export function getYieldRange(prize: Prize, level: number): Range {
-  const defaultRange: Range = { min: 0, max: 0 };
-
-  const distribution = getPrizeDistribution(prize);
-  return distribution?.get(level) ?? defaultRange;
-}
-
-function getTotalRange1StdDev(level: number): Range {
-  let totalAvg = 0;
-  let totalVariance = 0;
-  for (let prize of prizes) {
-    const range = getYieldRange(prize, level);
-
-    const avg = (range.min + range.max) / 2;
-    totalAvg += avg;
-
-    // See https://en.wikipedia.org/wiki/Discrete_uniform_distribution.
-    const variance = Math.pow(range.max + 1 - range.min, 2) / 12;
-    // Total variance can be summed since each random variable is independent:
-    // https://www.probabilitycourse.com/chapter6/6_1_2_sums_random_variables.php.
-    totalVariance += variance;
-  }
-
-  const stdDev = Math.sqrt(totalVariance);
-  return { min: totalAvg - stdDev, max: totalAvg + stdDev };
-}
-
-export function getTotalRange(level: number): Range {
-  const stdDevRange = getTotalRange1StdDev(level);
-  return { min: Math.floor(stdDevRange.min), max: Math.floor(stdDevRange.max) };
-}
-
-const levelsArr = Array.from({ length: 8 }, (_, i) => i + 1);
-export const totalByLevel: LevelYield =
-  new Map(levelsArr.map((level) => [level, getTotalRange(level)]));
-
-const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
+export const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
   [jackpotPrize.toString(), 0],
   [largeSumPrize.toString(), 0.2],
   [mediumSumPrize.toString(), 0.3],
@@ -259,10 +188,6 @@ const probabilityUnreachable: ReadonlyMap<string, number> = new Map([
   [waterBeam.toString(), 0.2],
   [normalBomb.toString(), 0.2],
 ]);
-
-export function getProbUnreachable(prize: Prize): number {
-  return probabilityUnreachable.get(prize.toString()) ?? 0;
-}
 
 // Number of hidden Bronzors in each level
 export const hiddenBronzorsByLevel: ReadonlyMap<number, number> = new Map([

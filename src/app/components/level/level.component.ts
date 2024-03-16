@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { hiddenBronzorsByLevel } from '../../data/generator-tables';
+import { hiddenBronzorsByLevel } from '../../parameters/generator-tables';
 import { GameService } from '../../services/game/game.service';
 
 @Component({

@@ -1,6 +1,7 @@
 import { Cell } from '../../common/cell';
 import { Coord } from '../../common/geometry/coord';
-import { Beam, getPrizeTextMini } from '../../common/prizes';
+import { getPrizeTextMini } from '../../common/prizes';
+import { Beam } from '../../parameters/beams';
 
 export interface BeamMove {
   beam: Beam;

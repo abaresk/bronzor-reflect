@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { BeamPointType, Board, BoardConfig, BoardHistory, Bronzor } from '../../common/board';
 import { BoardGame } from '../../core/board-game';
 import { Coord } from '../../common/geometry/coord';
-import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange, hiddenBronzorsByLevel } from '../../data/generator-tables';
-import { Beam, getCategory, MoneyPrize, Prize, PrizeCategory, prizes, PrizeState } from '../../common/prizes';
+import { getPrizeDistribution, getProbUnreachable, getTotalRange, getYieldRange } from './generator-probs';
 import { randomInt, randomFromSet } from '../../util/random';
 import { Grid } from '../../common/geometry/grid';
 import { CustomSet } from '../../util/custom-set';
-
-// At most 50% of the prizes in each category (e.g. MoneyPrize, InventoryPrize),
-// will be in unreachable locations.
-const MAX_UNREACHABLE_PER_PRIZE = 0.5;
+import { MAX_UNREACHABLE_PER_PRIZE, hiddenBronzorsByLevel } from '../../parameters/generator-tables';
+import { PrizeCategory, getCategory } from '../../common/prizes';
+import { MoneyPrize, Prize, prizes } from '../../parameters/prizes';
+import { Beam } from '../../parameters/beams';
 
 type PrizeCategoryTally = Map<PrizeCategory, PrizeCount>;
 

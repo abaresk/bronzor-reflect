@@ -1,7 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { Cell } from '../../common/cell';
-import { Beam, InventoryPrize } from '../../common/prizes';
 import { InventoryService } from '../../services/inventory/inventory.service';
 import { InventoryCell } from './inventory-cell';
 import { Coord } from '../../common/geometry/coord';
@@ -10,6 +9,7 @@ import { GameService, GameState } from '../../services/game/game.service';
 import { Inventory } from '../../common/inventory';
 import { CellComponent } from '../cell/cell.component';
 import { NgFor } from '@angular/common';
+import { Beam } from '../../parameters/beams';
 
 export const INVENTORY_ORDER: ReadonlyArray<ReadonlyArray<Beam>> = [
   [Beam.Normal, Beam.Water, Beam.DoublePrize],

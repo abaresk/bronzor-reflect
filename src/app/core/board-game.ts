@@ -1,10 +1,12 @@
-import { Beam, getPrizeTextMini, Prize, PrizeState } from '../common/prizes';
 import { BeamPath, BeamPoint, BeamPointType, Board, Bronzor } from '../common/board';
 import { coordInDirection, distanceInDirection, projectToCoord, Coord } from '../common/geometry/coord';
 import { Grid } from '../common/geometry/grid';
 import { Direction, directions, oppositeDir, rotateClockwise } from '../common/geometry/direction';
 import { Vector } from '../common/geometry/vector';
 import { BeamInMotion, FiredBeam, newFiredBeam } from './beam-in-motion';
+import { Beam } from '../parameters/beams';
+import { PrizeState, getPrizeTextMini } from '../common/prizes';
+import { Prize } from '../parameters/prizes';
 
 export class BoardGame {
   board: Board = {} as Board;

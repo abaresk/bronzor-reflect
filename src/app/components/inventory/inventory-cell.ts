@@ -1,5 +1,6 @@
 import { Cell } from '../../common/cell';
-import { Beam, getPrizeText } from '../../common/prizes';
+import { getPrizeText } from '../../common/prizes';
+import { Beam } from '../../parameters/beams';
 
 export class InventoryCell extends Cell {
   static CATEGORY = 'inventory-cell';

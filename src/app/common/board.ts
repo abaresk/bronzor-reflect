@@ -1,5 +1,6 @@
+import { Beam } from '../parameters/beams';
 import { Coord } from './geometry/coord';
-import { Beam, PrizeState } from './prizes';
+import { PrizeState } from './prizes';
 
 /**
  * Bronzors

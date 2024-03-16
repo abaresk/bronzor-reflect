@@ -1,5 +1,5 @@
 import { Vector } from "../common/geometry/vector";
-import { Beam, collideBeams, deflectBeams, destroyBronzorBeams } from "../common/prizes";
+import { Beam, collideBeams, deflectBeams, destroyBronzorBeams } from "../parameters/beams";
 
 // Mutable properties of the beam as it traverses the board.
 interface BeamState {
